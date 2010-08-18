@@ -10,14 +10,6 @@
       <maximumStackSize value="32" />
       <properties />
     </buildFile>
-    <buildFile url="file://$PROJECT_DIR$/../clojure/build.xml">
-      <additionalClassPath />
-      <antReference projectDefault="true" />
-      <customJdkName value="" />
-      <maximumHeapSize value="128" />
-      <maximumStackSize value="2" />
-      <properties />
-    </buildFile>
   </component>
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
@@ -1830,6 +1822,9 @@
           <setting name="custom-gradle-executor" />
         </setting>
       </setting>
+      <setting name="main_panel">
+        <setting name="current-tab" value="Task Tree" />
+      </setting>
     </setting>
   </component>
   <component name="IdProvider" IDEtalkID="6429D55AF0CBB8D8A856435D8086A85A" />
@@ -1994,13 +1989,10 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/EchoServer/EchoServer.iml" filepath="$PROJECT_DIR$/EchoServer/EchoServer.iml" />
       <module fileurl="file://$PROJECT_DIR$/Examples/Examples.iml" filepath="$PROJECT_DIR$/Examples/Examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/Groovypp.iml" filepath="$PROJECT_DIR$/Groovypp.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ZookeeperTest/ZookeeperTest.iml" filepath="$PROJECT_DIR$/ZookeeperTest/ZookeeperTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../cassandra-ec2/cassandra-ec2.iml" filepath="$PROJECT_DIR$/../../cassandra-ec2/cassandra-ec2.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.5" project-jdk-type="JavaSDK">
@@ -2051,6 +2043,13 @@
   <component name="SvnBranchConfigurationManager">
     <option name="myConfigurationMap">
       <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="https://labs.bindows.net/svn/groovycompiler" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../../GPARS">
           <value>
             <SvnBranchConfiguration>
@@ -2174,94 +2173,6 @@
             </SvnBranchConfiguration>
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="https://labs.bindows.net/svn/groovycompiler" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../groovypptest">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="branchMap">
-                <map>
-                  <entry key="https://groovypptest.googlecode.com/svn/branches">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                  <entry key="https://groovypptest.googlecode.com/svn/tags">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                </map>
-              </option>
-              <option name="branchUrls">
-                <list>
-                  <option value="https://groovypptest.googlecode.com/svn/branches" />
-                  <option value="https://groovypptest.googlecode.com/svn/tags" />
-                </list>
-              </option>
-              <option name="trunkUrl" value="https://groovypptest.googlecode.com/svn/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../groovypptest/WideFinder">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="branchMap">
-                <map>
-                  <entry key="https://groovypptest.googlecode.com/svn/branches">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                  <entry key="https://groovypptest.googlecode.com/svn/tags">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                </map>
-              </option>
-              <option name="branchUrls">
-                <list>
-                  <option value="https://groovypptest.googlecode.com/svn/branches" />
-                  <option value="https://groovypptest.googlecode.com/svn/tags" />
-                </list>
-              </option>
-              <option name="trunkUrl" value="https://groovypptest.googlecode.com/svn/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
-        <entry key="$PROJECT_DIR$/../groovypptest/WordCount">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="branchMap">
-                <map>
-                  <entry key="https://groovypptest.googlecode.com/svn/branches">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                  <entry key="https://groovypptest.googlecode.com/svn/tags">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                </map>
-              </option>
-              <option name="branchUrls">
-                <list>
-                  <option value="https://groovypptest.googlecode.com/svn/branches" />
-                  <option value="https://groovypptest.googlecode.com/svn/tags" />
-                </list>
-              </option>
-              <option name="trunkUrl" value="https://groovypptest.googlecode.com/svn/trunk" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/../../cassandra-ec2">
           <value>
             <SvnBranchConfiguration>
@@ -2295,11 +2206,7 @@
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
   <component name="VcsDirectoryMappings">
-    <mapping directory="" vcs="svn" />
-    <mapping directory="$PROJECT_DIR$/../../GitTest" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/EchoServer" vcs="svn" />
-    <mapping directory="$PROJECT_DIR$/ZookeeperTest" vcs="svn" />
-    <mapping directory="$PROJECT_DIR$/../../cassandra-ec2" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
   <component name="copyright">
