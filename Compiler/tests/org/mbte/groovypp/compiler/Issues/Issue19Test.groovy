@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+
+
+
+
 package org.mbte.groovypp.compiler.Issues
 
 public class Issue19Test extends GroovyShellTestCase {
