@@ -162,15 +162,6 @@
             </and>
         </condition>
 
-    <target name="gretty.compile.proto">
-      <java classname="com.dyuproject.protostuff.compiler.CompilerMain" fork="true" dir="Gretty">
-        <arg value="proto/proto.properties"/>
-        <classpath>
-          <pathelement location="Gretty/lib/protostuff-compiler-1.0.0.M3-jarjar.jar"/>
-        </classpath>
-      </java>
-    </target>
-
     <taskdef name="groovyc"
          classname="org.codehaus.groovy.ant.Groovyc"
          classpathref="libs"/>
