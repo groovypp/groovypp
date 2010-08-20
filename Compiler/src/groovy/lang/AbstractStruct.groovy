@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package groovy.lang
 
 @Typed abstract class AbstractStruct implements Cloneable, Externalizable {
