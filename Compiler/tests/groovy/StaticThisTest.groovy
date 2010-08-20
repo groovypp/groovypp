@@ -16,6 +16,8 @@
 
 package groovy
 
+import groovy.util.test.CompileTestSupport
+
 
 class StaticThisTest extends GroovyShellTestCase {
 

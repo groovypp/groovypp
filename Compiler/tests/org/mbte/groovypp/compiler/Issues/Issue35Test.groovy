@@ -16,7 +16,7 @@
 
 package org.mbte.groovypp.compiler.Issues
 
-import static groovy.CompileTestSupport.shouldCompile
+import static groovy.util.test.CompileTestSupport.shouldCompile
 
 public class Issue35Test extends GroovyShellTestCase {
     void testBug () {

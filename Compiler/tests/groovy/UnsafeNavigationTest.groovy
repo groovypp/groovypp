@@ -16,6 +16,8 @@
 
 package groovy
 
+import groovy.util.test.CompileTestSupport
+
 class UnsafeNavigationTest extends GroovyShellTestCase {
 
     void testUnsafePropertyNavigations() {

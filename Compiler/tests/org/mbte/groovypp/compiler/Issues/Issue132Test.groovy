@@ -16,7 +16,7 @@
 
 package org.mbte.groovypp.compiler.Issues
 
-import static groovy.CompileTestSupport.shouldNotCompile
+import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
 public class Issue132Test extends GroovyShellTestCase {
     void testIllegalCycleInference() {

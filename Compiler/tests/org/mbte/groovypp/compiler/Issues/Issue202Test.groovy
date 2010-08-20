@@ -16,7 +16,7 @@
 
 package org.mbte.groovypp.compiler.Issues
 
-import static groovy.CompileTestSupport.shouldNotCompile
+import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
 @Typed
 public class Issue202Test extends GroovyShellTestCase {

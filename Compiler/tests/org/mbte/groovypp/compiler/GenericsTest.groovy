@@ -16,8 +16,7 @@
 
 package org.mbte.groovypp.compiler
 
-import groovy.CompileTestSupport
-
+import groovy.util.test.CompileTestSupport
 
 public class GenericsTest extends GroovyShellTestCase {
     void testMe() {

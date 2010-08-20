@@ -16,7 +16,7 @@
 
 package groovy
 
-import static groovy.CompileTestSupport.shouldNotCompile
+import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
 class TryCatchTest extends GroovyShellTestCase {
 

@@ -16,7 +16,7 @@
 
 package org.mbte.groovypp.compiler
 
-import static groovy.CompileTestSupport.shouldNotCompile
+import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
 class ConvertibleTest extends GroovyShellTestCase {
   void testFinalClassToInterface() {

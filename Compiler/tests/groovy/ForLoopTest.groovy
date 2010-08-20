@@ -16,9 +16,8 @@
 
 package groovy
 
-import groovy.CompileTestSupport
-import static groovy.CompileTestSupport.shouldCompile
-import static groovy.CompileTestSupport.shouldNotCompile
+import static groovy.util.test.CompileTestSupport.shouldCompile
+import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
 class ForLoopTest extends GroovyShellTestCase {
 

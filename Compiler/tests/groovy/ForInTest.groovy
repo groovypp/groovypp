@@ -16,9 +16,6 @@
 
 package groovy
 
-import static groovy.CompileTestSupport.shouldCompile
-import static groovy.CompileTestSupport.shouldNotCompile
-
 class ForInTest extends GroovyShellTestCase {
 
   void testForInList() {

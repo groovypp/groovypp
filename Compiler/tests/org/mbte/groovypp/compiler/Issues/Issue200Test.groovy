@@ -16,8 +16,6 @@
 
 package org.mbte.groovypp.compiler.Issues
 
-import static groovy.CompileTestSupport.shouldNotCompile
-
 public class Issue200Test extends GroovyShellTestCase {
     void test1() {
           shell.evaluate """

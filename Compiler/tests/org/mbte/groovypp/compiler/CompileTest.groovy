@@ -16,8 +16,8 @@
 
 package org.mbte.groovypp.compiler
 
-import static groovy.CompileTestSupport.shouldCompile
-import static groovy.CompileTestSupport.shouldNotCompile
+import static groovy.util.test.CompileTestSupport.shouldCompile
+import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
 public class CompileTest extends GroovyShellTestCase {
 

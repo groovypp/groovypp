@@ -16,6 +16,8 @@
 
 package groovy
 
+import groovy.util.test.CompileTestSupport
+
 /**
  * todo: add BreakContinueLabelWithClosureTest (when break is used to return from a Closure)
 

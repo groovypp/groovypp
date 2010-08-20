@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package groovy
+package groovy.util.test
 
 import org.codehaus.groovy.control.CompilationFailedException
 import static org.junit.Assert.fail
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
 import org.codehaus.groovy.syntax.SyntaxException
 
-public class CompileTestSupport {
+class CompileTestSupport {
   static void shouldNotCompile(String script, String messageFragment = "") {
     try {
       new GroovyShell().parse(script)

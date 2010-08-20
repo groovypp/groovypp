@@ -1820,6 +1820,8 @@
       <setting name="setup-tab">
         <setting name="setup">
           <setting name="custom-gradle-executor" />
+          <setting name="show-output-on-error" value="false" />
+          <setting name="stack-trace-level" value="ALWAYS" />
         </setting>
       </setting>
       <setting name="main_panel">
@@ -2002,7 +2004,7 @@
     <configuration default="false" name="ALL" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" runner="emma" />
       <extension name="snapshooter" />
-      <module name="StdLibTest" />
+      <module name="Groovypp" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="" />
@@ -2015,7 +2017,7 @@
       <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
       <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
+        <value defaultName="singleModule" />
       </option>
       <envs />
       <RunnerSettings RunnerId="Debug">
@@ -2030,7 +2032,9 @@
       <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Profile " />
       <ConfigurationWrapper RunnerId="Run" />
-      <method />
+      <method>
+        <option name="Make" enabled="false" />
+      </method>
     </configuration>
   </component>
   <component name="ResourceManagerContainer">

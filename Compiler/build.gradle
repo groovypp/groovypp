@@ -1,0 +1,47 @@
+apply plugin: 'groovy'
+
+project.buildDirName = "../out"
+
+def jars = new File("${projectDir.parent}/install/lib").listFiles()*.absolutePath
+
+repositories {
+    flatDir(dirs: file('../install/lib'))
+}
+
+dependencies {
+    groovy module(':groovy:1.7.5-SNAPSHOT') {
+        dependency('asm:asm:3.2')
+        dependency('antlr:antlr:2.7.7')
+        dependency('commons-cli:commons-cli:1.2')
+        module(':ant:1.8.1') {
+            dependencies(':ant-junit:1.8.1', ':ant-launcher:1.8.1')
+        }
+    }
+}
+
+sourceSets {
+    main {
+        groovy {
+            srcDir 'src'
+            classesDir = file("${projectDir.parent}/out/production/Groovypp")
+            compileClasspath = project.files(jars.toArray())
+        }
+    }
+    test {
+        groovy {
+            srcDir 'tests'
+            classesDir = file("${projectDir.parent}/out/test/Groovypp")
+            compileClasspath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
+            println compileClasspath.asPath
+        }
+    }
+}
+
+task copyManifest(type: Copy) {
+    from 'src'
+    into sourceSets.main.classesDir
+    exclude '**/*.java'
+    exclude '**/*.groovy'
+}
+
+project.getTasksByName('compileGroovy', false).asList()[0].dependsOn << project.getTasksByName('copyManifest', false).asList()[0]

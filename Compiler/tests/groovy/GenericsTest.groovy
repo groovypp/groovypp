@@ -16,11 +16,8 @@
 
 package groovy
 
-import static groovy.CompileTestSupport.shouldNotCompile
-import static groovy.CompileTestSupport.shouldCompile
-import org.codehaus.groovy.ast.GenericsType
-import java.lang.reflect.Type
-import java.lang.reflect.WildcardType
+import static groovy.util.test.CompileTestSupport.shouldNotCompile
+import static groovy.util.test.CompileTestSupport.shouldCompile
 
 class GenericsTest extends GroovyShellTestCase {
 
