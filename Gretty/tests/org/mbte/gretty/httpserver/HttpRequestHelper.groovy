@@ -2,7 +2,7 @@ package org.mbte.gretty.httpserver
 
 import org.jboss.netty.channel.local.LocalAddress
 import org.mbte.gretty.httpclient.GrettyClient
-import groovy.util.concurrent.BindLater
+import groovypp.concurrent.BindLater
 import org.jboss.netty.handler.codec.http.HttpResponse
 
 @Trait abstract class HttpRequestHelper {

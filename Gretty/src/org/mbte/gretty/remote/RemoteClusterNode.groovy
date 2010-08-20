@@ -16,7 +16,7 @@
 
 package org.mbte.gretty.remote
 
-import groovy.channels.MessageChannel
+import groovypp.channels.MessageChannel
 
 /**
  * Remote node in the cluster

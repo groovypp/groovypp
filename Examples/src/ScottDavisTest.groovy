@@ -1,7 +1,5 @@
 @Typed package sd
 
-import groovy.util.concurrent.CallLaterExecutors
-
 def shapeFile = new File("shapes.txt")
 
 //BEGIN Bootstrap

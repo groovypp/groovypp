@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-
-
-
-
 package org.mbte.groovypp.compiler.Issues
 
 public class Issue45Test extends GroovyShellTestCase {
     void testInner () {
         shell.evaluate """
-import groovy.util.concurrent.*
+import groovypp.concurrent.*
 import org.codehaus.groovy.util.AbstractConcurrentMap
 import org.codehaus.groovy.util.AbstractConcurrentMapBase
 
@@ -47,7 +43,7 @@ new A ()
         shell.evaluate """
             @Typed package p
 
-            import groovy.util.concurrent.*
+            import groovypp.concurrent.*
 
             def m = new AtomicIntegerMap<String> ()
             m ['10'].incrementAndGet ()

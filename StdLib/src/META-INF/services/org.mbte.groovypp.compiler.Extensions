@@ -1,11 +1,11 @@
 # files to add as standard extension methods
-groovy.util.Conversions
-groovy.util.Filters
-groovy.util.Iterations
-groovy.util.Mappers
-groovy.util.Files
-groovy.util.Strings
-groovy.util.Sort
-groovy.util.With
-groovy.util.concurrent.Atomics
-groovy.util.concurrent.CallLaterExecutors
+groovypp.util.Conversions
+groovypp.util.Filters
+groovypp.util.Iterations
+groovypp.util.Mappers
+groovypp.util.Files
+groovypp.util.Strings
+groovypp.util.Sort
+groovypp.util.With
+groovypp.concurrent.Atomics
+groovypp.concurrent.CallLaterExecutors

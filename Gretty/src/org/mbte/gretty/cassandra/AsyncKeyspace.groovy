@@ -19,7 +19,7 @@ package org.mbte.gretty.cassandra
 import org.mbte.gretty.cassandra.thrift.*
 
 import java.nio.ByteBuffer
-import groovy.util.concurrent.BindLater
+import groovypp.concurrent.BindLater
 
 @Typed class AsyncKeyspace {
 

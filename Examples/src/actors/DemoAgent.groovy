@@ -1,7 +1,7 @@
 @Typed package actors
 
-import groovy.util.concurrent.Agent
-import groovy.util.concurrent.FVector
+import groovypp.concurrent.Agent
+import groovypp.concurrent.FVector
 import java.util.concurrent.CountDownLatch
 
 testWithFixedPool(20) {

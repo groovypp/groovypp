@@ -1,9 +1,9 @@
 package primenumbers
 
-import groovy.util.concurrent.FHashMap
+import groovypp.concurrent.FHashMap
 import java.util.concurrent.atomic.AtomicReference
 import groovy.xml.MarkupBuilder
-import groovy.util.concurrent.FList
+import groovypp.concurrent.FList
 import java.util.concurrent.LinkedBlockingQueue
 
 @Typed class PrimeCache {

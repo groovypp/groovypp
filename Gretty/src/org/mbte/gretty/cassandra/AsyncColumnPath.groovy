@@ -16,7 +16,7 @@
 
 package org.mbte.gretty.cassandra
 
-import groovy.util.concurrent.BindLater
+import groovypp.concurrent.BindLater
 import java.nio.ByteBuffer
 import org.mbte.gretty.cassandra.thrift.*
 

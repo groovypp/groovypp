@@ -2,27 +2,6 @@ package org.mbte.gretty.httpserver
 
 import org.jboss.netty.channel.local.LocalAddress
 
-import org.jboss.netty.bootstrap.ClientBootstrap
-import org.jboss.netty.channel.local.DefaultLocalClientChannelFactory
-
-import org.jboss.netty.handler.codec.http.HttpRequestEncoder
-import org.jboss.netty.handler.codec.http.HttpResponseDecoder
-import org.jboss.netty.channel.Channels
-
-import org.jboss.netty.channel.SimpleChannelHandler
-import org.jboss.netty.handler.codec.http.DefaultHttpRequest
-import org.jboss.netty.handler.codec.http.HttpVersion
-import org.jboss.netty.handler.codec.http.HttpMethod
-import org.jboss.netty.handler.codec.http.HttpResponse
-
-import groovy.util.concurrent.BindLater
-import org.jboss.netty.handler.codec.http.HttpRequest
-
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
-import org.jboss.netty.handler.codec.http.HttpChunkAggregator
-import org.mbte.gretty.httpclient.GrettyClient
-import java.util.concurrent.CountDownLatch
-
 @Typed class ServerTest extends GroovyTestCase implements HttpRequestHelper {
 
     private GrettyServer server

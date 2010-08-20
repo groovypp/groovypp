@@ -16,8 +16,8 @@
 
 package org.mbte.gretty.remote.inet
 
-import groovy.channels.LoopChannel
-import groovy.channels.SupervisedChannel
+import groovypp.channels.LoopChannel
+import groovypp.channels.SupervisedChannel
 
 @Typed abstract class MulticastChannel extends LoopChannel {
     InetAddress multicastGroup

@@ -1,8 +1,7 @@
 package org.mbte.gretty.redis
 
 import java.util.concurrent.CountDownLatch
-import groovy.util.concurrent.ResourcePool
-import java.util.concurrent.Semaphore
+
 import java.util.concurrent.Executors
 
 @Typed class RedisTest extends RedisTestBase {

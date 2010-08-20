@@ -16,11 +16,12 @@
 
 package org.mbte.gretty.redis
 
-import groovy.util.concurrent.BindLater
+import groovypp.concurrent.BindLater
 import org.jboss.netty.buffer.ChannelBuffer
 import org.jboss.netty.buffer.ChannelBuffers
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.ChannelFuture
+import groovypp.util.Files
 
 @Typed abstract class RedisCommand<S> extends BindLater<S> {
 

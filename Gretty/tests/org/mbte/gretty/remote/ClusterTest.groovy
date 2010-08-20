@@ -19,7 +19,7 @@ package org.mbte.gretty.remote
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-import groovy.util.concurrent.CallLaterExecutors
+import groovypp.concurrent.CallLaterExecutors
 import java.util.concurrent.atomic.AtomicInteger
 
 @Typed class ClusterTest extends GroovyTestCase {

@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-
-
-
 package org.mbte.groovypp.compiler.Issues
 
 public class Issue238Test extends GroovyShellTestCase {
@@ -25,7 +21,7 @@ public class Issue238Test extends GroovyShellTestCase {
         shell.evaluate """
 @Typed package p
 
-import groovy.util.concurrent.*
+import groovypp.concurrent.*
 
 testWithFixedPool(10) {
     ResourcePool<String> rPool = [

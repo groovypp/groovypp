@@ -16,8 +16,8 @@
 
 package org.mbte.gretty.redis
 
-import groovy.util.concurrent.BindLater
-import groovy.util.concurrent.FQueue
+import groovypp.concurrent.BindLater
+import groovypp.concurrent.FQueue
 import org.jboss.netty.buffer.ChannelBuffer
 import org.jboss.netty.buffer.ChannelBuffers
 import org.jboss.netty.channel.ChannelFactory

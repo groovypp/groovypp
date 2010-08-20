@@ -19,14 +19,13 @@ package org.mbte.gretty.cassandra
 import org.mbte.gretty.cassandra.thrift.*
 
 import java.nio.ByteBuffer
-import groovy.util.concurrent.BindLater
+import groovypp.concurrent.BindLater
 import java.util.concurrent.Executors
-import groovy.util.concurrent.ResourcePool
+import groovypp.concurrent.ResourcePool
 import org.apache.thrift.transport.TSocket
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TFramedTransport
 import org.apache.thrift.transport.TTransportException
-import groovy.util.concurrent.BindLater.Listener
 
 @Typed class AsyncCassandra extends ResourcePool<Cassandra.Client> {
 

@@ -3,7 +3,7 @@ package wordcount
 
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicReference
-import groovy.util.concurrent.FHashMap
+import groovypp.concurrent.FHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 def t1 = System.currentTimeMillis()

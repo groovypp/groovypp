@@ -1,12 +1,9 @@
 package org.mbte.gretty.httpserver
 
-import groovy.util.concurrent.BindLater
 import org.jboss.netty.channel.local.LocalAddress
-import org.jboss.netty.handler.codec.http.HttpResponse
-import org.mbte.gretty.httpclient.GrettyClient
+
 import org.jboss.netty.handler.codec.http.HttpVersion
 import org.jboss.netty.handler.codec.http.HttpMethod
-import org.jboss.netty.buffer.ChannelBuffers
 
 @Typed class RestTest extends GroovyTestCase implements HttpRequestHelper {
 

@@ -29,7 +29,7 @@ import org.jboss.netty.handler.codec.http.websocket.DefaultWebSocketFrame
 import org.jboss.netty.handler.codec.http.websocket.WebSocketFrame
 
 @Typed abstract class GrettyWebSocket {
-    private volatile groovy.util.concurrent.FList<GrettyWebSocketListener> listeners = groovy.util.concurrent.FList.emptyList
+    private volatile groovypp.concurrent.FList<GrettyWebSocketListener> listeners = groovypp.concurrent.FList.emptyList
 
     void send(Object object) {
         write(object.toString())

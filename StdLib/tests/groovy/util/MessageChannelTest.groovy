@@ -16,18 +16,18 @@
 
 package groovy.util
 
-import groovy.util.concurrent.FQueue
+import groovypp.concurrent.FQueue
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 
 import java.util.concurrent.TimeUnit
-import groovy.util.concurrent.FThreadPool
+import groovypp.concurrent.FThreadPool
 import java.util.concurrent.Executor
-import groovy.channels.MessageChannel
-import groovy.channels.MultiplexorChannel
-import static groovy.channels.Channels.channel
-import groovy.channels.Channels
-import groovy.channels.ExecutingChannel
+import groovypp.channels.MessageChannel
+import groovypp.channels.MultiplexorChannel
+import static groovypp.channels.Channels.channel
+
+import groovypp.channels.ExecutingChannel
 
 @Typed class MessageChannelTest extends GroovyTestCase {
 

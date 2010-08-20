@@ -16,14 +16,11 @@
 
 package org.mbte.gretty.remote
 
-import groovy.channels.SupervisedChannel
+import groovypp.channels.SupervisedChannel
 
 import org.mbte.gretty.remote.inet.InetDiscoveryInfo
 import org.mbte.gretty.remote.inet.MulticastChannel
-import org.mbte.gretty.AbstractClient
-import org.jboss.netty.channel.ChannelPipeline
-import org.jboss.netty.handler.codec.serialization.ObjectEncoder
-import org.jboss.netty.handler.codec.serialization.ObjectDecoder
+
 import org.jboss.netty.channel.group.DefaultChannelGroup
 
 @Typed class ClientConnector extends SupervisedChannel<ClusterNode> {

@@ -55,7 +55,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus
         Channel          waitingChannel
 
         // output queue to be sent after a channel become available for write
-        groovy.util.concurrent.FList<String>    outputQueue = groovy.util.concurrent.FList.emptyList
+        groovypp.concurrent.FList<String>    outputQueue = groovypp.concurrent.FList.emptyList
 
         Object clone () { super.clone() }
     }
@@ -70,7 +70,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus
                 ns.waitingChannel = null
 
                 def toSend = ns.outputQueue
-                ns.outputQueue = groovy.util.concurrent.FList.emptyList
+                ns.outputQueue = groovypp.concurrent.FList.emptyList
                 if(state.compareAndSet(s, ns)) {
                     post(toSend, ns)
                     break
@@ -110,7 +110,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus
                 ns.writeChannel = oldWaiting
 
                 def toSend = ns.outputQueue
-                ns.outputQueue = groovy.util.concurrent.FList.emptyList
+                ns.outputQueue = groovypp.concurrent.FList.emptyList
                 if(state.compareAndSet(s, ns)) {
                     post(toSend, ns)
                     break
@@ -146,7 +146,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus
                 ns.writeChannel = oldWaiting
 
                 def toSend = ns.outputQueue
-                ns.outputQueue = groovy.util.concurrent.FList.emptyList
+                ns.outputQueue = groovypp.concurrent.FList.emptyList
 
                 if(state.compareAndSet(s, ns)) {
                     post(toSend, ns)
@@ -163,7 +163,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus
         }
     }
 
-    private def post(groovy.util.concurrent.FList<String> toSend, State ns) {
+    private def post(groovypp.concurrent.FList<String> toSend, State ns) {
         GrettyHttpResponse res = [null,false]
         def json = new ObjectNode(JsonNodeFactory.instance)
         json.put("sessionId", sessionId)

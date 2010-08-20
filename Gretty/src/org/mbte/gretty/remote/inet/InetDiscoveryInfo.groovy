@@ -16,7 +16,7 @@
 
 package org.mbte.gretty.remote.inet
 
-import groovy.channels.MessageChannel
+import groovypp.channels.MessageChannel
 
 @Typed class InetDiscoveryInfo {
     UUID clusterId

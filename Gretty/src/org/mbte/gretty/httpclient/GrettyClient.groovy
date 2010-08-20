@@ -16,29 +16,15 @@
 
 package org.mbte.gretty.httpclient
 
-import org.jboss.netty.channel.SimpleChannelHandler
 import org.jboss.netty.handler.codec.http.HttpResponse
-import org.jboss.netty.handler.codec.http.HttpRequestEncoder
-import org.jboss.netty.handler.codec.http.HttpChunkAggregator
-import org.jboss.netty.handler.codec.http.HttpResponseDecoder
-import org.jboss.netty.channel.Channels
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
-import org.jboss.netty.channel.local.DefaultLocalClientChannelFactory
-import org.jboss.netty.channel.local.LocalAddress
-import org.jboss.netty.bootstrap.ClientBootstrap
-import groovy.util.concurrent.BindLater
+
+import groovypp.concurrent.BindLater
 import org.jboss.netty.handler.codec.http.HttpRequest
-import groovy.util.concurrent.FList
+
 import org.jboss.netty.channel.ChannelHandlerContext
-import org.jboss.netty.channel.ChannelStateEvent
+
 import org.jboss.netty.channel.MessageEvent
-import org.jboss.netty.channel.Channel
-import groovy.util.concurrent.FQueue
-import java.util.concurrent.Executors
-import org.jboss.netty.channel.ExceptionEvent
-import java.nio.channels.ClosedChannelException
-import org.jboss.netty.channel.ChannelFuture
-import groovy.util.concurrent.BindLater.Listener
+
 import org.mbte.gretty.httpserver.GrettyHttpResponse
 
 @Typed class GrettyClient extends AbstractHttpClient {

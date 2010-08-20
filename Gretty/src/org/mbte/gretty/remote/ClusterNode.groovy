@@ -16,10 +16,10 @@
 
 package org.mbte.gretty.remote
 
-import groovy.channels.SupervisedChannel
+import groovypp.channels.SupervisedChannel
 
-import groovy.channels.MessageChannel
-import groovy.channels.MultiplexorChannel
+import groovypp.channels.MessageChannel
+import groovypp.channels.MultiplexorChannel
 import org.mbte.gretty.remote.inet.InetDiscoveryInfo
 import org.mbte.gretty.remote.inet.MulticastChannel
 

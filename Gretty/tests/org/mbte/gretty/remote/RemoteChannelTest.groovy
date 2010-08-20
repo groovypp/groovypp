@@ -16,10 +16,10 @@
 
 package org.mbte.gretty.remote
 
-import groovy.util.concurrent.CallLaterExecutors
+import groovypp.concurrent.CallLaterExecutors
 import java.util.concurrent.CountDownLatch
-import groovy.channels.RemoteMessageChannel
-import groovy.channels.Channels
+import groovypp.channels.RemoteMessageChannel
+import groovypp.channels.Channels
 
 @Typed class RemoteChannelTest extends GroovyShellTestCase {
     void testChannel () {

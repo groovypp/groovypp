@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-
 package groovy.lang
 
 public class AsyncTest extends GroovyShellTestCase {
@@ -24,7 +22,7 @@ public class AsyncTest extends GroovyShellTestCase {
             @Typed package p
 
             import java.util.concurrent.*
-            import groovy.util.concurrent.*
+            import groovypp.concurrent.*
 
             @Async int calculation (int a, int b) {
                a + b

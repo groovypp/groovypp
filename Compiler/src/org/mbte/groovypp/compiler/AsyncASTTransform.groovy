@@ -23,7 +23,7 @@ import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.ast.*
-import static org.codehaus.groovy.ast.ClassHelper.make
+
 import org.objectweb.asm.Opcodes
 
 import org.codehaus.groovy.ast.expr.ConstantExpression
@@ -40,7 +40,6 @@ import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.TernaryExpression
 import org.codehaus.groovy.ast.expr.BooleanExpression
-import org.codehaus.groovy.classgen.VariableScopeVisitor
 
 @Typed
 @GroovyASTTransformation (phase = CompilePhase.CONVERSION)
