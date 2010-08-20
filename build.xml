@@ -33,6 +33,7 @@
 
     <property name="version" value="${groovyPPVersion}"/>
     <property name="install.zip" value="${output.dir}/groovypp-${version}.zip"/>
+    <property name="grails.zip" value="${output.dir}/grails-groovy-plus-plus-${version}.zip"/>
     <property name="src.zip" value="${output.dir}/groovypp-src-${version}.zip"/>
 
 
@@ -476,6 +477,29 @@
         <delete dir="tempbin" quiet="true" />
     </target>
 
+    <target name="make.grails" depends="" description="Build Grails Plugin">
+		<delete dir="tempbin" quiet="true" />
+		<mkdir dir="tempbin" />
+		<copy todir="tempbin">
+			<fileset dir="Grailspp" />
+		</copy>
+
+		<replaceregexp match="#version"
+				replace="${version}"
+				byline="true">
+			<fileset dir='tempbin'/>
+		</replaceregexp>
+
+        <zip destfile="${grails.zip}"
+             comment="The Groovy++ binary distribution.">
+	        <zipfileset dir="tempbin" prefix="" />
+
+            <zipfileset file="${embeddable.jar.name}" prefix="lib"/>
+        </zip>
+
+        <delete dir="tempbin" quiet="true" />
+    </target>
+
     <target name="package.src" description="Package sources">
         <zip destfile="${src.zip}" basedir="." comment="The Groovy++ source distribution">
 		<include name="install/"/>
@@ -485,13 +509,14 @@
 		<include name="StdLib/"/>
         <include name="Gretty/"/>
 		<include name="Examples/"/>
+        <include name="Grailspp/"/>
 		<include name="build.properties"/>
 		<include name="build.xml"/>
 		<include name="build.properties"/>
         </zip>
     </target>
 	
-	<target name="dist" depends="make.install, package.src" description="build the distribution archives"/>
+	<target name="dist" depends="make.install, make.grails, package.src" description="build the distribution archives"/>
 
 	<target name="check.groovypp.jar">
 	    <available file="${jar.name}" property="groovypp.jar.present"/>
@@ -582,11 +607,14 @@
 	</target>
 
     <target name="publish-googlecode" depends="dist">
-	<gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
+	    <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
     	    filename="${install.zip}" targetfilename="${install.zip}" summary="Groovy++ ${version}"
 	    labels="Featured" verbose="true"/>
         <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
                 filename="${src.zip}" targetfilename="${src.zip}" summary="Groovy++ Sources ${version}"
             labels="Featured" verbose="true"/>
+        <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
+            filename="${grails.zip}" targetfilename="${grails.zip}" summary="Groovy++ Grails Plugin ${version}"
+        labels="Featured" verbose="true"/>
     </target>
 </project>
