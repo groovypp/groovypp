@@ -493,8 +493,6 @@
         <zip destfile="${grails.zip}"
              comment="The Groovy++ binary distribution.">
 	        <zipfileset dir="tempbin" prefix="" />
-
-            <zipfileset file="${embeddable.jar.name}" prefix="lib"/>
         </zip>
 
         <delete dir="tempbin" quiet="true" />
