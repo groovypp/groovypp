@@ -106,7 +106,6 @@
 
     <modules>
         <module>groovy</module>
-        <module>groovy-all</module>
         <module>groovypp</module>
         <module>groovypp-all</module>
     </modules>
