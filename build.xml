@@ -58,6 +58,7 @@
 	<property name="jar.name" location="${output.dir}/${app.name}-${version}.jar"/>
     <property name="gretty.jar.name" location="${output.dir}/gretty-${version}.jar"/>
 	<property name="embeddable.jar.name" location="${output.dir}/${app.name}-all-${version}.jar"/>
+    <property name="pseudo.embeddable.jar.name" location="${output.dir}/groovy-all-1.7.5-gpp-${version}.jar"/>
 	<property name="target.jvm" value="5" />
 
 	<property name="skipTests" value="false"/>
@@ -490,9 +491,12 @@
 			<fileset dir='tempbin'/>
 		</replaceregexp>
 
+        <copy file="${embeddable.jar.name}" tofile="${pseudo.embeddable.jar.name}"/>
+
         <zip destfile="${grails.zip}"
              comment="The Groovy++ binary distribution.">
 	        <zipfileset dir="tempbin" prefix="" />
+            <zipfileset file="${pseudo.embeddable.jar.name}" prefix="lib" />
         </zip>
 
         <delete dir="tempbin" quiet="true" />

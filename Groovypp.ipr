@@ -1866,13 +1866,6 @@
     <option name="LOCALE" />
     <option name="OPEN_IN_BROWSER" value="true" />
   </component>
-  <component name="MavenProjectsManager">
-    <option name="originalFiles">
-      <list>
-        <option value="$PROJECT_DIR$/maven/pom.xml" />
-      </list>
-    </option>
-  </component>
   <component name="Palette2">
     <group name="Swing">
       <item class="com.intellij.uiDesigner.HSpacer" tooltip-text="Horizontal Spacer" icon="/com/intellij/uiDesigner/icons/hspacer.png" removable="false" auto-create-binding="false" can-attach-label="false">
@@ -2009,11 +2002,6 @@
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/Groovypp.iml" filepath="$PROJECT_DIR$/Groovypp.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />
-      <module fileurl="file://$PROJECT_DIR$/maven/groovy/groovy.iml" filepath="$PROJECT_DIR$/maven/groovy/groovy.iml" />
-      <module fileurl="file://$PROJECT_DIR$/maven/groovy-all/groovy-all.iml" filepath="$PROJECT_DIR$/maven/groovy-all/groovy-all.iml" />
-      <module fileurl="file://$PROJECT_DIR$/maven/groovypp/groovypp.iml" filepath="$PROJECT_DIR$/maven/groovypp/groovypp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/maven/groovypp-all/groovypp-all.iml" filepath="$PROJECT_DIR$/maven/groovypp-all/groovypp-all.iml" />
-      <module fileurl="file://$PROJECT_DIR$/maven/groovypp-main.iml" filepath="$PROJECT_DIR$/maven/groovypp-main.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.5" project-jdk-type="JavaSDK">
