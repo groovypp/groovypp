@@ -91,8 +91,10 @@ public class VariableExpressionTransformer extends ExprTransformer<VariableExpre
                 return new ResolvedVarBytecodeExpr(vtype, exp, compiler);
         }
 
-        compiler.addError("Cannot find variable " + exp.getName(), exp);
-        return null;
+        PropertyExpression pe = new PropertyExpression(VariableExpression.THIS_EXPRESSION, exp.getName());
+        pe.setImplicitThis(true);
+        pe.setSourcePosition(exp);
+        return compiler.transform(pe);
     }
 
     private static class ThisBase extends BytecodeExpr {

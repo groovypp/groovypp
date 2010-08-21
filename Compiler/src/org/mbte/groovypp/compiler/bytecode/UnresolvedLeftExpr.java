@@ -44,6 +44,7 @@ public class UnresolvedLeftExpr extends ResolvedLeftExpr {
             // setter
             mv.visitLdcInsn(propName);
             value.visit(mv);
+            mv.visitInsn(DUP_X2);
             mv.visitMethodInsn(INVOKESTATIC, "org/codehaus/groovy/runtime/InvokerHelper", "setProperty", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)V");
         }
     }

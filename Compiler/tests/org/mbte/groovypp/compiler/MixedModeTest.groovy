@@ -69,13 +69,13 @@ public class MixedModeTest extends GroovyShellTestCase {
 
   void testScript () {
     def res = shell.evaluate ("""
-      @Typed(TypePolicy.MIXED) package p
+      @Typed(value=TypePolicy.MIXED) package p
 
       var = 239
       def clos = { var }
-      clos ()
+      this.properties = [val:clos()]
 """)
-    assert res == 239
+    assert res == [val:239]
   }
 
     void testSequentially () {
