@@ -71,8 +71,8 @@ public class MapExpressionTransformer extends ExprTransformer<MapExpression> {
                     final Expression key = compiler.transformToGround(me.getKeyExpression());
                     final Expression value = compiler.transformToGround(me.getValueExpression());
                     MapEntryExpression nme = new MapEntryExpression(key, value);
-                    keyArg = TypeUtil.commonType(keyArg, nme.getKeyExpression().getType());
-                    valueArg = TypeUtil.commonType(valueArg, nme.getValueExpression().getType());
+                    keyArg = TypeUtil.commonType(keyArg, TypeUtil.wrapSafely(nme.getKeyExpression().getType()));
+                    valueArg = TypeUtil.commonType(valueArg, TypeUtil.wrapSafely(nme.getValueExpression().getType()));
                     nme.setSourcePosition(me);
                     list.set(i, nme);
                 }
