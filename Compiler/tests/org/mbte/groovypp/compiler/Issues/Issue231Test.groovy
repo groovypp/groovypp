@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-
-
-
 package org.mbte.groovypp.compiler.Issues
 
 import groovy.lang.GroovyClassLoader

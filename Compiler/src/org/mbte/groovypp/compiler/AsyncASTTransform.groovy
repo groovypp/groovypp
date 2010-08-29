@@ -55,7 +55,7 @@ class AsyncASTTransform implements ASTTransformation, Opcodes {
         List<MethodNode> toProcess = []
 
         ModuleNode module = (ModuleNode) nodes[0];
-        module.addStarImport("groovy.util.concurrent.")
+        module.addStarImport("groovypp.concurrent.")
         module.addStarImport("java.util.concurrent.")
         for (ClassNode classNode: module.getClasses()) {
             for (MethodNode methodNode: classNode.getMethods()) {
