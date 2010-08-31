@@ -189,8 +189,8 @@ abstract static class FList<T> implements Iterable<T>, Serializable {
             this.head = head
         }
 
-        final MoreThanOneElementList<T> plus(T element) {
-            [element, this]
+        final FList<T> plus(T element) {
+            (MoreThanOneElementList<T>)[element, this]
         }
 
         public Iterator<T> iterator() {

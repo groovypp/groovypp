@@ -71,9 +71,9 @@ abstract class FQueue<T> implements Iterable<T>, Serializable {
         EmptyQueue(){
         }
 
-        OneElementQueue<T> addLast (T element)  { [element] }
+        FQueue<T> addLast (T element)  { (OneElementQueue<T>)[element] }
 
-        OneElementQueue<T> addFirst (T element) { [element] }
+        FQueue<T> addFirst (T element) { (OneElementQueue<T>)[element] }
 
         FQueue<T> remove(T element) { this }
 
@@ -101,9 +101,9 @@ abstract class FQueue<T> implements Iterable<T>, Serializable {
             this.head = head
         }
 
-        MoreThanOneElementQueue<T> addLast (T element)  { [(FList.emptyList + element) + head, FList.emptyList] }
+        FQueue<T> addLast (T element)  { (MoreThanOneElementQueue<T>)[(FList.emptyList + element) + head, FList.emptyList] }
 
-        MoreThanOneElementQueue<T> addFirst (T element) { [(FList.emptyList + head) + element, FList.emptyList] }
+        FQueue<T> addFirst (T element) { (MoreThanOneElementQueue<T>)[(FList.emptyList + head) + element, FList.emptyList] }
 
         FQueue<T> remove(T element) {
             head == element ? FQueue.emptyQueue : this
@@ -136,12 +136,12 @@ abstract class FQueue<T> implements Iterable<T>, Serializable {
             this.output = output
         }
 
-        MoreThanOneElementQueue<T> addLast (T element) {
-            [output, input + element]
+        FQueue<T> addLast (T element) {
+            (MoreThanOneElementQueue<T>)[output, input + element]
         }
 
-        MoreThanOneElementQueue<T> addFirst (T element) {
-            [output + element, input]
+        FQueue<T> addFirst (T element) {
+            (MoreThanOneElementQueue<T>)[output + element, input]
         }
 
         T getFirst () { output.head }
