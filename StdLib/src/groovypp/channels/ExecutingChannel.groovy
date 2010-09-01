@@ -69,7 +69,7 @@ import groovypp.concurrent.CallLater
                     onMessage m
                 }
                 if(!queue.compareAndSet(busyEmptyQueue, FQueue.emptyQueue)) {
-                    executor.execute this
+                    continue
                 }
                 break
             }
