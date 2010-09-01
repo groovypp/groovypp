@@ -2238,6 +2238,9 @@
         <root url="file://$PROJECT_DIR$/../../netty-3.2.1.Final/src/main/java" />
         <root url="file://$PROJECT_DIR$/../../jackson-src-1.5.4/src/mapper/java" />
         <root url="file://$PROJECT_DIR$/../../jackson-src-1.5.4/src/java" />
+        <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
+        <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
+        <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
       </SOURCES>
       <jarDirectory url="file://$PROJECT_DIR$/install/lib" recursive="false" />
     </library>

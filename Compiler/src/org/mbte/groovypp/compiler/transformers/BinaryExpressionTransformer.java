@@ -24,6 +24,7 @@ import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.syntax.Types;
+import org.mbte.groovypp.compiler.ClassNodeCache;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.PresentationUtil;
 import org.mbte.groovypp.compiler.TypeUtil;
@@ -580,7 +581,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             }
 
             if (opType == Types.COMPARE_EQUAL || opType == Types.COMPARE_NOT_EQUAL) {
-                return evaluateEqualNotEqual(be, compiler, label, onTrue, l2, r2, opType);
+                return evaluateEqualNotEqual(be, compiler, label, onTrue, l2, r2, opType, false);
             }
 
             return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
@@ -634,25 +635,21 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
     - Object.equals(T) evaluated as T.equals(Object)
     - equals selection takes care for extension methods
      */
-    private BytecodeExpr evaluateEqualNotEqual(final BinaryExpression be, CompilerTransformer compiler, final Label label, final boolean onTrue, final BytecodeExpr left, final BytecodeExpr right, final int opType) {
+    private BytecodeExpr evaluateEqualNotEqual(final BinaryExpression be, CompilerTransformer compiler, final Label label, final boolean onTrue, final BytecodeExpr left, final BytecodeExpr right, final int opType, final boolean swap) {
         if (left.getType().equals(ClassHelper.OBJECT_TYPE)) {
             if (right.getType().equals(ClassHelper.OBJECT_TYPE)) {
                 return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
                     public void compile(MethodVisitor mv) {
-                        left.visit(mv);
-                        box(left.getType(), mv);
+                        swapIfNeeded(mv, swap, right, left);
 
-                        right.visit(mv);
-                        box(right.getType(), mv);
+                        mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/DefaultGroovyPPMethods", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
 
                         switch (opType) {
                             case  Types.COMPARE_EQUAL:
-                                mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/DefaultGroovyPPMethods", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
                                 mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
                                 break;
 
                             case  Types.COMPARE_NOT_EQUAL:
-                                mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/DefaultGroovyPPMethods", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
                                 mv.visitJumpInsn(onTrue ? IFEQ : IFNE, label);
                                 break;
                         }
@@ -660,7 +657,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                 };
             }
             else {
-                return evaluateEqualNotEqual(be, compiler, label, onTrue, right, left, opType);
+                return evaluateEqualNotEqual(be, compiler, label, onTrue, right, left, opType, true);
             }
         }
 
@@ -668,20 +665,15 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
         if (wrapper.implementsInterface(TypeUtil.COMPARABLE) || wrapper.equals(TypeUtil.COMPARABLE)) {
             return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
                 public void compile(MethodVisitor mv) {
-                    left.visit(mv);
-                    box(left.getType(), mv);
+                    swapIfNeeded(mv, swap, right, left);
 
-                    right.visit(mv);
-                    box(right.getType(), mv);
-
+                    mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/DefaultGroovyPPMethods", "compareToWithEqualityCheck", "(Ljava/lang/Object;Ljava/lang/Object;)I");
                     switch (opType) {
                         case  Types.COMPARE_EQUAL:
-                            mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/DefaultGroovyPPMethods", "compareToWithEqualityCheck", "(Ljava/lang/Object;Ljava/lang/Object;)I");
                             mv.visitJumpInsn(onTrue ? IFEQ : IFNE, label);
                             break;
 
                         case  Types.COMPARE_NOT_EQUAL:
-                            mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/DefaultGroovyPPMethods", "compareToWithEqualityCheck", "(Ljava/lang/Object;Ljava/lang/Object;)I");
                             mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
                             break;
                     }
@@ -689,9 +681,120 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             };
         }
         else {
-            final MethodCallExpression mce = new MethodCallExpression(left, "equals", right);
-            mce.setSourcePosition(be);
-            return ExprTransformer.transformLogicalExpression(mce, compiler, label, opType == Types.COMPARE_EQUAL ? onTrue : !onTrue);
+            final BytecodeExpr ldummy = new BytecodeExpr(left, TypeUtil.wrapSafely(left.getType())) {
+                protected void compile(MethodVisitor mv) {
+                }
+            };
+            final BytecodeExpr rdummy = new BytecodeExpr(right, TypeUtil.wrapSafely(right.getType())) {
+                protected void compile(MethodVisitor mv) {
+                }
+            };
+            final MethodCallExpression safeCall = new MethodCallExpression(ldummy, "equals", new ArgumentListExpression(rdummy));
+            safeCall.setSourcePosition(be);
+
+            final ResolvedMethodBytecodeExpr call = (ResolvedMethodBytecodeExpr) compiler.transform(safeCall);
+            final boolean staticEquals = call.getMethodNode().isStatic() || (call.getMethodNode() instanceof ClassNodeCache.DGM);
+            final boolean defaultEquals = !staticEquals && call.getMethodNode().getParameters()[0].getType().equals(ClassHelper.OBJECT_TYPE);
+
+            if(staticEquals || defaultEquals) {
+                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                    public void compile(MethodVisitor mv) {
+                        swapIfNeeded(mv, swap, right, left);
+
+                        if(defaultEquals)
+                            mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/DefaultGroovyPPMethods", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
+                        else {
+                            call.visit(mv);
+                        }
+
+                        switch (opType) {
+                            case  Types.COMPARE_EQUAL:
+                                mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
+                                break;
+
+                            case  Types.COMPARE_NOT_EQUAL:
+                                mv.visitJumpInsn(onTrue ? IFEQ : IFNE, label);
+                                break;
+                        }
+                    }
+                };
+            }
+            else {
+                // case of multi-method
+                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                    public void compile(MethodVisitor mv) {
+                        swapIfNeeded(mv, swap, right, left);
+
+                        Label end = new Label(), trueLabelPop2 = new Label (), falseLabelPop2 = new Label ();
+
+                        mv.visitInsn(DUP2);
+                        switch (opType) {
+                            case  Types.COMPARE_EQUAL:
+                                mv.visitJumpInsn(onTrue ? IF_ACMPEQ : IF_ACMPNE, trueLabelPop2);
+                                break;
+
+                            case  Types.COMPARE_NOT_EQUAL:
+                                mv.visitJumpInsn(onTrue ? IF_ACMPNE : IF_ACMPEQ, trueLabelPop2);
+                                break;
+                        }
+
+                        mv.visitInsn(DUP2);
+                        mv.visitInsn(POP);
+
+                        switch (opType) {
+                            case  Types.COMPARE_EQUAL:
+                                mv.visitJumpInsn(onTrue ? IFNULL : IFNONNULL, falseLabelPop2);
+                                break;
+
+                            case  Types.COMPARE_NOT_EQUAL:
+                                mv.visitJumpInsn(onTrue ? IFNONNULL : IFNULL, falseLabelPop2);
+                                break;
+                        }
+
+                        call.visit(mv);
+
+                        switch (opType) {
+                            case  Types.COMPARE_EQUAL:
+                                mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
+                                break;
+
+                            case  Types.COMPARE_NOT_EQUAL:
+                                mv.visitJumpInsn(onTrue ? IFEQ : IFNE, label);
+                                break;
+                        }
+
+                        mv.visitJumpInsn(GOTO, end);
+
+                        mv.visitLabel(trueLabelPop2);
+                        mv.visitInsn(POP2);
+                        mv.visitJumpInsn(GOTO, label);
+
+                        mv.visitLabel(falseLabelPop2);
+                        mv.visitInsn(POP2);
+
+                        mv.visitLabel(end);
+                    }
+                };
+            }
+        }
+    }
+
+    private void swapIfNeeded(MethodVisitor mv, boolean swap, BytecodeExpr right, BytecodeExpr left) {
+        if(swap) {
+            right.visit(mv);
+            BytecodeExpr.box(right.getType(), mv);
+
+            left.visit(mv);
+            BytecodeExpr.box(left.getType(), mv);
+
+            mv.visitInsn(SWAP);
+        }
+        else {
+            left.visit(mv);
+            BytecodeExpr.box(left.getType(), mv);
+
+            right.visit(mv);
+            BytecodeExpr.box(right.getType(), mv);
         }
     }
 

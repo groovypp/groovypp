@@ -49,7 +49,10 @@ class BytecodeStack {
     void pop2 () {
         int e = elements[--elementCount];
         if (e != KIND_DOUBLE && e != KIND_LONG) {
-            throw new RuntimeException("Inconsistent pop");
+            e = elements[--elementCount];
+            if (e == KIND_LONG || e == KIND_DOUBLE) {
+                throw new RuntimeException("Inconsistent pop");
+            }
         }
     }
 
