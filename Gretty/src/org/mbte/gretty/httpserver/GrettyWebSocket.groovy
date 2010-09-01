@@ -27,9 +27,10 @@ import org.jboss.netty.channel.ChannelState
 import org.jboss.netty.handler.codec.http.websocket.DefaultWebSocketFrame
 
 import org.jboss.netty.handler.codec.http.websocket.WebSocketFrame
+import groovypp.concurrent.FList
 
 @Typed abstract class GrettyWebSocket {
-    private volatile groovypp.concurrent.FList<GrettyWebSocketListener> listeners = groovypp.concurrent.FList.emptyList
+    private volatile FList<GrettyWebSocketListener> listeners = FList.emptyList
 
     void send(Object object) {
         write(object.toString())
@@ -69,7 +70,7 @@ import org.jboss.netty.handler.codec.http.websocket.WebSocketFrame
     }
 
     static class Channeled extends GrettyWebSocket implements ChannelUpstreamHandler {
-        private Channel channel
+        private final Channel channel
 
         Channeled(Channel channel) {
             this.channel = channel
@@ -93,7 +94,7 @@ import org.jboss.netty.handler.codec.http.websocket.WebSocketFrame
                 case ChannelStateEvent:
                     switch(e.state) {
                         case ChannelState.CONNECTED:
-                            if(e.value)
+                            if(!e.value)
                                 notifyDisconnect()
                         break
                     }
