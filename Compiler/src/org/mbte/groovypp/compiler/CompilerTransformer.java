@@ -510,7 +510,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
                         mv.visitInsn(ICONST_1);
                         mv.visitLabel(falseL);
                     } else {
-                        be.visit(mv);
+                        be.visit(mv); // int, short, byte, char
                     }
 
                     if (type.equals(ClassHelper.Boolean_TYPE))
@@ -521,7 +521,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         else {
             MethodCallExpression safeCall = new MethodCallExpression(new BytecodeExpr(be, be.getType()) {
             protected void compile(MethodVisitor mv) {
-            }        }, "asBoolean", ArgumentListExpression.EMPTY_ARGUMENTS);
+            }        }, be.getType().equals(ClassHelper.OBJECT_TYPE) ? "asBooleanDynamic" : "asBoolean", ArgumentListExpression.EMPTY_ARGUMENTS);
             safeCall.setSourcePosition(be);
 
             final BytecodeExpr call = (BytecodeExpr) transform(safeCall);

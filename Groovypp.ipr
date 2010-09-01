@@ -2003,6 +2003,7 @@
       <module fileurl="file://$PROJECT_DIR$/../../GppTest/GppTest-grailsPlugins.iml" filepath="$PROJECT_DIR$/../../GppTest/GppTest-grailsPlugins.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/Groovypp.iml" filepath="$PROJECT_DIR$/Groovypp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" filepath="$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />
     </modules>
   </component>

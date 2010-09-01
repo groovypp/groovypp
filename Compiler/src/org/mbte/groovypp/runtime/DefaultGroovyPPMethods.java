@@ -21,13 +21,15 @@ import groovy.lang.GroovyRuntimeException;
 import org.codehaus.groovy.runtime.DefaultGroovyMethodsSupport;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.InvokerHelper;
+import org.codehaus.groovy.runtime.RegexSupport;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.codehaus.groovy.runtime.typehandling.NumberMath;
 
 import java.io.Writer;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation.*;
@@ -250,5 +252,49 @@ public class DefaultGroovyPPMethods extends DefaultGroovyMethodsSupport {
 
     public static BigDecimal asBigDecimal(Number self) {
         return self instanceof BigDecimal ? (BigDecimal) self : self instanceof Float || self instanceof Double ? new BigDecimal(self.doubleValue()) : new BigDecimal(self.toString());
+    }
+
+    public static boolean asBooleanDynamic(Object object) {
+        if(object == null)
+            return false;
+
+        if(object instanceof Boolean)
+            return (Boolean) object;
+
+        if(object instanceof Number) {
+            return ((Number)object).doubleValue() != 0;
+        }
+
+        if(object instanceof Collection) {
+            return !((Collection)object).isEmpty();
+        }
+
+        if(object instanceof Character) {
+            return ((Character) object) != 0;
+        }
+
+        if(object instanceof Map)
+            return !((Map)object).isEmpty();
+
+        if(object instanceof Iterator)
+            return ((Iterator)object).hasNext();
+
+        if(object instanceof Enumeration)
+            return ((Enumeration)object).hasMoreElements();
+
+        if(object instanceof CharSequence)
+            return ((CharSequence)object).length() > 0;
+
+        if(object.getClass().isArray()) {
+            return Array.getLength(object) > 0;
+        }
+
+        if(object instanceof Matcher) {
+            final Matcher matcher = (Matcher) object;
+            RegexSupport.setLastMatcher(matcher);
+            return matcher.find();
+        }
+
+        return true;
     }
 }

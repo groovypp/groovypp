@@ -138,6 +138,16 @@ public abstract class ExprTransformer<T extends Expression> implements Opcodes {
             };
         }
         else {
+            if(be.getType().equals(ClassHelper.OBJECT_TYPE)) {
+                return new BytecodeExpr(exp, ClassHelper.VOID_TYPE) {
+                    protected void compile(MethodVisitor mv) {
+                        be.visit(mv);
+                        mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/DefaultGroovyPPMethods", "asBooleanDynamic", "(Ljava/lang/Object;)Z");
+                        mv.visitJumpInsn( onTrue ? IFNE : IFEQ, label);
+                    }
+                };
+            }
+
             MethodCallExpression safeCall = new MethodCallExpression(new BytecodeExpr(exp, be.getType()) {
             protected void compile(MethodVisitor mv) {
             }        }, "asBoolean", ArgumentListExpression.EMPTY_ARGUMENTS);
