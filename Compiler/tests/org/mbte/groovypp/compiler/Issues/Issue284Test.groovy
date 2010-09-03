@@ -16,7 +16,7 @@
 
 package org.mbte.groovypp.compiler.Issues
 
-@Typed class Issue284 extends GroovyShellTestCase {
+@Typed class Issue284Test extends GroovyShellTestCase {
 
     void testGroovyTruth () {
         shell.evaluate """
