@@ -29,7 +29,7 @@ class Pair<T1, T2> implements Externalizable {
   }
 
   boolean equals(obj) {
-    this.is(obj) || (obj instanceof Pair && eq(first, ((Pair) obj).first) && eq(second, ((Pair) obj).second))
+    this === obj || (obj instanceof Pair && eq(first, ((Pair) obj).first) && eq(second, ((Pair) obj).second))
   }
 
   private boolean eq(obj1, obj2) {
