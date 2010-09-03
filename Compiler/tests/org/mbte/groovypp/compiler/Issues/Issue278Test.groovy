@@ -18,13 +18,18 @@ package org.mbte.groovypp.compiler.Issues
 
 import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
-@Typed
-public class Issue111Test extends GroovyShellTestCase {
-    void testMe () {
-       shouldNotCompile """
-         @Typed package test
+class Issue278Test extends GroovyShellTestCase {
+    void testMe() {
+        shouldNotCompile("""
+@Typed package p
 
-         Reference data = 'original'
-       """
+abstract class Test {
+  Test(String s) { }
+}
+
+def foo(Test t) {}
+
+foo(['x'])
+""", "Can't instantiate abstract type p.Test")
     }
 }
