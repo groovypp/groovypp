@@ -343,7 +343,19 @@ public class ConstructorCallExpressionTransformer extends ExprTransformer<Constr
             wrapped.add(new ListExpression(add));
         } else if (diff == 0) {
             if (nparams > 0) {
-                wrapped.add(args.getExpression(nparams - 1));
+                final Expression last = args.getExpression(nparams - 1);
+                if(params[params.length-1].getType().isArray()) {
+                    if(TypeUtil.isAssignableFrom(params[params.length-1].getType(), last.getType()))
+                        wrapped.add(last);
+                    else {
+                        final ArrayList<Expression> list = new ArrayList<Expression>();
+                        list.add(last);
+                        wrapped.add(new ListExpression(list));
+                    }
+                }
+                else {
+                    wrapped.add(last);
+                }
             }
         } else if (diff == -1) {
             wrapped.add(new ListExpression(new ArrayList<Expression>()));
