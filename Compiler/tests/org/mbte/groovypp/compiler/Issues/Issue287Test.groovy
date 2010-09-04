@@ -19,20 +19,25 @@ package org.mbte.groovypp.compiler.Issues
 import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
 @Typed
-class Issue100Test extends GroovyShellTestCase {
+class Issue287Test extends GroovyShellTestCase {
 
     void testMe()
     {
-        shouldNotCompile """
-          @Typed package p
-          class Person {
-            String firstname
-            String lastname
-          }
+        shouldNotCompile("""
+@Typed package p
 
-          def props = [firstname: "F", lastname: "L"]
+class Foo {
+  Foo(List a) {}
+}
 
-          def p = new Person(*:props)
-        """
+class Bar extends Foo {
+
+  Bar(Set a) {
+    super(a)
+  }
+}
+
+new Bar(['10', '11'])
+        """, "Cannot find constructor of p.Foo")
     }
 }

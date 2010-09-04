@@ -553,9 +553,8 @@ public class MethodSelection {
             return true;
         }
 
-        boolean isVargsMethod = pt.length != 0 && (pt[pt.length - 1].getType().isArray() ||
-                TypeUtil.isDirectlyAssignableFrom(ClassHelper.LIST_TYPE, pt[pt.length - 1].getType()));
-        
+        boolean isVargsMethod = pt.length != 0 && (pt[pt.length - 1].getType().isArray());
+
         if (isVargsMethod && size >= paramMinus1)
             return isValidVarargsMethod(arguments, size, pt, paramMinus1, accessType, declaringClass);
 

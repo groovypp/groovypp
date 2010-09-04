@@ -393,7 +393,7 @@ public class ConstructorCallExpressionTransformer extends ExprTransformer<Constr
                     (TupleExpression) newArgs, compiler);
         }
 
-        compiler.addError("Cannot find constructor of " + (exp.isSuperCall() ? exp.getType().getSuperClass().getName() : exp.getType().getName()), exp);
+        compiler.addError("Cannot find constructor of " + type.getName(), exp);
         return null;
     }
 

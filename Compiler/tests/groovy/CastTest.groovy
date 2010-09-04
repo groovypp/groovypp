@@ -172,12 +172,12 @@ class CastTest extends GroovyShellTestCase {
                 }
               }
 
-              assert new A(0, 1, 2, 3).ints == [0, 1, 2, 3]
+              assert new A([0, 1, 2, 3]).ints == [0, 1, 2, 3]
 
-              A a = [3,4,5]
+              A a = [[3,4,5]]
               assert a.ints == [3,4,5]
 
-              a = []
+              a = [[]]
               assert a.ints == []
             """
   }
