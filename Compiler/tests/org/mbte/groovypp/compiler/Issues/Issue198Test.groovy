@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-
-
-
-
 package org.mbte.groovypp.compiler.Issues
+
+import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
 public class Issue198Test extends GroovyShellTestCase {
     void testMe() {
-        try {
-          shell.evaluate """
+          shouldNotCompile """
      @Typed class Test {
        static int a
        static main(args) {
@@ -31,8 +28,5 @@ public class Issue198Test extends GroovyShellTestCase {
        }
      }
   """
-        } catch (ClassCastException cce) {
-          assert cce.message.contains("Cannot cast object '' with class 'java.lang.String'")
-        }
     }
 }

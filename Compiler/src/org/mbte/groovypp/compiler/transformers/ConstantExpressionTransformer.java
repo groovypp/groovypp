@@ -33,7 +33,7 @@ public class ConstantExpressionTransformer extends ExprTransformer<ConstantExpre
         return new MyBytecodeExpr(exp);
     }
 
-    private ClassNode getConstantType(Object value) {
+    protected static ClassNode getConstantType(Object value) {
         if (value == null) {
             return TypeUtil.NULL_TYPE;
         } else if (value instanceof String) {
@@ -80,21 +80,24 @@ public class ConstantExpressionTransformer extends ExprTransformer<ConstantExpre
                     "Cannot generate bytecode for constant: " + value + " of type: " + value.getClass().getName());
     }
 
-    private class MyBytecodeExpr extends BytecodeExpr {
-        private final ConstantExpression exp;
+    public static final class MyBytecodeExpr extends BytecodeExpr {
+        private final Object value;
 
         public MyBytecodeExpr(ConstantExpression exp) {
-            super(exp, ConstantExpressionTransformer.this.getConstantType(exp.getValue()));
-            this.exp = exp;
+            this(exp, getConstantType(exp.getValue()), exp.getValue());
+        }
+
+        public MyBytecodeExpr(ConstantExpression exp, ClassNode type, Object value) {
+            super(exp, type);
+            this.value = value;
         }
 
         public void compile(MethodVisitor mv) {
-            final Object val = exp.getValue();
-            if (val == null) {
+            if (value == null) {
                 mv.visitInsn(ACONST_NULL);
             }
             else {
-                mv.visitLdcInsn(val);
+                mv.visitLdcInsn(value);
             }
         }
     }

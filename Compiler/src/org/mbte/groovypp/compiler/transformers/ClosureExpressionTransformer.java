@@ -31,10 +31,7 @@ public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpress
             ce.getParameters()[0] = new Parameter(ClassHelper.OBJECT_TYPE, "it", new ConstantExpression(null));
         }
 
-        final ClosureClassNode newType = new ClosureClassNode(compiler.methodNode, compiler.getNextClosureName());
-        newType.setInterfaces(new ClassNode[]{TypeUtil.TCLOSURE});
-        newType.setClosureExpression(ce);
-        newType.setSourcePosition(ce);
+        final ClosureClassNode newType = new ClosureClassNode(ce, compiler.methodNode, compiler.getNextClosureName());
 
         final ClosureMethodNode _doCallMethod = new ClosureMethodNode(
                 "doCall",
@@ -52,7 +49,6 @@ public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpress
         _doCallMethod.createDependentMethods(newType);
 
         newType.setModule(compiler.classNode.getModule());
-        ce.setType(newType);
 
         return CompiledClosureBytecodeExpr.createCompiledClosureBytecodeExpr(compiler, ce);
     }

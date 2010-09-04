@@ -16,26 +16,20 @@
 
 package org.mbte.groovypp.compiler;
 
-import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.ClassHelper;
+import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.InnerClassNode;
 import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.expr.ClosureExpression;
+import org.codehaus.groovy.ast.expr.Expression;
+import org.codehaus.groovy.ast.expr.ListExpression;
+import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
 import org.objectweb.asm.Opcodes;
 
-public class ClosureClassNode extends UncertainClassNode<ClosureExpression> {
-    private ClosureMethodNode doCallMethod;
+public class ListClassNode extends UncertainClassNode<ListExpressionTransformer.UntransformedListExpr> {
 
-    public ClosureClassNode(ClosureExpression ce, MethodNode owner, String name) {
+    public ListClassNode(ListExpressionTransformer.UntransformedListExpr ce, MethodNode owner, String name) {
         super(ce, owner, name);
-        setInterfaces(new ClassNode[]{TypeUtil.TCLOSURE});
-    }
-
-    public void setDoCallMethod(ClosureMethodNode doCallMethod) {
-        this.doCallMethod = doCallMethod;
-    }
-
-    public ClosureMethodNode getDoCallMethod() {
-        return doCallMethod;
+        setInterfaces(new ClassNode[]{TypeUtil.TLIST});
     }
 }

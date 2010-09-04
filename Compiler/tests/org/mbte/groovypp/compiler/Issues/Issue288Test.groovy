@@ -16,19 +16,26 @@
 
 package org.mbte.groovypp.compiler.Issues
 
-import static groovy.util.test.CompileTestSupport.shouldNotCompile
-import static groovy.util.test.CompileTestSupport.shouldCompile
+@Typed class Issue288Test extends GroovyShellTestCase
+{
+    void testMe()
+    {
+        def res = shell.evaluate("""
+        @Typed package p
+        def foo(Integer a = 1, List<String> args, File... varargs) {
+           a
+        }
 
-public class Issue240Test extends GroovyShellTestCase {
-    void testMe () {
-        shouldCompile """
-@Typed package p
-assert ((int)'1') == 49
-"""
+//        foo(["a", "c"], ["b"])
+        """)
+//        assert res == 1
+    }
 
-    shouldNotCompile """
-@Typed package p
-assert ((int)' 1') == 49
-"""
+    void testCharStringGString () {
+        def head = 'abcd'
+        assert "h".length() == 1
+        assert "head".indexOf('e') == 1
+        assert "head".indexOf((int)'a') == 2
+        assert "[$head]".replace('c', File.separatorChar) == '[ab/d]'
     }
 }

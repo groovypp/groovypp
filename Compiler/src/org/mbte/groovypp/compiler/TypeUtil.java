@@ -140,7 +140,7 @@ public class TypeUtil {
 
         if (TypeUtil.isNumericalType(classToTransformTo)) {
             if (TypeUtil.isNumericalType(classToTransformFrom)
-                    || classToTransformFrom.equals(STRING_TYPE) || classToTransformFrom.equals(Character_TYPE))
+                    || classToTransformTo.equals(Character_TYPE) && (classToTransformFrom.equals(STRING_TYPE) || classToTransformFrom.equals(Character_TYPE)))
                 return true;
         } else if (classToTransformTo.equals(Character_TYPE)) {
             if (TypeUtil.isNumericalType(classToTransformFrom) || classToTransformFrom.equals(STRING_TYPE))

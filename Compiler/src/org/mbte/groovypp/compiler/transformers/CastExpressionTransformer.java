@@ -42,6 +42,21 @@ import java.util.*;
 public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
     public BytecodeExpr transform(CastExpression cast, CompilerTransformer compiler) {
 
+        if (cast.getExpression() instanceof ConstantExpression) {
+            ConstantExpression constantExpression = (ConstantExpression) cast.getExpression();
+            if(constantExpression.getValue() instanceof String) {
+                String s = (String) constantExpression.getValue();
+                if(s.length() == 1) {
+                    if(cast.getType().equals(ClassHelper.int_TYPE) || cast.getType().equals(ClassHelper.Integer_TYPE)) {
+                        return new ConstantExpressionTransformer.MyBytecodeExpr(constantExpression, ClassHelper.int_TYPE, (int)s.charAt(0));
+                    }
+                    if(cast.getType().equals(ClassHelper.char_TYPE)) {
+                        return new ConstantExpressionTransformer.MyBytecodeExpr(constantExpression, ClassHelper.char_TYPE, (int)s.charAt(0));
+                    }
+                }
+            }
+        }
+
         if (cast.getExpression() instanceof TernaryExpression) {
             return compiler.cast(cast.getExpression(), cast.getType());
         }

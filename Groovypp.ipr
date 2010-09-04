@@ -1316,6 +1316,11 @@
               <file url="file://$PROJECT_DIR$/GrailsExample/web-app/WEB-INF/applicationContext.xml" />
             </files>
           </module>
+          <module name="GppTest">
+            <files>
+              <file url="file://$PROJECT_DIR$/../../GppTest/web-app/WEB-INF/applicationContext.xml" />
+            </files>
+          </module>
         </modules>
       </facet-type>
       <facet-type id="web">
@@ -1999,8 +2004,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Examples/Examples.iml" filepath="$PROJECT_DIR$/Examples/Examples.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../GppTest/GppTest.iml" filepath="$PROJECT_DIR$/../../GppTest/GppTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../GppTest/GppTest-grailsPlugins.iml" filepath="$PROJECT_DIR$/../../GppTest/GppTest-grailsPlugins.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/Groovypp.iml" filepath="$PROJECT_DIR$/Groovypp.iml" />
       <module fileurl="file://$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" filepath="$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" />

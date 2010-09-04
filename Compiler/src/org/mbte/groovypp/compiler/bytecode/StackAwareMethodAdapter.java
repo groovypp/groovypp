@@ -710,7 +710,7 @@ public class StackAwareMethodAdapter extends MethodAdapter implements Opcodes, L
 
     @Override
     public void visitLdcInsn(Object o) {
-        if (o instanceof Integer || o instanceof Boolean)
+        if (o instanceof Integer || o instanceof Boolean || o instanceof Short || o instanceof Character || o instanceof Byte)
             stack.push(BytecodeStack.KIND_INT);
         else if (o instanceof Float)
             stack.push(BytecodeStack.KIND_FLOAT);
