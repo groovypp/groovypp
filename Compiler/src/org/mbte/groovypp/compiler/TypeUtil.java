@@ -22,7 +22,11 @@ import groovy.lang.Trait;
 import groovy.lang.Typed;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
+import org.codehaus.groovy.runtime.ScriptBytecodeAdapter;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
+import org.codehaus.groovy.transform.powerassert.AssertionRenderer;
+import org.codehaus.groovy.transform.powerassert.PowerAssertionError;
+import org.codehaus.groovy.transform.powerassert.ValueRecorder;
 import org.mbte.groovypp.runtime.HasDefaultImplementation;
 import org.mbte.groovypp.runtime.LinkedHashMapEx;
 import org.mbte.groovypp.runtime.NoExternalInitialization;
@@ -76,6 +80,11 @@ public class TypeUtil {
     public static final ClassNode THROWABLE = make(Throwable.class);
     public static final ClassNode COMPARABLE = make(Comparable.class);
     public static final ClassNode STRING_BUILDER = make(StringBuilder.class);
+    public static final ClassNode VALUE_RECORDER = make(ValueRecorder.class);
+    public static final ClassNode ASSERTION_ERROR = make(AssertionError.class);
+    public static final ClassNode POWER_ASSERT_ERROR = make(PowerAssertionError.class);
+    public static final ClassNode SCRIPT_BYTECODE_ADAPTER = make(ScriptBytecodeAdapter.class);
+    public static final ClassNode ASSERTION_RENDERER = make(AssertionRenderer.class);
 
     public TypeUtil() {
         RAW_CLASS = new ClassNode(RawMarker.class);

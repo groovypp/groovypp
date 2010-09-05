@@ -25,11 +25,15 @@ import org.codehaus.groovy.ast.stmt.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeInstruction;
 import org.codehaus.groovy.classgen.BytecodeSequence;
+import org.codehaus.groovy.control.Janitor;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.codehaus.groovy.syntax.Types;
 import org.codehaus.groovy.syntax.Token;
+import org.codehaus.groovy.transform.powerassert.SourceText;
+import org.codehaus.groovy.transform.powerassert.SourceTextNotAvailableException;
 import org.mbte.groovypp.compiler.bytecode.*;
+import org.mbte.groovypp.compiler.transformers.MethodCallExpressionTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -89,8 +93,160 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         }
     }
 
+    private static class AssertionTracker {
+        int recorderIndex;
+        SourceText sourceText;
+    }
+
+    private AssertionTracker assertionTracker;
+
     @Override
     public void visitAssertStatement(AssertStatement statement) {
+        boolean rewriteAssert = true;
+        // don't rewrite assertions with message
+        rewriteAssert = statement.getMessageExpression() == ConstantExpression.NULL;
+
+        if(rewriteAssert) {
+            Janitor janitor = new Janitor();
+            try {
+                SourceText sourceText = null;
+                try {
+                    sourceText = new SourceText(statement, su, janitor);
+                }
+                catch (SourceTextNotAvailableException e) {
+                    rewriteAssert = false;
+                }
+
+                AssertionTracker oldTracker = assertionTracker;
+                if(rewriteAssert) {
+                    assertionTracker = new AssertionTracker();
+                    try {
+
+                        final BlockStatement block = new BlockStatement();
+
+                        final VariableExpression variable = new VariableExpression("__recorder", TypeUtil.VALUE_RECORDER);
+                        variable.setSourcePosition(statement);
+
+                        final ConstructorCallExpression newRecorder = new ConstructorCallExpression(TypeUtil.VALUE_RECORDER, new ArgumentListExpression());
+                        newRecorder.setSourcePosition(statement);
+
+                        final DeclarationExpression declaration = new DeclarationExpression(variable, Token.newSymbol(Types.EQUAL, -1, -1), newRecorder);
+                        declaration.setSourcePosition(statement);
+
+                        final ExpressionStatement declarationStatement = new ExpressionStatement(declaration);
+                        declarationStatement.setSourcePosition(statement);
+
+                        block.addStatement(declarationStatement);
+
+                        final BlockStatement tryStatement = new BlockStatement();
+                        tryStatement.setSourcePosition(statement);
+
+                        MethodCallExpression render = new MethodCallExpression(new ClassExpression(TypeUtil.ASSERTION_RENDERER), "render", new ArgumentListExpression(new ConstantExpression(sourceText.getNormalizedText()), variable));
+                        render.setSourcePosition(statement);
+
+                        MethodCallExpression assertFailed = new MethodCallExpression(new ClassExpression(TypeUtil.SCRIPT_BYTECODE_ADAPTER), "assertFailed", new ArgumentListExpression(render, ConstantExpression.NULL));
+                        assertFailed.setSourcePosition(statement);
+
+                        final ThrowStatement elseStatement = new ThrowStatement(new ConstructorCallExpression(TypeUtil.POWER_ASSERT_ERROR, new ArgumentListExpression(render)));
+                        elseStatement.setSourcePosition(statement);
+
+
+                        final SourceText finalSourceText = sourceText;
+                        final ClassCodeExpressionTransformer transformer = new ClassCodeExpressionTransformer(){
+
+                            @Override
+                            protected SourceUnit getSourceUnit() {
+                                return su;
+                            }
+
+                            @Override
+                            public Expression transform(Expression exp) {
+                                if(exp instanceof BinaryExpression) {
+                                    BinaryExpression binExpr = (BinaryExpression) exp;
+                                    final Token token = binExpr.getOperation();
+                                    int column = finalSourceText.getNormalizedColumn(token.getStartLine(), token.getStartColumn());
+                                    final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(super.transform(exp), new ConstantExpression(column)));
+                                    res.setSourcePosition(exp);
+                                    return res;
+                                }
+
+                                if(exp instanceof VariableExpression) {
+                                    int column = finalSourceText.getNormalizedColumn(exp.getLineNumber(), exp.getColumnNumber());
+                                    return new RecordingVariableExpression((VariableExpression) exp, variable, column);
+                                }
+
+                                if(exp instanceof MethodCallExpression) {
+                                    final Expression method = ((MethodCallExpression) exp).getMethod();
+                                    int column = finalSourceText.getNormalizedColumn(method.getLineNumber(), method.getColumnNumber());
+                                    final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(super.transform(exp), new ConstantExpression(column)));
+                                    res.setSourcePosition(exp);
+                                    return res;
+                                }
+
+                                if(exp instanceof PropertyExpression) {
+                                    Expression property = ((PropertyExpression) exp).getProperty();
+                                    int column = finalSourceText.getNormalizedColumn(property.getLineNumber(), property.getColumnNumber());
+                                    final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(super.transform(exp), new ConstantExpression(column)));
+                                    res.setSourcePosition(exp);
+                                    return res;
+                                }
+
+                                if(exp instanceof BooleanExpression) {
+                                    int column = finalSourceText.getNormalizedColumn(exp.getLineNumber(), exp.getColumnNumber());
+                                    Expression subExpr = transform(((BooleanExpression) exp).getExpression());
+                                    subExpr = exp instanceof NotExpression ? new NotExpression(subExpr) : new BooleanExpression(subExpr);
+
+                                    final MethodCallExpression rec = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(subExpr, new ConstantExpression(column)));
+                                    rec.setSourcePosition(exp);
+
+                                    final BooleanExpression res = new BooleanExpression(rec);
+                                    res.setSourcePosition(exp);
+
+                                    return res;
+                                }
+
+                                return super.transform(exp);
+                            }
+                        };
+
+                        final BooleanExpression transformed = new BooleanExpression(transformer.transform(statement.getBooleanExpression().getExpression()));
+                        transformed.setSourcePosition(statement.getBooleanExpression().getExpression());
+
+                        final IfStatement ifStatement = new IfStatement(transformed, EmptyStatement.INSTANCE, elseStatement);
+                        ifStatement.setSourcePosition(statement);
+
+                        tryStatement.addStatement(ifStatement);
+
+                        final BlockStatement finallyStatement = new BlockStatement();
+                        finallyStatement.setSourcePosition(statement);
+
+                        MethodCallExpression clearExpression = new MethodCallExpression(variable, "clear", new ArgumentListExpression());
+                        clearExpression.setSourcePosition(statement);
+
+                        final ExpressionStatement clearStatement = new ExpressionStatement(clearExpression);
+                        clearStatement.setSourcePosition(statement);
+
+                        finallyStatement.addStatement(clearStatement);
+
+                        TryCatchStatement tryCatch = new TryCatchStatement(tryStatement, finallyStatement);
+                        tryCatch.setSourcePosition(statement);
+
+                        block.addStatement(tryCatch);
+
+                        block.visit(this);
+                    }
+                    finally {
+                        assertionTracker = oldTracker;
+                    }
+                }
+            }
+            finally {
+                janitor.cleanup();
+            }
+
+            return;
+        }
+
         visitStatement(statement);
         Label noError = new Label();
 

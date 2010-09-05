@@ -23,6 +23,7 @@ import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeExpression;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.mbte.groovypp.compiler.CompilerTransformer;
+import org.mbte.groovypp.compiler.RecordingVariableExpression;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
@@ -44,6 +45,7 @@ public abstract class ExprTransformer<T extends Expression> implements Opcodes {
         transformers.put(MapExpression.class, new MapExpressionTransformer());
         transformers.put(SpreadExpression.class, new SpreadExpressionTransformer());
         transformers.put(VariableExpression.class, new VariableExpressionTransformer());
+        transformers.put(RecordingVariableExpression.class, transformers.get(VariableExpression.class));
         transformers.put(DeclarationExpression.class, new DeclarationExpressionTransformer());
         transformers.put(ClosureExpression.class, new ClosureExpressionTransformer());
         transformers.put(MethodCallExpression.class, new MethodCallExpressionTransformer());

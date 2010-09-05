@@ -23,26 +23,53 @@ import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.syntax.Types;
-import org.mbte.groovypp.compiler.CompilerTransformer;
-import org.mbte.groovypp.compiler.PresentationUtil;
-import org.mbte.groovypp.compiler.TypeUtil;
-import org.mbte.groovypp.compiler.Register;
+import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
 import org.mbte.groovypp.compiler.transformers.MapExpressionTransformer;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+import static org.codehaus.groovy.ast.ClassHelper.double_TYPE;
+import static org.codehaus.groovy.ast.ClassHelper.long_TYPE;
 
 public class ResolvedVarBytecodeExpr extends ResolvedLeftExpr {
     private final VariableExpression ve;
     private final Register var;
+    private final BytecodeExpr record;
 
     public ResolvedVarBytecodeExpr(ClassNode type, VariableExpression ve, CompilerTransformer compiler) {
         super(ve, type);
         this.ve = ve;
         var = compiler.compileStack.getRegister(ve.getName(), true);
+
+        if(ve instanceof RecordingVariableExpression) {
+            final RecordingVariableExpression recordingVariableExpression = (RecordingVariableExpression) ve;
+            final Register rvar = compiler.compileStack.getRegister(recordingVariableExpression.getRecorder().getName(), true);
+            record = (BytecodeExpr) compiler.transform(new MethodCallExpression(new BytecodeExpr(recordingVariableExpression.getRecorder(), recordingVariableExpression.getRecorder().getType()) {
+                @Override
+                protected void compile(MethodVisitor mv) {
+                    load(rvar.getType(), rvar.getIndex(), mv);
+                    if (getType() == double_TYPE || getType() == long_TYPE)
+                        mv.visitInsn(Opcodes.DUP_X2);
+                    else
+                        mv.visitInsn(Opcodes.DUP_X1);
+                    mv.visitInsn(POP);
+                }
+            }, "gppRecord", new ArgumentListExpression(new BytecodeExpr(ve, type) {
+                protected void compile(MethodVisitor mv) {
+                }
+            }, new ConstantExpression(recordingVariableExpression.getColumn()))));
+        }
+        else {
+            record = null;
+        }
     }
 
     protected void compile(MethodVisitor mv) {
         load(getType(), var.getIndex(), mv);
+        if(record != null) {
+            record.compile(mv);
+        }
     }
 
     public BytecodeExpr createAssign(ASTNode parent, BytecodeExpr right, CompilerTransformer compiler) {
@@ -52,7 +79,7 @@ public class ResolvedVarBytecodeExpr extends ResolvedLeftExpr {
             
             vtype = right.getType();
             if (!compiler.getLocalVarInferenceTypes().add(ve, vtype)) {
-                compiler.addError("IIlegal inference inside the loop. Consider making the variable's type explicit.", ve);
+                compiler.addError("Illegal inference inside the loop. Consider making the variable's type explicit.", ve);
             }
         } else {
             vtype = ve.getType();
