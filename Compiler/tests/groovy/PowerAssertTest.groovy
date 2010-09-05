@@ -21,7 +21,9 @@ class PowerAssertTest extends GroovyShellTestCase {
         def code = """
        try {
            def i = 9
-           assert !((i += 2.toString()  + [3].class.simpleName) != 10)
+           println i.class
+           def list = []
+           assert (list[0] = 'aaaa') && !((i += 2.toString()  + [3].class.simpleName) != 10)
        }
        catch(AssertionError e) {
            println e.message

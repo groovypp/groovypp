@@ -172,7 +172,7 @@ class OptionalReturnTest extends GroovyShellTestCase {
           @Typed
           def u() {
             def value = voidMethod()
-            assert value == null
+            assert value == null // @todo: && !voidMethod()
           }
 
           u()

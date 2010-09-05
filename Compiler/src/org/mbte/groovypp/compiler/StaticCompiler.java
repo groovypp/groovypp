@@ -164,10 +164,15 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
                                 if(exp instanceof BinaryExpression) {
                                     BinaryExpression binExpr = (BinaryExpression) exp;
                                     final Token token = binExpr.getOperation();
-                                    int column = finalSourceText.getNormalizedColumn(token.getStartLine(), token.getStartColumn());
-                                    final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(super.transform(exp), new ConstantExpression(column)));
-                                    res.setSourcePosition(exp);
-                                    return res;
+                                    if (token.getType() != Types.LEFT_SQUARE_BRACKET) {
+                                        int column = finalSourceText.getNormalizedColumn(token.getStartLine(), token.getStartColumn());
+                                        final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(super.transform(exp), new ConstantExpression(column)));
+                                        res.setSourcePosition(exp);
+                                        return res;
+                                    }
+                                    else {
+                                        return super.transform(exp);
+                                    }
                                 }
 
                                 if(exp instanceof VariableExpression) {
@@ -193,16 +198,15 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
 
                                 if(exp instanceof BooleanExpression) {
                                     int column = finalSourceText.getNormalizedColumn(exp.getLineNumber(), exp.getColumnNumber());
-                                    Expression subExpr = transform(((BooleanExpression) exp).getExpression());
-                                    subExpr = exp instanceof NotExpression ? new NotExpression(subExpr) : new BooleanExpression(subExpr);
+                                    Expression subExpr = super.transform(exp);
 
-                                    final MethodCallExpression rec = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(subExpr, new ConstantExpression(column)));
-                                    rec.setSourcePosition(exp);
-
-                                    final BooleanExpression res = new BooleanExpression(rec);
+                                    final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(subExpr, new ConstantExpression(column)));
                                     res.setSourcePosition(exp);
-
                                     return res;
+                                }
+
+                                if(exp instanceof PostfixExpression || exp instanceof PrefixExpression) {
+                                    return exp;
                                 }
 
                                 return super.transform(exp);

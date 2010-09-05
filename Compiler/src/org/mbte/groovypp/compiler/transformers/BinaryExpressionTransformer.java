@@ -581,7 +581,14 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             }
 
             if (opType == Types.COMPARE_EQUAL || opType == Types.COMPARE_NOT_EQUAL) {
-                return evaluateEqualNotEqual(be, compiler, label, onTrue, l2, r2, opType, false);
+                int opType1 = opType;
+                if (!onTrue) {
+                    if(opType == Types.COMPARE_EQUAL)
+                        opType1 = Types.COMPARE_NOT_EQUAL;
+                    else
+                        opType1 = Types.COMPARE_EQUAL;
+                }
+                return evaluateEqualNotEqual(be, compiler, label, l2, r2, opType1, false);
             }
 
             return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
@@ -635,7 +642,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
     - Object.equals(T) evaluated as T.equals(Object)
     - equals selection takes care for extension methods
      */
-    private BytecodeExpr evaluateEqualNotEqual(final BinaryExpression be, CompilerTransformer compiler, final Label label, final boolean onTrue, final BytecodeExpr left, final BytecodeExpr right, final int opType, final boolean swap) {
+    private BytecodeExpr evaluateEqualNotEqual(final BinaryExpression be, CompilerTransformer compiler, final Label label, final BytecodeExpr left, final BytecodeExpr right, final int opType, final boolean swap) {
         if (left.getType().equals(ClassHelper.OBJECT_TYPE)) {
             if (right.getType().equals(ClassHelper.OBJECT_TYPE)) {
                 return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
@@ -646,18 +653,18 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
 
                         switch (opType) {
                             case  Types.COMPARE_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
+                                mv.visitJumpInsn(IFNE, label);
                                 break;
 
                             case  Types.COMPARE_NOT_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IFEQ : IFNE, label);
+                                mv.visitJumpInsn(IFEQ, label);
                                 break;
                         }
                     }
                 };
             }
             else {
-                return evaluateEqualNotEqual(be, compiler, label, onTrue, right, left, opType, true);
+                return evaluateEqualNotEqual(be, compiler, label, right, left, opType, true);
             }
         }
 
@@ -670,11 +677,11 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                     mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/DefaultGroovyPPMethods", "compareToWithEqualityCheck", "(Ljava/lang/Object;Ljava/lang/Object;)I");
                     switch (opType) {
                         case  Types.COMPARE_EQUAL:
-                            mv.visitJumpInsn(onTrue ? IFEQ : IFNE, label);
+                            mv.visitJumpInsn(IFEQ, label);
                             break;
 
                         case  Types.COMPARE_NOT_EQUAL:
-                            mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
+                            mv.visitJumpInsn(IFNE, label);
                             break;
                     }
                 }
@@ -709,11 +716,11 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
 
                         switch (opType) {
                             case  Types.COMPARE_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
+                                mv.visitJumpInsn(IFNE, label);
                                 break;
 
                             case  Types.COMPARE_NOT_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IFEQ : IFNE, label);
+                                mv.visitJumpInsn(IFEQ, label);
                                 break;
                         }
                     }
@@ -728,13 +735,14 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                         Label end = new Label(), trueLabelPop2 = new Label (), falseLabelPop2 = new Label ();
 
                         mv.visitInsn(DUP2);
+
                         switch (opType) {
                             case  Types.COMPARE_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IF_ACMPEQ : IF_ACMPNE, trueLabelPop2);
+                                mv.visitJumpInsn(IF_ACMPEQ, trueLabelPop2);
                                 break;
 
                             case  Types.COMPARE_NOT_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IF_ACMPNE : IF_ACMPEQ, trueLabelPop2);
+                                mv.visitJumpInsn(IF_ACMPEQ, falseLabelPop2);
                                 break;
                         }
 
@@ -743,11 +751,11 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
 
                         switch (opType) {
                             case  Types.COMPARE_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IFNULL : IFNONNULL, falseLabelPop2);
+                                mv.visitJumpInsn(IFNULL, falseLabelPop2);
                                 break;
 
                             case  Types.COMPARE_NOT_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IFNONNULL : IFNULL, falseLabelPop2);
+                                mv.visitJumpInsn(IFNULL, trueLabelPop2);
                                 break;
                         }
 
@@ -755,11 +763,11 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
 
                         switch (opType) {
                             case  Types.COMPARE_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
+                                mv.visitJumpInsn(IFNE, label);
                                 break;
 
                             case  Types.COMPARE_NOT_EQUAL:
-                                mv.visitJumpInsn(onTrue ? IFEQ : IFNE, label);
+                                mv.visitJumpInsn(IFEQ, label);
                                 break;
                         }
 

@@ -45,20 +45,19 @@ public class ResolvedVarBytecodeExpr extends ResolvedLeftExpr {
         if(ve instanceof RecordingVariableExpression) {
             final RecordingVariableExpression recordingVariableExpression = (RecordingVariableExpression) ve;
             final Register rvar = compiler.compileStack.getRegister(recordingVariableExpression.getRecorder().getName(), true);
-            record = (BytecodeExpr) compiler.transform(new MethodCallExpression(new BytecodeExpr(recordingVariableExpression.getRecorder(), recordingVariableExpression.getRecorder().getType()) {
+            record = new BytecodeExpr(ve, getType()) {
                 @Override
                 protected void compile(MethodVisitor mv) {
+                    dup(ResolvedVarBytecodeExpr.this.getType(), mv);
+                    box(ResolvedVarBytecodeExpr.this.getType(), mv);
                     load(rvar.getType(), rvar.getIndex(), mv);
-                    if (getType() == double_TYPE || getType() == long_TYPE)
-                        mv.visitInsn(Opcodes.DUP_X2);
-                    else
-                        mv.visitInsn(Opcodes.DUP_X1);
+                    mv.visitInsn(Opcodes.DUP_X1);
+                    mv.visitInsn(POP);
+                    mv.visitLdcInsn(recordingVariableExpression.getColumn());
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "org/codehaus/groovy/transform/powerassert/ValueRecorder", "record", "(Ljava/lang/Object;I)Ljava/lang/Object;");
                     mv.visitInsn(POP);
                 }
-            }, "gppRecord", new ArgumentListExpression(new BytecodeExpr(ve, type) {
-                protected void compile(MethodVisitor mv) {
-                }
-            }, new ConstantExpression(recordingVariableExpression.getColumn()))));
+            };
         }
         else {
             record = null;

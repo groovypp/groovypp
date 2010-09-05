@@ -25,6 +25,7 @@ class CompareEqualsTest extends GroovyShellTestCase {
         @Typed
         class Xyz {
             boolean equals(Xyz other) {
+                println "EQUALS"
                 true
             }
 
@@ -33,6 +34,7 @@ class CompareEqualsTest extends GroovyShellTestCase {
             }
 
             boolean equals(String str) {
+                println "EQUALS: \$str"
                 str.equalsIgnoreCase this.class.getName()
             }
         }
@@ -40,8 +42,10 @@ class CompareEqualsTest extends GroovyShellTestCase {
         @Typed
         def u() {
           assert new Xyz() == new Xyz()
+          assert !(new Xyz() != new Xyz())
           assert new Xyz().equals(new Xyz())
-          assert !(new Xyz() == 239)
+          assert !(new Xyz() == '239')
+          assert (new Xyz() != '239')
         }
         u();
       """

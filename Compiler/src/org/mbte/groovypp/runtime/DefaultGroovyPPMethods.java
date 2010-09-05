@@ -25,6 +25,7 @@ import org.codehaus.groovy.runtime.RegexSupport;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.codehaus.groovy.runtime.typehandling.NumberMath;
 import org.codehaus.groovy.transform.powerassert.ValueRecorder;
+import org.mbte.groovypp.compiler.TypeUtil;
 
 import java.io.Writer;
 import java.lang.reflect.Array;
@@ -297,46 +298,6 @@ public class DefaultGroovyPPMethods extends DefaultGroovyMethodsSupport {
         }
 
         return true;
-    }
-
-    public static boolean gppRecord(ValueRecorder recorder, boolean value, int column) {
-        recorder.record(value, column);
-        return value;
-    }
-
-    public static byte gppRecord(ValueRecorder recorder, byte value, int column) {
-        recorder.record(value, column);
-        return value;
-    }
-
-    public static short gppRecord(ValueRecorder recorder, short value, int column) {
-        recorder.record(value, column);
-        return value;
-    }
-
-    public static int gppRecord(ValueRecorder recorder, int value, int column) {
-        recorder.record(value, column);
-        return value;
-    }
-
-    public static long gppRecord(ValueRecorder recorder, long value, int column) {
-        recorder.record(value, column);
-        return value;
-    }
-
-    public static char gppRecord(ValueRecorder recorder, char value, int column) {
-        recorder.record(value, column);
-        return value;
-    }
-
-    public static float gppRecord(ValueRecorder recorder, float value, int column) {
-        recorder.record(value, column);
-        return value;
-    }
-
-    public static double gppRecord(ValueRecorder recorder, double value, int column) {
-        recorder.record(value, column);
-        return value;
     }
 
     public static <T> T gppRecord(ValueRecorder recorder, T value, int column) {
