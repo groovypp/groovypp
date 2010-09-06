@@ -52,4 +52,28 @@ class CompareEqualsTest extends GroovyShellTestCase {
     )
 
   }
+
+    void testI295 () {
+        shell.evaluate """
+@Typed
+def foo() {
+  Map<String, Zoo> map = [:]
+
+  if (map['a'] == new Zoo()) {
+    println "=="
+  }
+  println "success"
+}
+
+foo()
+
+class Zoo {
+  @Override
+  boolean equals(Object obj) {
+    return false
+  }
+
+}
+"""
+    }
 }
