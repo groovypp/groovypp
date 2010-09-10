@@ -5,5 +5,3 @@ org.mbte.groovypp.compiler.AsyncASTTransform
 org.mbte.groovypp.compiler.SerialASTTransform
 org.mbte.groovypp.compiler.StructASTTransform
 org.mbte.groovypp.compiler.GrunitASTTransform
-
-#files:gpp,grunit
