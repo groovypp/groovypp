@@ -233,6 +233,11 @@
               <include name="**/*$GrUnitTest*.class"/>
             </fileset>        
         </move>
+        <copy todir="${stdlib.prod.output}/META-INF">
+            <fileset dir="StdLib/src/META-INF">
+                <exclude name="**/*ASTTransformation"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="compile.tests.stdlib"  depends="compile.gretty">
