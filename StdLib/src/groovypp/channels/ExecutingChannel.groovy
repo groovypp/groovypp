@@ -25,20 +25,54 @@ import groovypp.concurrent.CallLater
  * Channel, which asynchronously schedule incoming messages for processing.
  * No more than one message processed at any given moment
  */
-@Typed abstract class ExecutingChannel<M> extends QueuedChannel<M> implements Runnable {
+@Typed abstract class ExecutingChannel<M> extends MessageChannel<M> implements Runnable {
+    protected volatile FQueue<M> queue = FQueue.emptyQueue
+
+    /**
+     * non volatile. should be effectively final
+     */
     Executor executor
+
+    /**
+     * non volatile. should be effectively final
+     */
     boolean  runFair
 
-    void run() {
+    /**
+     * Special tag saying that processing thread(reader) is processing last message in the queue.
+     * This is kind of protocol between writers to QueuedChannel and reader.
+     */
+    protected static final FQueue busyEmptyQueue = FQueue.emptyQueue + null
+
+    final void post(M message) {
+        for (;;) {
+            def oldQueue = queue
+            def newQueue = (oldQueue === busyEmptyQueue ? FQueue.emptyQueue : oldQueue).addLast(message)
+            if (queue.compareAndSet(oldQueue, newQueue)) {
+                if(oldQueue.empty)
+                    executor.execute(this)
+                return
+            }
+        }
+    }
+
+    final void postFirst(M message) {
+        for (;;) {
+            def oldQueue = queue
+            def newQueue = (oldQueue === busyEmptyQueue ? FQueue.emptyQueue : oldQueue).addFirst(message)
+            if (queue.compareAndSet(oldQueue, newQueue)) {
+                if(oldQueue.empty)
+                    executor.execute(this)
+                return
+            }
+        }
+    }
+
+    final void run() {
         runFair ? runFair () : runNonfair ()
     }
 
-    protected final void signalPost(FQueue<M> oldQueue, FQueue<M> newQueue) {
-        if (oldQueue !== busyEmptyQueue && newQueue.size() == 1)
-            executor.execute this
-    }
-
-    protected final void runFair () {
+    private void runFair () {
         for (;;) {
             def q = queue
             def removed = q.removeFirst()
@@ -61,7 +95,7 @@ import groovypp.concurrent.CallLater
         }
     }
 
-    protected final void runNonfair () {
+    private void runNonfair () {
         for (;;) {
             def q = queue
             if (queue.compareAndSet(q, busyEmptyQueue)) {

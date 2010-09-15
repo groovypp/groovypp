@@ -325,7 +325,7 @@
     </target>
 
     <target name="test.jar" depends="clean,make.jar,compile.tests.compiler,compile.tests.stdlib,compile.tests.gretty"
-            description="run unit tests againsts jars" unless="_skipTests_">
+            description="run unit tests against jars" unless="_skipTests_">
         <mkdir dir="${test.reports.jar}"/>
         <junit printsummary="yes" fork="yes" forkmode="perBatch" includeantruntime="no">
             <jvmarg value="-Xmx512m"/>

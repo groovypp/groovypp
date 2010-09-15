@@ -33,10 +33,6 @@ import static org.mbte.gretty.redis.RedisCommand.MORE
     private static class State {
         // first element is waiting to read
         FQueue<RedisCommand>  readQueue = FQueue.emptyQueue
-
-        // first element is waiting to be written
-        FQueue<RedisCommand> writeQueue = FQueue.emptyQueue
-
     }
 
     private volatile State state = []
@@ -135,13 +131,10 @@ import static org.mbte.gretty.redis.RedisCommand.MORE
             def s = state
             State ns = new State ()
 
-            ns.writeQueue = s.writeQueue + command
             ns.readQueue  = s.readQueue  + command
 
             if(state.compareAndSet(s, ns)) {
-                if (s.writeQueue.empty) {
-                    command.write(channel).addListener { writeCompleted() }
-                }
+                command.write(channel).addListener { writeCompleted() }
                 return command
             }
         }
@@ -152,15 +145,8 @@ import static org.mbte.gretty.redis.RedisCommand.MORE
             def s = state
             def ns = new State()
 
-            def removed = s.writeQueue.removeFirst()
-            ns.writeQueue = removed.second
             ns.readQueue  = s.readQueue
-
             if(state.compareAndSet(s, ns)) {
-//                println "${removed.first} written"
-                if(!ns.writeQueue.empty) {
-                    ns.writeQueue.first.write(channel).addListener{ writeCompleted() }
-                }
                 return
             }
         }
@@ -171,12 +157,10 @@ import static org.mbte.gretty.redis.RedisCommand.MORE
             def s = state
             State ns = new State()
 
-            ns.writeQueue = s.writeQueue
             def removed = s.readQueue.removeFirst()
             ns.readQueue  = removed.second
 
             if(state.compareAndSet(s, ns)) {
-//                println "${removed.first} completed"
                 return
             }
         }

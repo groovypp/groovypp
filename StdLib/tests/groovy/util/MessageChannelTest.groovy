@@ -28,6 +28,7 @@ import groovypp.channels.MultiplexorChannel
 import static groovypp.channels.Channels.channel
 
 import groovypp.channels.ExecutingChannel
+import groovypp.concurrent.FThreadPool1
 
 @Typed class MessageChannelTest extends GroovyTestCase {
 
@@ -175,6 +176,20 @@ import groovypp.channels.ExecutingChannel
         assertTrue(pool.awaitTermination(10,TimeUnit.SECONDS))
     }
 
+    void testRingFair1FastPool () {
+        FThreadPool1 pool = []
+        runRing(pool,true)
+        assertTrue(pool.shutdownNow().empty)
+        assertTrue(pool.awaitTermination(10,TimeUnit.SECONDS))
+    }
+
+    void testRingNon1FairFastPool () {
+        FThreadPool1 pool = []
+        runRing(pool,false)
+        assertTrue(pool.shutdownNow().empty)
+        assertTrue(pool.awaitTermination(10,TimeUnit.SECONDS))
+    }
+
     private void runRing (Executor pool, boolean fair) {
         def start = System.currentTimeMillis()
         MessageChannel prev
@@ -184,13 +199,8 @@ import groovypp.channels.ExecutingChannel
         for (i in 0..<nActors) {
             ExecutingChannel channel = [
                 onMessage: {
-                    if (it instanceof String) {
-                      prev?.post it
-                      cdl.countDown()
-                    }
-                    else {
-                      super.onMessage(it)
-                    }
+                  prev?.post it
+                  cdl.countDown()
                 },
                 toString: {
                     "Channel $i"
@@ -203,7 +213,7 @@ import groovypp.channels.ExecutingChannel
         for(i in 0..<nMessages)
             prev << "Hi"
 
-        assertTrue(cdl.await(300,TimeUnit.SECONDS))
+        assertTrue(cdl.await(6000,TimeUnit.SECONDS))
         println("runRing($fair): ${pool.class.simpleName} ${System.currentTimeMillis()-start}")
     }
 }

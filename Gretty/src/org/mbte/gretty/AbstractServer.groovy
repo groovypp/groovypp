@@ -83,7 +83,7 @@ import org.mbte.gretty.httpserver.IoMonitor
         threadPool.execute command
     }
 
-    final ChannelPipeline getPipeline() {
+    ChannelPipeline getPipeline() {
         def pipeline = Channels.pipeline()
         buildPipeline(pipeline)
         pipeline
