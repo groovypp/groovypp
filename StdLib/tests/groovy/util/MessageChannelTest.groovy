@@ -176,20 +176,6 @@ import groovypp.concurrent.FThreadPool1
         assertTrue(pool.awaitTermination(10,TimeUnit.SECONDS))
     }
 
-    void testRingFair1FastPool () {
-        FThreadPool1 pool = []
-        runRing(pool,true)
-        assertTrue(pool.shutdownNow().empty)
-        assertTrue(pool.awaitTermination(10,TimeUnit.SECONDS))
-    }
-
-    void testRingNon1FairFastPool () {
-        FThreadPool1 pool = []
-        runRing(pool,false)
-        assertTrue(pool.shutdownNow().empty)
-        assertTrue(pool.awaitTermination(10,TimeUnit.SECONDS))
-    }
-
     private void runRing (Executor pool, boolean fair) {
         def start = System.currentTimeMillis()
         MessageChannel prev
