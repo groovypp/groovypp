@@ -32,7 +32,7 @@ import java.util.concurrent.locks.LockSupport
 
   private CountDownLatch termination
 
-  FThreadPool1(int num = Runtime.getRuntime().availableProcessors(), ThreadFactory threadFactory = Executors.defaultThreadFactory()) {
+  FThreadPool(int num = Runtime.getRuntime().availableProcessors(), ThreadFactory threadFactory = Executors.defaultThreadFactory()) {
     for(i in 0..<num) {
       termination = [num]
       def thread = threadFactory.newThread {
