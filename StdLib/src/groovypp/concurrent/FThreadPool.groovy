@@ -22,99 +22,80 @@ import java.util.concurrent.locks.LockSupport
 /**
  * A bit faster implementation of fixed thread pool Executor
  */
-@Typed class FThreadPool implements Executor {
+@Typed class FThreadPool1 implements Executor {
 
-  private static class State {
-      FQueue<Runnable> queue
-      FList<Worker>  waiting
-  }
+  protected volatile FQueue<Runnable> queue = FQueue.emptyQueue
 
-  protected volatile State state = [queue:FQueue.emptyQueue, waiting:FList.emptyList]
+  private static final Runnable stopMarker = {}
 
-  protected static final Runnable stopMarker = {}
+  private final Semaphore semaphore = [0]
 
-  private final CountDownLatch termination
+  private CountDownLatch termination
 
-  FThreadPool(int num = Runtime.getRuntime().availableProcessors(), ThreadFactory threadFactory = Executors.defaultThreadFactory()) {
-    termination = [num]
+  FThreadPool1(int num = Runtime.getRuntime().availableProcessors(), ThreadFactory threadFactory = Executors.defaultThreadFactory()) {
     for(i in 0..<num) {
-      threadFactory.newThread(new Worker ()).start()
-    }
-  }
-
-  protected final void runNormal(State s) {
-    def got = s.queue.removeFirst()
-    if(state.compareAndSet(s, [queue: got.second, waiting:s.waiting])) {
-      got.first.run()
-    }
-  }
-
-  protected final void runStopping(State s) {
-    def got = s.queue.removeFirst().second.removeFirst()
-    if(state.compareAndSet(s, [queue:got.second.addFirst(stopMarker), waiting:s.waiting])) {
-      got.first.run()
-    }
-  }
-
-  protected final void park(State s, Worker worker) {
-      if(state.compareAndSet(s, [queue:FQueue.emptyQueue, waiting:s.waiting + worker])) {
-          for(def spin = 2000; spin; spin--) {
-              def command = worker.mailbox
-              if(command) {
-                  worker.mailbox = null
-
-                  if(command === stopMarker)
-                    return
-
-                  command.run ()
-
-                  LockSupport.park() // compensate of unpark from enqueing thread
-                  return
-              }
-          }
-
+      termination = [num]
+      def thread = threadFactory.newThread {
+        try {
           for(;;) {
-              LockSupport.park()
+            semaphore.acquire()
 
-              def command = worker.mailbox
-              if(command) {
-                  // already removed from waiting list
-                  worker.mailbox = null
+            for(;;) {
+              def q = queue
 
-                  if(command === stopMarker)
-                    return
-                  
-                  command.run ()
-                  return
+              if(q.first === stopMarker) {
+                runStopping()
+                return
               }
               else {
-                  if(Thread.interrupted())
-                    throw new InterruptedException();
-
-                  // was unparked without reason, so still in waiting list
+                if(tryRun(q))
+                  break
               }
+            }
           }
+        }
+        finally {
+          termination.countDown()
+        }
       }
+      thread.start()
+    }
   }
 
-  final void execute(Runnable command) {
-    for(;;) {
-      def s = state
-      if (!s.queue.empty && s.queue.first == stopMarker)
-        throw new RejectedExecutionException()
+  private boolean tryRun(FQueue<Runnable> q) {
+    def got = q.removeFirst()
+    if(queue.compareAndSet(q, got.second)) {
+      got.first.run()
+      return true
+    }
+    return false
+  }
 
-      if(s.waiting.empty) {
-          if(state.compareAndSet(s, [queue:s.queue + command, waiting:FList.emptyList])) {
-            break
-          }
+  private void runStopping() {
+    for (;;) {
+      def q = queue
+
+      if(q.size() == 1) {
+        return
       }
       else {
-          if(state.compareAndSet(s, [queue:FQueue.emptyQueue, waiting:s.waiting.tail])) {
-            def head = s.waiting.head
-            head.mailbox = command
-            LockSupport.unpark(head.thread)
-            break
-          }
+        def got = q.removeFirst().second.removeFirst()
+        if(queue.compareAndSet(q, got.second.addFirst(stopMarker))) {
+          got.first.run()
+        }
+      }
+    }
+  }
+
+  void execute(Runnable command) {
+    for(;;) {
+      def q = queue
+      if (!q.empty && q.first == stopMarker)
+        throw new RejectedExecutionException()
+
+      if(queue.compareAndSet(q, q + command)) {
+        semaphore.release()
+        break
       }
     }
   }
@@ -125,95 +106,38 @@ import java.util.concurrent.locks.LockSupport
    */
   void shutdown() {
     for(;;) {
-      def s = state
-      if (s.queue.empty) {
-        if(state.compareAndSet(s, [queue: FQueue.emptyQueue + stopMarker, waiting: FList.emptyList])) {
-          unparkAll(s)
+      def q = queue
+      if (q.empty) {
+        if(queue.compareAndSet(q, FQueue.emptyQueue + stopMarker)) {
           break
         }
       }
       else {
-        if (s.queue.first !== stopMarker) {
-          if(state.compareAndSet(s, [queue:s.queue.addFirst(stopMarker), waiting:FList.emptyList])) {
-            unparkAll(s)
+        if (q.first !== stopMarker) {
+          if(queue.compareAndSet(q, q.addFirst(stopMarker))) {
             break
           }
         }
-        else {
-            break
-        }
       }
     }
+    semaphore.release(Integer.MAX_VALUE)
   }
 
-    private void unparkAll(State s) {
-        for (w in s.waiting) {
-            w.mailbox = stopMarker
-            LockSupport.unpark(w.thread)
-        }
-    }
-
-    /**
+  /**
    * Initiate process of shutdown
    * No new tasks can be scheduled after that point and all tasks, which not started execution yet, will be unscheduled
    */
   List<Runnable> shutdownNow() {
-      for(;;) {
-        def s = state
-        if (s.queue.empty) {
-          if(state.compareAndSet(s, [queue: FQueue.emptyQueue + stopMarker, waiting: FList.emptyList])) {
-            unparkAll(s)
-            return []
-          }
-        }
-        else {
-          if (s.queue.first !== stopMarker) {
-            if(state.compareAndSet(s, [queue:s.queue.addFirst(stopMarker), waiting:FList.emptyList])) {
-              unparkAll(s)
-              return s.queue.iterator().asList()
-            }
-          }
-          else {
-              return []
-          }
-        }
+    for(;;) {
+      def q = queue
+      if(queue.compareAndSet(q, FQueue.emptyQueue + stopMarker)) {
+        semaphore.release(Integer.MAX_VALUE)
+        return q.iterator().asList()
       }
+    }
   }
 
   boolean awaitTermination(long timeout, TimeUnit timeUnit) {
-    termination.await(timeout, timeUnit)
-  }
-
-  private class Worker implements Runnable {
-      volatile Thread thread
-      volatile Runnable mailbox
-
-      void run() {
-          thread = Thread.currentThread()
-
-          try {
-            for(;;) {
-                def s = state
-
-                if(s.queue.empty) {
-                    park(s, this)
-                }
-                else {
-                    if(s.queue.first === stopMarker) {
-                      if(s.queue.size() == 1)
-                        return
-
-                      runStopping(s)
-                    }
-                    else {
-                      runNormal(s)
-                    }
-                }
-            }
-          }
-          finally {
-            termination.countDown()
-          }
-      }
+    termination?.await(timeout, timeUnit)
   }
 }
