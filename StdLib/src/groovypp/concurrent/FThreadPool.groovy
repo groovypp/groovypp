@@ -22,7 +22,7 @@ import java.util.concurrent.locks.LockSupport
 /**
  * A bit faster implementation of fixed thread pool Executor
  */
-@Typed class FThreadPool1 implements Executor {
+@Typed class FThreadPool implements Executor {
 
   protected volatile FQueue<Runnable> queue = FQueue.emptyQueue
 
