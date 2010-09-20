@@ -81,6 +81,7 @@ import java.util.concurrent.Executor
             action.set(action(resource))
         }
         catch(t) {
+            t.printStackTrace()
             action.setException(t)
         }
 
@@ -143,7 +144,7 @@ import java.util.concurrent.Executor
         }
     }
 
-    private synchronized void initPool () {
+    public synchronized void initPool () {
         if (state.second == null) {
             state.second = FList.emptyList.addAll(initResources ())
         }

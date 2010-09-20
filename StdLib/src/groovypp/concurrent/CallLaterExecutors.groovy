@@ -18,6 +18,7 @@ package groovypp.concurrent
 
 import org.junit.Assert
 import java.util.concurrent.*
+import groovypp.concurrent.CallLaterPool.GroovyThread
 
 /**
  * Provide infrastructure for convenient work with thread pools
@@ -32,11 +33,11 @@ import java.util.concurrent.*
 @Typed
 class CallLaterExecutors {
     static CallLaterPool newFixedThreadPool(int nThreads = Runtime.getRuntime().availableProcessors()) {
-        new CallLaterPool(nThreads, nThreads,0L, TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>())
+        new CallLaterPool(nThreads, nThreads,0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>())
     }
 
     static CallLaterPool newCachedThreadPool() {
-        new CallLaterPool(0, Integer.MAX_VALUE, 1L, TimeUnit.SECONDS,new SynchronousQueue<Runnable>())
+        new CallLaterPool(0, Integer.MAX_VALUE, 1L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>())
     }
 
     static <T> BindLater<T> callLater (Executor executor, CallLater<T> future) {
@@ -75,5 +76,19 @@ class CallLaterExecutors {
             assertTrue(pool.shutdownNow().empty)
             assertTrue(pool.awaitTermination(10,TimeUnit.SECONDS))
         }
+    }
+
+    static <T> BindLater.Listener<T> async(BindLater.Listener<T> listener) {
+        def thread = Thread.currentThread()
+        if(thread instanceof GroovyThread) {
+            def pool = ((GroovyThread)thread).pool
+            return { bl ->
+                pool.execute {
+                    listener.onBound(bl)
+                }
+            }
+        }
+        else
+            listener
     }
 }
