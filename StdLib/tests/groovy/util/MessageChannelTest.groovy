@@ -28,7 +28,6 @@ import groovypp.channels.MultiplexorChannel
 import static groovypp.channels.Channels.channel
 
 import groovypp.channels.ExecutingChannel
-import groovypp.concurrent.FThreadPool1
 
 @Typed class MessageChannelTest extends GroovyTestCase {
 
