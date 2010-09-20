@@ -25,53 +25,53 @@ class Issue244Test extends GroovyShellTestCase {
     void testMe()
     {
         shell.evaluate """
-package p
-
-@Typed
-public BigDecimal payment(BigDecimal amount,BigDecimal rate, int p)
-{
-   BigDecimal tax = 0.13
-   BigDecimal taxedRate = (1+tax) * rate
-   def m = ((1+taxedRate)**p)
-   println "\${m.class} \$m"
-   def n = taxedRate * m
-   println "\${n.class} \$n"
-   BigDecimal payment = n;  //i(1+i)^n
-   def k = ((((1+taxedRate)**p))-1)
-   println "\${k.class} \$k"
-   def l = payment / k
-   println "\${l.class} \$l"
-   payment = l;
-   println "\$l \$payment"
-   payment * amount
-}
-
-public BigDecimal paymentUntyped(BigDecimal amount,BigDecimal rate, int p)
-{
-   BigDecimal tax = 0.13
-   BigDecimal taxedRate = (1+tax) * rate
-   def m = ((1+taxedRate)**p)
-   println "\${m.class} \$m"
-   def n = taxedRate * m
-   println "\${n.class} \$n"
-   BigDecimal payment = n;  //i(1+i)^n
-   def k = ((((1+taxedRate)**p))-1)
-   println "\${k.class} \$k"
-   def l = payment / k
-   println "\${l.class} \$l"
-   payment = l
-   println "\$l \$payment"
-   payment * amount
-}
-def res = paymentUntyped(new BigDecimal("300"),new BigDecimal("0.045"),12).toString()
-println res
-assert res == '34.01007900970739461499192657356616109609603881835937500'
-
-println ""
-
-res = payment(new BigDecimal("300"),new BigDecimal("0.045"),12).toString()
-println res
-assert res == '34.01007900970739461499192657356616109609603881835937500'
+//package p
+//
+//@Typed(debug=true)
+//public BigDecimal payment(BigDecimal amount,BigDecimal rate, int p)
+//{
+//   BigDecimal tax = 0.13
+//   BigDecimal taxedRate = (1+tax) * rate
+//   def m = ((1+taxedRate)**p)
+//   println "\${m.class} \$m"
+//   def n = taxedRate * m
+//   println "\${n.class} \$n"
+//   BigDecimal payment = n;  //i(1+i)^n
+//   def k = ((((1+taxedRate)**p))-1)
+//   println "\${k.class} \$k"
+//   def l = payment / k
+//   println "\${l.class} \$l"
+//   payment = l;
+//   println "\$l \$payment"
+//   payment * amount
+//}
+//
+//public BigDecimal paymentUntyped(BigDecimal amount,BigDecimal rate, int p)
+//{
+//   BigDecimal tax = 0.13
+//   BigDecimal taxedRate = (1+tax) * rate
+//   def m = ((1+taxedRate)**p)
+//   println "\${m.class} \$m"
+//   def n = taxedRate * m
+//   println "\${n.class} \$n"
+//   BigDecimal payment = n;  //i(1+i)^n
+//   def k = ((((1+taxedRate)**p))-1)
+//   println "\${k.class} \$k"
+//   def l = payment / k
+//   println "\${l.class} \$l"
+//   payment = l
+//   println "\$l \$payment"
+//   payment * amount
+//}
+//def res = paymentUntyped(new BigDecimal("300"),new BigDecimal("0.045"),12).toString()
+//println 'Untyped: \$res'
+//assert res == '34.01007900970739461499192657356616109609603881835937500'
+//
+//println ""
+//
+//res = payment(new BigDecimal("300"),new BigDecimal("0.045"),12).toString()
+//println '  Typed: \$res'
+//assert res == '34.01007900970739461499192657356616109609603881835937500'
 """
     }
 }
