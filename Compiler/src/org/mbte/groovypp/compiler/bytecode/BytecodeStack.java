@@ -42,7 +42,7 @@ class BytecodeStack {
     void pop (byte kind) {
         int e = elements[--elementCount];
         if (e != kind) {
-            throw new RuntimeException("Inconsistent pop");
+            throw new RuntimeException("Internal compiler error: Inconsistent pop");
         }
     }
 
@@ -51,7 +51,7 @@ class BytecodeStack {
         if (e != KIND_DOUBLE && e != KIND_LONG) {
             e = elements[--elementCount];
             if (e == KIND_LONG || e == KIND_DOUBLE) {
-                throw new RuntimeException("Inconsistent pop");
+                throw new RuntimeException("Internal compiler error: Inconsistent pop");
             }
         }
     }
@@ -59,7 +59,7 @@ class BytecodeStack {
     public byte pop() {
         byte e = elements[--elementCount];
         if (e == KIND_LONG || e == KIND_DOUBLE) {
-            throw new RuntimeException("Inconsistent pop");
+            throw new RuntimeException("Internal compiler error: Inconsistent pop");
         }
         return e;
     }

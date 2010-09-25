@@ -25,6 +25,7 @@ import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeInstruction;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
+import org.mbte.groovypp.compiler.asm.I2LL2IRemoverMethodAdapter;
 import org.mbte.groovypp.compiler.asm.UneededLoadPopRemoverMethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 

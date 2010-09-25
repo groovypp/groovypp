@@ -55,6 +55,10 @@ class CallLaterExecutors {
             executor.execute r
     }
 
+    static void call (Executor executor, Runnable run) {
+        executor.execute run
+    }
+
     static void testWithFixedPool (Object self, int nThreads = Runtime.getRuntime().availableProcessors(), TestWithPool test) {
         test.pool = newFixedThreadPool(nThreads)
         test.test ()

@@ -23,7 +23,7 @@ import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class LdcImproverMethodAdapter extends StackAwareMethodAdapter implements Opcodes {
+public class LdcImproverMethodAdapter extends I2LL2IRemoverMethodAdapter implements Opcodes {
     public LdcImproverMethodAdapter(MethodVisitor methodVisitor) {
         super(methodVisitor);
     }

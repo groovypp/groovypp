@@ -412,8 +412,10 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
             case Types.LEFT_SHIFT:
                 if (type == ClassHelper.int_TYPE)
                     mv.visitInsn(ISHL);
-                else if (type == ClassHelper.long_TYPE)
+                else if (type == ClassHelper.long_TYPE) {
+                    mv.visitInsn(L2I);
                     mv.visitInsn(LSHL);
+                }
                 else
                     throw new RuntimeException("Internal Error");
                 break;
@@ -421,8 +423,10 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
             case Types.RIGHT_SHIFT:
                 if (type == ClassHelper.int_TYPE)
                     mv.visitInsn(ISHR);
-                else if (type == ClassHelper.long_TYPE)
+                else if (type == ClassHelper.long_TYPE) {
+                    mv.visitInsn(L2I);
                     mv.visitInsn(LSHR);
+                }
                 else
                     throw new RuntimeException("Internal Error");
                 break;
@@ -430,8 +434,10 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
             case Types.RIGHT_SHIFT_UNSIGNED:
                 if (type == ClassHelper.int_TYPE)
                     mv.visitInsn(IUSHR);
-                else if (type == ClassHelper.long_TYPE)
+                else if (type == ClassHelper.long_TYPE) {
+                    mv.visitInsn(L2I);
                     mv.visitInsn(LUSHR);
+                }
                 else
                     throw new RuntimeException("Internal Error");
                 break;

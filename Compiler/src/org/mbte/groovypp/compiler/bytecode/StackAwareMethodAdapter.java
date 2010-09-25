@@ -279,14 +279,19 @@ public class StackAwareMethodAdapter extends MethodAdapter implements Opcodes, L
             case LSUB:
             case LMUL:
             case LDIV:
-            case LSHL:
-            case LUSHR:
             case LAND:
             case LOR:
             case LXOR:
             case LREM:
-            case LSHR:
                 stack.pop(BytecodeStack.KIND_LONG);
+                stack.pop(BytecodeStack.KIND_LONG);
+                stack.push(BytecodeStack.KIND_LONG);
+                break;
+
+            case LSHL:
+            case LUSHR:
+            case LSHR:
+                stack.pop(BytecodeStack.KIND_INT);
                 stack.pop(BytecodeStack.KIND_LONG);
                 stack.push(BytecodeStack.KIND_LONG);
                 break;
