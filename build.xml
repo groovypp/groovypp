@@ -144,7 +144,7 @@
 			<include name="asm*.jar"/>
 			<include name="netty-*.jar"/>
 			<include name="commons-cli-*.jar"/>
-			<include name="groovy-1.7.5-SNAPSHOT.jar" />
+			<include name="groovy-1.7.5.jar" />
 
 			<exclude name="asm-attr*.jar"/>
 			<exclude name="asm-util*.jar"/>
@@ -411,7 +411,7 @@
             </patternset>
             <globmapper from="META-INF/LICENSE.txt" to="META-INF/GROOVY-LICENSE.txt"/>
             <fileset dir="${deploy.lib.dir}">
-                <include name="groovy-1.7.5-SNAPSHOT.jar" />
+                <include name="groovy-1.7.5.jar" />
             </fileset>
         </unzip>
         <unzip dest="${stagingDirectory}/cli">
@@ -519,7 +519,7 @@
 
 	        <mappedresources>
 		        <fileset dir="install/lib">
-			        <include name="groovy-1.7.5-SNAPSHOT.jar" />
+			        <include name="groovy-1.7.5.jar" />
 		        </fileset>
 		        <globmapper from="groovy-1.7.5*.jar"
 		                    to="lib/groovy-1.7.5*-${version}.jar"/>
