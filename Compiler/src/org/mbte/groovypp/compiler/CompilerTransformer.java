@@ -26,9 +26,9 @@ import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
-import org.codehaus.groovy.syntax.SyntaxException;
-import org.codehaus.groovy.syntax.Token;
-import org.codehaus.groovy.syntax.Types;
+import org.codehaus.groovy.control.messages.WarningMessage;
+import org.codehaus.groovy.syntax.*;
+import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.util.FastArray;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.LocalVarTypeInferenceState;
@@ -79,6 +79,35 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         SourceUnit source = getSourceUnit();
         source.getErrorCollector().addError(
                 new SyntaxErrorMessage(new SyntaxException(msg + '\n', line, col), source), true
+        );
+    }
+
+    public void addWarning(String msg, final ASTNode expr) {
+        int line = expr.getLineNumber();
+        int col = expr.getColumnNumber();
+        SourceUnit source = getSourceUnit();
+        source.getErrorCollector().addWarning(
+            new WarningMessage(
+                WarningMessage.POSSIBLE_ERRORS,
+                msg,
+                new CSTNode(){
+                    public int size() { return 0; }
+
+                    public CSTNode get(int index) { return null; }
+
+                    public Token getRoot() { return null; }
+
+                    public Reduction asReduction() { return null; }
+
+                    public int getStartLine() {
+                        return expr.getLineNumber();
+                    }
+
+                    public int getStartColumn() {
+                        return expr.getColumnNumber();
+                    }
+                },
+                source)
         );
     }
 
@@ -372,8 +401,10 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
                 break;
 
             case Types.DIVIDE:
-                if (type == ClassHelper.int_TYPE)
+                if (type == ClassHelper.int_TYPE) {
+                    addWarning("In Groovy++ integer division produces int and not BigDecimal", be);
                     mv.visitInsn(IDIV);
+                }
                 else if (type == ClassHelper.double_TYPE)
                     mv.visitInsn(DDIV);
                 else if (type == ClassHelper.long_TYPE)
@@ -471,6 +502,12 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     public BytecodeExpr cast(final Expression be, final ClassNode type) {
 
         if (be instanceof TernaryExpression) {
+            if(be instanceof ElvisOperatorExpression) {
+                ElvisOperatorExpression eo = (ElvisOperatorExpression) be;
+                ElvisOperatorExpression cast = new ElvisOperatorExpression(eo.getBooleanExpression().getExpression(), eo.getFalseExpression());
+                cast.setSourcePosition(be);
+                return (BytecodeExpr) transform(cast);
+            }
             TernaryExpression ternaryExpression = (TernaryExpression) be;
             TernaryExpression cast = new TernaryExpression(ternaryExpression.getBooleanExpression(),
                     cast(ternaryExpression.getTrueExpression(), type),

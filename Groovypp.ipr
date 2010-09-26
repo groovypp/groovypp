@@ -2024,6 +2024,7 @@
       <module fileurl="file://$PROJECT_DIR$/Groovypp.iml" filepath="$PROJECT_DIR$/Groovypp.iml" />
       <module fileurl="file://$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" filepath="$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../concurrencybenchmarks/concurrencybenchmarks.iml" filepath="$PROJECT_DIR$/../concurrencybenchmarks/concurrencybenchmarks.iml" />
       <module fileurl="file://$PROJECT_DIR$/../jedis/jedis.iml" filepath="$PROJECT_DIR$/../jedis/jedis.iml" />
     </modules>
   </component>
@@ -2240,6 +2241,7 @@
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
   <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/../concurrencybenchmarks" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../jedis" vcs="Git" />
   </component>
