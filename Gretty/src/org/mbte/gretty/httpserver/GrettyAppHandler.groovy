@@ -154,6 +154,7 @@ import org.mbte.gretty.httpserver.GrettyWebSocket.Channeled
 
     private void handleHttpRequest(GrettyHttpRequest request, MessageEvent e) {
         GrettyHttpResponse response = [e.channel, isKeepAlive(request)]
+        response.protocolVersion = request.protocolVersion
         def uri = request.path
 
         findContext(uri)?.handleHttpRequest(request, response)

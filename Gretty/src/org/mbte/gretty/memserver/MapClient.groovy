@@ -43,10 +43,6 @@ import org.jboss.netty.channel.ChannelFactory
         super.exceptionCaught(ctx, e)
     }
 
-    void write(Object obj) {
-        channel.write(obj)
-    }
-
     protected void buildPipeline(ChannelPipeline pipeline) {
         pipeline.addLast("encoder",   new CommandEncoder())
         pipeline.addLast("decoder",   new ResponseDecoder())

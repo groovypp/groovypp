@@ -63,7 +63,8 @@ import org.jboss.netty.channel.socket.ClientSocketChannelFactory
 
         def connectFuture = bootstrap.connect(remoteAddress)
         channel = connectFuture.channel
-        def returnFuture = new DefaultChannelFuture(channel, false)
+
+        def returnFuture = Channels.future(channel)
         connectFuture.addListener { future ->
             if(future.success) {
                 try {
@@ -71,6 +72,8 @@ import org.jboss.netty.channel.socket.ClientSocketChannelFactory
                 }
                 catch(Throwable t) {
                     returnFuture.setFailure(t)
+                    channel.close()
+                    return
                 }
                 returnFuture.setSuccess()
             }
@@ -93,10 +96,11 @@ import org.jboss.netty.channel.socket.ClientSocketChannelFactory
         returnFuture
     }
 
-    ChannelFuture connect(ChannelFutureListener listener) {
-        def future = connect()
-        future.addListener listener
-        future
+    void connect(ChannelFutureListener listener) {
+        if(!connected)
+            connect().addListener listener
+        else
+            listener.operationComplete(Channels.future(channel))
     }
 
     boolean isConnected () {
@@ -132,5 +136,13 @@ import org.jboss.netty.channel.socket.ClientSocketChannelFactory
 
     protected void buildPipeline(ChannelPipeline pipeline) {
         pipeline.addFirst("clientItself", this)
+    }
+
+    ChannelFuture write(Object message) {
+        channel.write(message)
+    }
+
+    void close() {
+        channel?.close()
     }
 }

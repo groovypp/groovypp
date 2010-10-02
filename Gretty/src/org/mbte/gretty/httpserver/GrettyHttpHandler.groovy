@@ -25,6 +25,7 @@ import org.codehaus.jackson.map.ObjectMapper
 
     GrettyHttpRequest  request
     GrettyHttpResponse response
+    GrettyServer       server
 
     final void handle (GrettyHttpRequest request, GrettyHttpResponse response, Map<String,String> pathArgs) {
         GrettyHttpHandler clone = clone ()

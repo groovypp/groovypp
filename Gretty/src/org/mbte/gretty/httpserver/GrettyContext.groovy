@@ -32,6 +32,8 @@ import org.jboss.netty.handler.codec.http.HttpMethod
     ClassLoader          classLoader
     String               classLoaderPath
 
+    GrettyServer server
+
     GrettyHttpHandler defaultHandler
 
     protected Map<String,GrettyWebSocketHandler> webSockets = [:]
@@ -74,7 +76,9 @@ import org.jboss.netty.handler.codec.http.HttpMethod
         response.responseBody = "Failure: ${NOT_FOUND}\r\n"
     }
 
-    public void initContext (String path) {
+    public void initContext (String path, GrettyServer server) {
+        this.server = server
+
         if(staticFiles) {
             def file = new File(staticFiles)
             if(!file.exists() || !file.directory || file.hidden) {
@@ -90,6 +94,9 @@ import org.jboss.netty.handler.codec.http.HttpMethod
                 ws.value.socketPath = ws.key
             }
         }
+
+        if(defaultHandler)
+            defaultHandler.server = server
     }
 
     private Pair<File, HttpResponseStatus> findStaticFile(String uri) {
@@ -131,6 +138,10 @@ import org.jboss.netty.handler.codec.http.HttpMethod
 
     void setStatic (String staticFiles) {
         this.staticFiles = staticFiles
+    }
+
+    String getStatic () {
+        staticFiles
     }
 
     void setPublic (GrettyPublicDescription description) {

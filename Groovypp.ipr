@@ -8,7 +8,9 @@
       <customJdkName value="1.5" />
       <maximumHeapSize value="128" />
       <maximumStackSize value="32" />
-      <properties />
+      <properties>
+        <property name="skipTests" value="true" />
+      </properties>
     </buildFile>
   </component>
   <component name="BuildJarProjectSettings">
@@ -2020,6 +2022,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Examples/Examples.iml" filepath="$PROJECT_DIR$/Examples/Examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugin-gretty.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugin-gretty.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/Groovypp.iml" filepath="$PROJECT_DIR$/Groovypp.iml" />
       <module fileurl="file://$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" filepath="$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" />

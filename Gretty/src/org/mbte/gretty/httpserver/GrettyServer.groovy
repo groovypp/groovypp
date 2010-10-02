@@ -56,12 +56,21 @@ import org.mbte.gretty.AbstractServer
 
     private void initContexts () {
         if(defaultContext) {
-            webContexts["/"] = defaultContext
+            if(!webContexts["/"])
+                webContexts["/"] = defaultContext
+            else {
+                if(!webContexts["/"].defaultHandler)
+                    webContexts["/"].defaultHandler = defaultContext.defaultHandler
+                else
+                    throw new IllegalStateException("Default handler already set")
+            }
+
+            defaultContext = null
         }
         webContexts = webContexts.sort { me1, me2 -> me2.key <=> me1.key }
 
         for(e in webContexts.entrySet()) {
-            e.value.initContext(e.key)
+            e.value.initContext(e.key, this)
         }
     }
 

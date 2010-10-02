@@ -26,13 +26,14 @@ import org.jboss.netty.channel.ChannelHandlerContext
 import org.jboss.netty.channel.MessageEvent
 
 import org.mbte.gretty.httpserver.GrettyHttpResponse
+import org.jboss.netty.channel.ChannelFactory
 
 @Typed class GrettyClient extends AbstractHttpClient {
 
     private volatile BindLater<HttpResponse> pendingRequest
 
-    GrettyClient(SocketAddress remoteAddress) {
-        super(remoteAddress)
+    GrettyClient(SocketAddress remoteAddress, ChannelFactory factory = null) {
+        super(remoteAddress, factory)
     }
 
     BindLater<HttpResponse> request(HttpRequest request) {

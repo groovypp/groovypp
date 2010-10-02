@@ -53,6 +53,14 @@ import org.jboss.netty.handler.codec.http.HttpVersion
         super(version, status)
     }
 
+    Integer getChannelId() {
+        channel?.id
+    }
+
+    void write(Object obj) {
+        channel.write(obj)
+    }
+
     void complete() {
         def channel = this.channel
 
@@ -195,5 +203,9 @@ import org.jboss.netty.handler.codec.http.HttpVersion
 
     String getContentText () {
         new String(content.array(), content.arrayOffset(), content.readableBytes())
+    }
+
+    void close() {
+        channel?.close()
     }
 }

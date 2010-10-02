@@ -58,6 +58,7 @@
 
 	<property name="jar.name" location="${output.dir}/${app.name}-${version}.jar"/>
     <property name="gretty.jar.name" location="${output.dir}/gretty-${version}.jar"/>
+    <property name="grails.gretty.jar.name" location="${output.dir}/grails-gretty-${version}.jar"/>
 	<property name="embeddable.jar.name" location="${output.dir}/${app.name}-all-${version}.jar"/>
     <property name="pseudo.embeddable.jar.name" location="${output.dir}/groovy-all-1.7.5-gpp-${version}.jar"/>
 	<property name="target.jvm" value="5" />
@@ -260,6 +261,9 @@
               <include name="**/*$GrUnitTest*.class"/>
             </fileset>
         </move>
+        <copy todir="${gretty.prod.output}/META-INF">
+            <fileset dir="Gretty/src/META-INF"/>
+        </copy>
     </target>
 
     <target name="compile.tests.gretty"  depends="compile.gretty">
@@ -380,7 +384,7 @@
 		</cobertura-report>
 	</target>
 
-    <target name="make.jar" depends="clean-test,compile.examples" description="Build application jar file">
+    <target name="make.jar" depends="test,compile.examples" description="Build application jar file">
         <jar destfile="${jar.name}" >
             <fileset dir="${compiler.prod.output}" />
             <fileset dir="${stdlib.prod.output}" />
@@ -535,7 +539,7 @@
         <delete dir="tempbin" quiet="true" />
     </target>
 
-    <target name="make.grails" depends="" description="Build Grails Plugin">
+    <target name="make.grails" depends="make.embeddable.jar" description="Build Grails Plugin">
 		<delete dir="tempbin" quiet="true" />
 		<mkdir dir="tempbin" />
 		<copy todir="tempbin">
@@ -550,10 +554,18 @@
 
         <copy file="${embeddable.jar.name}" tofile="${pseudo.embeddable.jar.name}"/>
 
+        <jarjar jarfile="${grails.gretty.jar.name}">
+            <fileset dir="${gretty.prod.output}" />
+            <rule pattern="org.objectweb.**" result="groovyjarjarasm.@1"/>
+        </jarjar>
+
+
         <zip destfile="${grails.zip}"
              comment="The Groovy++ binary distribution.">
 	        <zipfileset dir="tempbin" prefix="" />
             <zipfileset file="${pseudo.embeddable.jar.name}" prefix="lib" />
+            <zipfileset file="${grails.gretty.jar.name}" prefix="lib" />
+            <zipfileset dir="Gretty/lib" prefix="lib" />
         </zip>
 
         <delete dir="tempbin" quiet="true" />
