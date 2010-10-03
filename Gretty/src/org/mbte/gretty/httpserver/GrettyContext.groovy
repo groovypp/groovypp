@@ -78,6 +78,7 @@ import org.jboss.netty.handler.codec.http.HttpMethod
 
     public void initContext (String path, GrettyServer server) {
         this.server = server
+        webPath = path
 
         if(staticFiles) {
             def file = new File(staticFiles)
@@ -86,7 +87,6 @@ import org.jboss.netty.handler.codec.http.HttpMethod
             }
 
             staticFiles = file.absoluteFile.canonicalPath
-            webPath = path
         }
 
         if (webSockets) {

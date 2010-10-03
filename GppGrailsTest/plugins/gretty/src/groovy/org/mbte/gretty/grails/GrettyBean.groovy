@@ -11,6 +11,8 @@ import org.codehaus.groovy.grails.plugins.support.aware.GrailsApplicationAware
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.mbte.gretty.httpserver.GrettyServer
 import org.mbte.gretty.httpserver.GrettyProxy
+import org.mbte.gretty.compiler.GrettyContextProvider
+import org.mbte.gretty.httpserver.GrettyContext
 
 @Typed class GrettyBean implements InitializingBean, DisposableBean, GrailsApplicationAware {
     GrailsApplication grailsApplication
@@ -36,8 +38,17 @@ import org.mbte.gretty.httpserver.GrettyProxy
         }
 
         if(localAddress) {
+            Map<String,GrettyContext> wc = [:]
+            for(ar in grailsApplication.getArtefacts(GrettyArtefactHandler.TYPE)) {
+                GrettyContextProvider provider = ar.newInstance()
+                def contexts = provider.webContexts
+                wc.putAll(contexts)
+            }
+
             gretty = [
                 localAddress: localAddress,
+
+                webContexts: wc,
 
                 default: {
                     proxy?.handle(request, response)

@@ -19,16 +19,16 @@ import org.codehaus.groovy.grails.commons.ArtefactHandlerAdapter
 
 @Typed class GrettyArtefactHandler extends ArtefactHandlerAdapter {
 
-    public static final String TYPE = "GrettyContext";
-    public static final String PLUGIN_NAME = "groovy-plus-plus";
+    static final String TYPE = "GrettyContext";
+    static final String PLUGIN_NAME = "groovy-plus-plus";
 
-    public GrettyArtefactHandler() {
+    GrettyArtefactHandler() {
         super(TYPE, GrettyContextClass, DefaultGrettyContextClass,
                 DefaultGrettyContextClass.GRETTY_CONTEXT, false);
     }
 
     @Override
-    public String getPluginName() {
+    String getPluginName() {
         return PLUGIN_NAME;
     }
 }

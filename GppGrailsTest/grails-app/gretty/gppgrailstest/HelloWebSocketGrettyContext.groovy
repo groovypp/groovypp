@@ -15,22 +15,11 @@
  */
 package gppgrailstest
 
-webContexts : [
+language  gretty
+
+webContexts = [
     "/websockets" : [
-        static: "./webSocketsFiles",
-
-        default: {
-            response.redirect("http://${request.getHeader('Host')}/websockets/")
-        },
-
         public: {
-            get("/:none") { args ->
-                if(!args.none.empty)
-                    response.redirect("http://${request.getHeader('Host')}/websockets/")
-                else
-                    response.responseBody = new File("./webSocketsFiles/ws.html")
-            }
-
             websocket("/ws",[
                 onMessage: { msg ->
                     socket.send(msg.toUpperCase())
@@ -40,6 +29,6 @@ webContexts : [
                     socket.send("Welcome!")
                 }
             ])
-        },
+        }
     ]
 ]

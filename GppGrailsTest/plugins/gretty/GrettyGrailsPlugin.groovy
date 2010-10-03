@@ -13,7 +13,7 @@ class GrettyGrailsPlugin {
             "grails-app/views/error.gsp"
     ]
 
-    def artifacts = [GrettyArtefactHandler]
+    def artefacts = [GrettyArtefactHandler]
 
     // TODO Fill in these fields
     def author = "Alex Tkachman"

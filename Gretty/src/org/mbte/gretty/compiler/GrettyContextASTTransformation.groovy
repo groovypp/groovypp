@@ -38,6 +38,8 @@ import org.mbte.groovypp.compiler.transformers.VariableExpressionTransformer
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.stmt.EmptyStatement
+import org.codehaus.groovy.ast.expr.EmptyExpression
+import java.util.concurrent.ExecutorService
 
 @GroovyASTTransformation(phase = CompilePhase.CONVERSION)
 class GrettyContextASTTransformation implements ASTTransformation {
@@ -76,7 +78,10 @@ class GrettyContextASTTransformation implements ASTTransformation {
 
         run.addAnnotation(new AnnotationNode(TypeUtil.TYPED))
         clazz.addProperty("webContexts", Opcodes.ACC_PUBLIC, TypeUtil.withGenericTypes(ClassHelper.MAP_TYPE, ClassHelper.STRING_TYPE, GRETTY_CONTEXT), ConstantExpression.NULL, null, null)
+        clazz.superClass = ClassHelper.OBJECT_TYPE
         clazz.addInterface GRETTY_CONTEXT_PROVIDER
+
+        clazz.getMethods("main")[0].code = EmptyStatement.INSTANCE
 
         def constructors = clazz.getDeclaredConstructors()
         if(!constructors) {
