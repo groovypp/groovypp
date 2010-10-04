@@ -78,7 +78,7 @@ import org.jboss.netty.handler.codec.http.HttpMethod
 
     public void initContext (String path, GrettyServer server) {
         this.server = server
-        webPath = path
+        webPath = path.endsWith("/") ? path.substring(0,path.length()-1) : path
 
         if(staticFiles) {
             def file = new File(staticFiles)

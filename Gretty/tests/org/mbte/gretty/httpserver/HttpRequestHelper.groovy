@@ -11,20 +11,24 @@ import org.jboss.netty.handler.codec.http.HttpResponse
         BindLater cdl = []
 
         GrettyClient client = [new LocalAddress("test_server")]
-        client.connect{ future ->
-            client.request(new GrettyHttpRequest(request)) { bound ->
-                try {
-                    action(bound.get())
-                    cdl.set("")
-                }
-                catch(e) {
-                    cdl.setException(e)
+        try {
+            client.connect{ future ->
+                client.request(new GrettyHttpRequest(request)) { bound ->
+                    try {
+                        action(bound.get())
+                        cdl.set("")
+                    }
+                    catch(e) {
+                        cdl.setException(e)
+                    }
                 }
             }
-        }
 
-        cdl.get()
-        client.disconnect ()
+            cdl.get()
+        }
+        finally {
+            client.disconnect ()
+        }
     }
 
     void doTest (GrettyHttpRequest request, Function1<GrettyHttpResponse,Void> action) {

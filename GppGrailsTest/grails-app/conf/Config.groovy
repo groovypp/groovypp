@@ -83,6 +83,6 @@ log4j = {
 }
 
 gretty {
-    localAddress = new InetSocketAddress(8081)
+    localAddress = new InetSocketAddress(9090)
     proxyTo = new InetSocketAddress(8080)
 }

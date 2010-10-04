@@ -78,7 +78,8 @@ class GrettyContextASTTransformation implements ASTTransformation {
 
         run.addAnnotation(new AnnotationNode(TypeUtil.TYPED))
         clazz.addProperty("webContexts", Opcodes.ACC_PUBLIC, TypeUtil.withGenericTypes(ClassHelper.MAP_TYPE, ClassHelper.STRING_TYPE, GRETTY_CONTEXT), ConstantExpression.NULL, null, null)
-        clazz.superClass = ClassHelper.OBJECT_TYPE
+        // todo - line below fails test, so we keep Script even if we hate it
+//        clazz.superClass = ClassHelper.OBJECT_TYPE
         clazz.addInterface GRETTY_CONTEXT_PROVIDER
 
         clazz.getMethods("main")[0].code = EmptyStatement.INSTANCE

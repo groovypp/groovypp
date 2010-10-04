@@ -63,7 +63,7 @@ import java.util.concurrent.atomic.AtomicInteger
     }
 
     protected void tearDown() {
-//        myProxy.stop()
+        myProxy.stop()
         proxy.stop ()
         server.stop ()
     }
