@@ -21,6 +21,7 @@ import org.codehaus.groovy.ast.expr.FieldExpression;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedFieldBytecodeExpr;
+import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 import org.objectweb.asm.MethodVisitor;
 
 public class FieldExpressionTransformer extends ExprTransformer<FieldExpression> {

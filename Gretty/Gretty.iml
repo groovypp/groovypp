@@ -9,8 +9,7 @@
     </content>
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Groovy" level="application" />
-    <orderEntry type="module" module-name="StdLib" />
+    <orderEntry type="module" module-name="StdLib" exported="" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>

@@ -32,7 +32,19 @@ import org.codehaus.groovy.syntax.Types;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.transform.powerassert.SourceText;
 import org.codehaus.groovy.transform.powerassert.SourceTextNotAvailableException;
+import org.mbte.groovypp.compiler.*;
+import org.mbte.groovypp.compiler.CompilerTransformer;
+import org.mbte.groovypp.compiler.PresentationUtil;
+import org.mbte.groovypp.compiler.RecordingVariableExpression;
+import org.mbte.groovypp.compiler.Register;
+import org.mbte.groovypp.compiler.SourceUnitContext;
+import org.mbte.groovypp.compiler.StaticMethodBytecode;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.*;
+import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.LocalVarInferenceTypes;
+import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
 import org.mbte.groovypp.compiler.transformers.MethodCallExpressionTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -53,7 +65,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
     ClassNode calculatedReturnType = TypeUtil.NULL_TYPE;
     private Label startLabel = new Label ();
 
-    public StaticCompiler(SourceUnit su, SourceUnitContext context, StaticMethodBytecode methodBytecode, StackAwareMethodAdapter mv, CompilerStack compileStack, int debug, TypePolicy policy, String baseClosureName) {
+    public StaticCompiler(SourceUnit su, SourceUnitContext context, StaticMethodBytecode methodBytecode, StackAwareMethodAdapter mv, org.mbte.groovypp.compiler.CompilerStack compileStack, int debug, TypePolicy policy, String baseClosureName) {
         super(su, methodBytecode.methodNode.getDeclaringClass(), methodBytecode.methodNode, mv, compileStack, debug, policy, baseClosureName, context);
         this.methodBytecode = methodBytecode;
         shouldImproveReturnType = methodNode.getName().equals("doCall");

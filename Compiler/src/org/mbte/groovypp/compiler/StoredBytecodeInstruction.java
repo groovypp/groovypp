@@ -17,6 +17,8 @@
 package org.mbte.groovypp.compiler;
 
 import org.codehaus.groovy.classgen.BytecodeInstruction;
+import org.mbte.groovypp.compiler.asm.AsmInstr;
+import org.mbte.groovypp.compiler.asm.StoringMethodVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.mbte.groovypp.compiler.asm.*;
 

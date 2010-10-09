@@ -22,6 +22,7 @@ import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.runtime.*;
 import org.codehaus.groovy.util.FastArray;
 import org.codehaus.groovy.vmplugin.v5.PluginDefaultGroovyMethods;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.runtime.DefaultGroovyPPMethods;
 import org.mbte.groovypp.runtime.ArraysMethods;
 import org.mbte.groovypp.runtime.DefaultGroovyPPStaticMethods;

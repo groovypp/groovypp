@@ -22,10 +22,26 @@ import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.util.FastArray;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.mbte.groovypp.compiler.*;
+import org.mbte.groovypp.compiler.ClassNodeCache;
+import org.mbte.groovypp.compiler.ClosureClassNode;
+import org.mbte.groovypp.compiler.ClosureMethodNode;
+import org.mbte.groovypp.compiler.ClosureUtil;
+import org.mbte.groovypp.compiler.CompilerTransformer;
+import org.mbte.groovypp.compiler.PresentationUtil;
+import org.mbte.groovypp.compiler.StaticMethodBytecode;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
+import org.mbte.groovypp.compiler.transformers.*;
+import org.mbte.groovypp.compiler.transformers.ClassExpressionTransformer;
+import org.mbte.groovypp.compiler.transformers.ConstantExpressionTransformer;
+import org.mbte.groovypp.compiler.transformers.ConstructorCallExpressionTransformer;
+import org.mbte.groovypp.compiler.transformers.ExprTransformer;
+import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
+import org.mbte.groovypp.compiler.transformers.MapExpressionTransformer;
+import org.mbte.groovypp.compiler.transformers.TernaryExpressionTransformer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -68,7 +84,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             return compiler.cast(newCall, cast.getType());
         }
 
-        if (cast.getExpression() instanceof ListExpressionTransformer.UntransformedListExpr) {
+        if (cast.getExpression() instanceof org.mbte.groovypp.compiler.transformers.ListExpressionTransformer.UntransformedListExpr) {
             final CastExpression newExp = new CastExpression(cast.getType(), ((ListExpressionTransformer.UntransformedListExpr) cast.getExpression()).exp);
             newExp.setSourcePosition(cast);
             cast = newExp;

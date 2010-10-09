@@ -19,8 +19,9 @@ package org.mbte.groovypp.compiler.transformers;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.SpreadExpression;
 import org.mbte.groovypp.compiler.CompilerTransformer;
+import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 
-public class SpreadExpressionTransformer extends ExprTransformer<SpreadExpression>{
+public class SpreadExpressionTransformer extends ExprTransformer<SpreadExpression> {
     public Expression transform(SpreadExpression exp, CompilerTransformer compiler) {
         compiler.addError("Spread operator is not supported", exp);
         return null;

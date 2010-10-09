@@ -19,6 +19,8 @@ package org.mbte.groovypp.compiler;
 import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
+import org.mbte.groovypp.compiler.ClosureUtil;
+import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.objectweb.asm.MethodVisitor;
 

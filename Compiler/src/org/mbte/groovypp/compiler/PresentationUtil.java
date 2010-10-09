@@ -20,6 +20,8 @@ import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.GenericsType;
 import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.Parameter;
+import org.mbte.groovypp.compiler.ClosureClassNode;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.objectweb.asm.Opcodes;
 
 public class PresentationUtil {

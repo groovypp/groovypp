@@ -24,6 +24,7 @@ import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.PresentationUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedFieldBytecodeExpr;
+import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 
 public class AttributeExpressionTransformer extends ExprTransformer<AttributeExpression> {
     @Override

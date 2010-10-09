@@ -19,6 +19,11 @@ package org.mbte.groovypp.compiler.transformers;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.*;
 import org.mbte.groovypp.compiler.*;
+import org.mbte.groovypp.compiler.ClosureClassNode;
+import org.mbte.groovypp.compiler.ClosureMethodNode;
+import org.mbte.groovypp.compiler.CompiledClosureBytecodeExpr;
+import org.mbte.groovypp.compiler.CompilerTransformer;
+import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 import org.objectweb.asm.Opcodes;
 
 public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpression> {

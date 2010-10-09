@@ -16,6 +16,8 @@
 
 package org.mbte.groovypp.compiler.bytecode;
 
+import org.mbte.groovypp.compiler.bytecode.BytecodeStack;
+
 public class BytecodeLabelInfo {
     private byte labelStack [];
 

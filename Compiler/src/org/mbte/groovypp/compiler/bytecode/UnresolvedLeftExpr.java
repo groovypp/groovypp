@@ -20,6 +20,8 @@ import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassHelper;
 import org.codehaus.groovy.syntax.Token;
 import org.mbte.groovypp.compiler.CompilerTransformer;
+import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.ResolvedLeftExpr;
 import org.objectweb.asm.MethodVisitor;
 
 public class UnresolvedLeftExpr extends ResolvedLeftExpr {

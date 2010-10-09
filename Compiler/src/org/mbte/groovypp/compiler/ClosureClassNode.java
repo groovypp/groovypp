@@ -21,6 +21,9 @@ import org.codehaus.groovy.ast.ClassHelper;
 import org.codehaus.groovy.ast.InnerClassNode;
 import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.expr.ClosureExpression;
+import org.mbte.groovypp.compiler.ClosureMethodNode;
+import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.UncertainClassNode;
 import org.objectweb.asm.Opcodes;
 
 public class ClosureClassNode extends UncertainClassNode<ClosureExpression> {

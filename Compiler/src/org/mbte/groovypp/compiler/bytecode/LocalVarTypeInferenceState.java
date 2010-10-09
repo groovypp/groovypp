@@ -16,6 +16,8 @@
 
 package org.mbte.groovypp.compiler.bytecode;
 
+import org.mbte.groovypp.compiler.bytecode.LocalVarInferenceTypes;
+
 public interface LocalVarTypeInferenceState {
     public LocalVarInferenceTypes getLocalVarInferenceTypes ();
 }

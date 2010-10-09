@@ -30,6 +30,7 @@ import org.codehaus.groovy.syntax.Types;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.classgen.Verifier;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.objectweb.asm.Opcodes;
 
 import java.util.LinkedList;

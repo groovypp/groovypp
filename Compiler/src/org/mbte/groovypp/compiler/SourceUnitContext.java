@@ -23,6 +23,8 @@ import org.codehaus.groovy.ast.stmt.ReturnStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.syntax.Types;
+import org.mbte.groovypp.compiler.ClassNodeCache;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.objectweb.asm.Opcodes;
 
 import java.util.HashMap;

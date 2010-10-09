@@ -31,6 +31,8 @@ import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.syntax.SyntaxException;
+import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.VolatileFieldUpdaterTransform;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

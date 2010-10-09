@@ -18,6 +18,7 @@ package org.mbte.groovypp.compiler;
 
 import org.codehaus.groovy.reflection.CachedField;
 import org.codehaus.groovy.reflection.ReflectionCache;
+import org.mbte.groovypp.compiler.DebugContext;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 

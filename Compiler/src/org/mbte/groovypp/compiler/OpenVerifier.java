@@ -23,6 +23,8 @@ import org.codehaus.groovy.classgen.BytecodeExpression;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.reflection.CachedField;
 import org.codehaus.groovy.reflection.ReflectionCache;
+import org.mbte.groovypp.compiler.ClassNodeCache;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.reflect.Modifier;

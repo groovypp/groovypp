@@ -23,6 +23,8 @@ import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.expr.ClosureExpression;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.ListExpression;
+import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.UncertainClassNode;
 import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
 import org.objectweb.asm.Opcodes;
 

@@ -19,6 +19,8 @@ package org.mbte.groovypp.compiler;
 import org.codehaus.groovy.GroovyBugError;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
+import org.mbte.groovypp.compiler.Register;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

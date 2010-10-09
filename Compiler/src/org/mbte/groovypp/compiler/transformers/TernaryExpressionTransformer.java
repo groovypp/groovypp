@@ -23,11 +23,14 @@ import org.codehaus.groovy.ast.expr.*;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
+import org.mbte.groovypp.compiler.transformers.ExprTransformer;
+import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
+import org.mbte.groovypp.compiler.transformers.MapExpressionTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class TernaryExpressionTransformer extends ExprTransformer<TernaryExpression>{
+public class TernaryExpressionTransformer extends ExprTransformer<TernaryExpression> {
     public Expression transform(TernaryExpression exp, CompilerTransformer compiler) {
         InnerClassNode newType = new InnerClassNode(compiler.classNode, compiler.getNextClosureName(), ACC_PUBLIC|ACC_SYNTHETIC, ClassHelper.OBJECT_TYPE);
         newType.setInterfaces(new ClassNode[] {TypeUtil.TTERNARY});

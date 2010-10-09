@@ -27,6 +27,8 @@ import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.codehaus.groovy.transform.powerassert.AssertionRenderer;
 import org.codehaus.groovy.transform.powerassert.PowerAssertionError;
 import org.codehaus.groovy.transform.powerassert.ValueRecorder;
+import org.mbte.groovypp.compiler.ClosureClassNode;
+import org.mbte.groovypp.compiler.MethodSelection;
 import org.mbte.groovypp.runtime.HasDefaultImplementation;
 import org.mbte.groovypp.runtime.LinkedHashMapEx;
 import org.mbte.groovypp.runtime.NoExternalInitialization;

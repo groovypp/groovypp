@@ -18,6 +18,10 @@ package org.mbte.groovypp.compiler;
 
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.util.FastArray;
+import org.mbte.groovypp.compiler.AccessibilityCheck;
+import org.mbte.groovypp.compiler.ClassNodeCache;
+import org.mbte.groovypp.compiler.ClosureUtil;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;

@@ -4,8 +4,8 @@
     <defaultAnt name="Apache Ant version 1.8.0" />
     <buildFile url="file://$PROJECT_DIR$/build.xml">
       <additionalClassPath />
-      <antReference projectDefault="true" />
-      <customJdkName value="1.5" />
+      <antReference name="Apache Ant version 1.8.0" />
+      <customJdkName value="1.6" />
       <maximumHeapSize value="128" />
       <maximumStackSize value="32" />
       <properties>
@@ -1870,7 +1870,7 @@
     </list>
   </component>
   <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_STRING" value="-target 1.6" />
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-target 1.5" />
   </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
@@ -2021,19 +2021,18 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Compiler/Compiler.iml" filepath="$PROJECT_DIR$/Compiler/Compiler.iml" />
       <module fileurl="file://$PROJECT_DIR$/Examples/Examples.iml" filepath="$PROJECT_DIR$/Examples/Examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugin-gretty.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugin-gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Groovypp.iml" filepath="$PROJECT_DIR$/Groovypp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" filepath="$PROJECT_DIR$/../GPars/Parallelizer_IDEA9.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/../concurrencybenchmarks/concurrencybenchmarks.iml" filepath="$PROJECT_DIR$/../concurrencybenchmarks/concurrencybenchmarks.iml" />
       <module fileurl="file://$PROJECT_DIR$/../jedis/jedis.iml" filepath="$PROJECT_DIR$/../jedis/jedis.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.5" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="ProjectRunConfigurationManager">

@@ -25,6 +25,14 @@ import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeInstruction;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
+import org.mbte.groovypp.compiler.*;
+import org.mbte.groovypp.compiler.ClosureMethodNode;
+import org.mbte.groovypp.compiler.CompilerStack;
+import org.mbte.groovypp.compiler.DebugContext;
+import org.mbte.groovypp.compiler.SourceUnitContext;
+import org.mbte.groovypp.compiler.StaticCompiler;
+import org.mbte.groovypp.compiler.StoredBytecodeInstruction;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.asm.I2LL2IRemoverMethodAdapter;
 import org.mbte.groovypp.compiler.asm.UneededLoadPopRemoverMethodAdapter;
 import org.objectweb.asm.MethodVisitor;
@@ -61,7 +69,7 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
                 policy, baseClosureName);
 //
         if (debug != -1)
-            DebugContext.outputStream.println("-----> " + methodNode.getDeclaringClass().getName() + "#" + methodNode.getName() + "(" + BytecodeHelper.getMethodDescriptor(methodNode.getReturnType(), methodNode.getParameters()) + ") " + BytecodeHelper.getGenericsMethodSignature(methodNode));
+            org.mbte.groovypp.compiler.DebugContext.outputStream.println("-----> " + methodNode.getDeclaringClass().getName() + "#" + methodNode.getName() + "(" + BytecodeHelper.getMethodDescriptor(methodNode.getReturnType(), methodNode.getParameters()) + ") " + BytecodeHelper.getGenericsMethodSignature(methodNode));
 
         try {
             compiler.execute();

@@ -16,6 +16,9 @@
 
 package org.mbte.groovypp.compiler.bytecode;
 
+import org.mbte.groovypp.compiler.bytecode.LocalVarInferenceTypes;
+import org.mbte.groovypp.compiler.bytecode.LocalVarTypeInferenceState;
+import org.mbte.groovypp.compiler.bytecode.BytecodeStack;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;

@@ -28,6 +28,13 @@ import org.mbte.groovypp.compiler.AccessibilityCheck;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.PresentationUtil;
 import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.bytecode.*;
+import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.ResolvedFieldBytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.ResolvedGetterBytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.ResolvedPropertyBytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.UnresolvedLeftExpr;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -94,7 +101,7 @@ public class PropertyUtil {
         }
 
         if (prop == GET_MAP) {
-            return new ResolvedLeftMapExpr(exp, object, propName);
+            return new org.mbte.groovypp.compiler.bytecode.ResolvedLeftMapExpr(exp, object, propName);
         }
 
         final Expression anchor = exp.isImplicitThis() ? exp : exp.getProperty();

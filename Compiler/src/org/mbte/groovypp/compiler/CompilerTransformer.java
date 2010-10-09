@@ -30,6 +30,18 @@ import org.codehaus.groovy.control.messages.WarningMessage;
 import org.codehaus.groovy.syntax.*;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.util.FastArray;
+import org.mbte.groovypp.compiler.*;
+import org.mbte.groovypp.compiler.ClassNodeCache;
+import org.mbte.groovypp.compiler.ClosureClassNode;
+import org.mbte.groovypp.compiler.ClosureMethodNode;
+import org.mbte.groovypp.compiler.ClosureUtil;
+import org.mbte.groovypp.compiler.CompiledClosureBytecodeExpr;
+import org.mbte.groovypp.compiler.CompilerStack;
+import org.mbte.groovypp.compiler.MethodSelection;
+import org.mbte.groovypp.compiler.ReturnsAdder;
+import org.mbte.groovypp.compiler.SourceUnitContext;
+import org.mbte.groovypp.compiler.StaticMethodBytecode;
+import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.LocalVarTypeInferenceState;
 import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
@@ -138,7 +150,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
 
     public BytecodeExpr transformSynthetic(BytecodeExpr res) {
         if (res instanceof ListExpressionTransformer.UntransformedListExpr)
-            return ((ListExpressionTransformer.UntransformedListExpr) res).transform(TypeUtil.ARRAY_LIST_TYPE, this);
+            return ((ListExpressionTransformer.UntransformedListExpr) res).transform(org.mbte.groovypp.compiler.TypeUtil.ARRAY_LIST_TYPE, this);
         else if (res instanceof MapExpressionTransformer.UntransformedMapExpr)
             return ((MapExpressionTransformer.UntransformedMapExpr) res).transform(this);
         else if (res instanceof TernaryExpressionTransformer.UntransformedTernaryExpr)

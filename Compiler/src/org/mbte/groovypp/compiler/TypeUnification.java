@@ -18,6 +18,7 @@ package org.mbte.groovypp.compiler;
 
 import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.GenericsType;
+import org.mbte.groovypp.compiler.TypeUtil;
 
 import static org.mbte.groovypp.compiler.TypeUnification.Constraint.*;
 import static org.mbte.groovypp.compiler.TypeUtil.*;

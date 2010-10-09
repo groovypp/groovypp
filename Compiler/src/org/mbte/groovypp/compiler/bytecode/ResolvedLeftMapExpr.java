@@ -23,6 +23,8 @@ import org.codehaus.groovy.ast.expr.CastExpression;
 import org.codehaus.groovy.syntax.Token;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.ResolvedLeftExpr;
 import org.objectweb.asm.MethodVisitor;
 
 public class ResolvedLeftMapExpr extends ResolvedLeftExpr {

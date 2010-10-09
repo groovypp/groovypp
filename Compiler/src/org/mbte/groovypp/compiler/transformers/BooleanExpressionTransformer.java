@@ -23,10 +23,11 @@ import org.codehaus.groovy.ast.expr.NotExpression;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.StaticCompiler;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
+import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-public class BooleanExpressionTransformer extends ExprTransformer<BooleanExpression>{
+public class BooleanExpressionTransformer extends ExprTransformer<BooleanExpression> {
     public Expression transform(BooleanExpression exp, CompilerTransformer compiler) {
         if (exp instanceof NotExpression) {
             final Expression expr = exp.getExpression();

@@ -21,6 +21,7 @@ import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.Variable;
 import org.codehaus.groovy.ast.expr.VariableExpression;
 import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.bytecode.BytecodeLabelInfo;
 
 import java.util.IdentityHashMap;
 import java.util.Map;

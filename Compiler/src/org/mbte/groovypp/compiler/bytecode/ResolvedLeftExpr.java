@@ -21,6 +21,7 @@ import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.syntax.Token;
 import org.mbte.groovypp.compiler.CompilerTransformer;
+import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 
 public abstract class ResolvedLeftExpr extends BytecodeExpr {
 

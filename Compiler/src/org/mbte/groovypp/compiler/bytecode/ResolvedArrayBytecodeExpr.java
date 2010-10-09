@@ -29,6 +29,8 @@ import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.PresentationUtil;
 import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.ResolvedLeftExpr;
 import org.objectweb.asm.MethodVisitor;
 
 public class ResolvedArrayBytecodeExpr extends ResolvedLeftExpr {
