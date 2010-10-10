@@ -24,14 +24,6 @@ import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeInstruction;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.mbte.groovypp.compiler.*;
-import org.mbte.groovypp.compiler.ClassNodeCache;
-import org.mbte.groovypp.compiler.ClosureClassNode;
-import org.mbte.groovypp.compiler.CompilerTransformer;
-import org.mbte.groovypp.compiler.Register;
-import org.mbte.groovypp.compiler.StaticMethodBytecode;
-import org.mbte.groovypp.compiler.TraitASTTransformFinal;
-import org.mbte.groovypp.compiler.TypeUnification;
-import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -162,7 +154,13 @@ public class ClosureUtil {
                     }
 
                 improveClosureType(closureType, baseType);
-                org.mbte.groovypp.compiler.StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, method, compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, closureType.getName());
+                if(!missing.getReturnType().equals(ClassHelper.VOID_TYPE)) {
+                    if (method instanceof ClosureMethodNode.Dependent)
+                        ((ClosureMethodNode.Dependent)method).getMaster().setReturnType(TypeUtil.wrapSafely(missing.getReturnType()));
+                    else
+                        method.setReturnType(TypeUtil.wrapSafely(missing.getReturnType()));
+                }
+                StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, method, compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, closureType.getName());
                 makeOneMethodClass(one, closureType, baseType, compiler, method);
                 return method;
             }

@@ -1339,6 +1339,11 @@
               <file url="file://$PROJECT_DIR$/../../GppTest/web-app/WEB-INF/applicationContext.xml" />
             </files>
           </module>
+          <module name="GppGrailsTest">
+            <files>
+              <file url="file://$PROJECT_DIR$/GppGrailsTest/web-app/WEB-INF/applicationContext.xml" />
+            </files>
+          </module>
         </modules>
       </facet-type>
       <facet-type id="web">
@@ -2021,11 +2026,9 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../AkkaTest/AkkaTest.iml" filepath="$PROJECT_DIR$/../../AkkaTest/AkkaTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/Compiler/Compiler.iml" filepath="$PROJECT_DIR$/Compiler/Compiler.iml" />
       <module fileurl="file://$PROJECT_DIR$/Examples/Examples.iml" filepath="$PROJECT_DIR$/Examples/Examples.iml" />
-      <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugin-gretty.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugin-gretty.iml" />
-      <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/../concurrencybenchmarks/concurrencybenchmarks.iml" filepath="$PROJECT_DIR$/../concurrencybenchmarks/concurrencybenchmarks.iml" />
