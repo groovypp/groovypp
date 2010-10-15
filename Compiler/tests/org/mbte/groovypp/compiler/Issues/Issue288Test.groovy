@@ -36,6 +36,6 @@ package org.mbte.groovypp.compiler.Issues
         assert "h".length() == 1
         assert "head".indexOf('e') == 1
         assert "head".indexOf((int)'a') == 2
-        assert "[$head]".replace('c', File.separatorChar) == '[ab/d]'
+        assert "[$head]".replace('c', File.separatorChar) == "[ab${File.separatorChar}d]"
     }
 }
