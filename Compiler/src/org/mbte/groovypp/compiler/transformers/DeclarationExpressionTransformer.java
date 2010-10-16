@@ -51,7 +51,7 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
             exp.setRightExpression(cast);
         }
 
-        BytecodeExpr right = (BytecodeExpr) compiler.transform(exp.getRightExpression());
+        BytecodeExpr right = (BytecodeExpr) compiler.transformToGround(exp.getRightExpression());
         if (right.getType() == TypeUtil.NULL_TYPE && ClassHelper.isPrimitiveType(ve.getType())) {
             final ConstantExpression cnst = new ConstantExpression(0);
             cnst.setSourcePosition(exp);
