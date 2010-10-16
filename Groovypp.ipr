@@ -13,6 +13,22 @@
       </properties>
     </buildFile>
   </component>
+  <component name="ArtifactManager">
+    <artifact type="exploded-war" name="Test:war exploded">
+      <output-path>$PROJECT_DIR$/out/artifacts/Test_war_exploded</output-path>
+      <root id="root">
+        <element id="javaee-facet-resources" facet="Test/web/Web" />
+        <element id="directory" name="WEB-INF">
+          <element id="directory" name="classes">
+            <element id="module-output" name="Test" />
+          </element>
+          <element id="directory" name="lib">
+            <element id="library" level="project" name="AppEngine API" />
+          </element>
+        </element>
+      </root>
+    </artifact>
+  </component>
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
   </component>
@@ -2031,7 +2047,10 @@
       <module fileurl="file://$PROJECT_DIR$/Examples/Examples.iml" filepath="$PROJECT_DIR$/Examples/Examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Test/Test.iml" filepath="$PROJECT_DIR$/Test/Test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/apache-tomcat-7.0.2-src.iml" filepath="$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/apache-tomcat-7.0.2-src.iml" />
       <module fileurl="file://$PROJECT_DIR$/../concurrencybenchmarks/concurrencybenchmarks.iml" filepath="$PROJECT_DIR$/../concurrencybenchmarks/concurrencybenchmarks.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../gaelyk/gaelyk.iml" filepath="$PROJECT_DIR$/../gaelyk/gaelyk.iml" />
       <module fileurl="file://$PROJECT_DIR$/../jedis/jedis.iml" filepath="$PROJECT_DIR$/../jedis/jedis.iml" />
     </modules>
   </component>
@@ -2249,6 +2268,7 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/../concurrencybenchmarks" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../gaelyk" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../jedis" vcs="Git" />
   </component>
@@ -2317,6 +2337,14 @@
       <SOURCES>
         <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.7/junit-4.7-sources.jar!/" />
       </SOURCES>
+    </library>
+    <library name="AppEngine API">
+      <CLASSES>
+        <root url="file://$PROJECT_DIR$/../../appengine-java-sdk-1.3.8/lib/user" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+      <jarDirectory url="file://$PROJECT_DIR$/../../appengine-java-sdk-1.3.8/lib/user" recursive="false" />
     </library>
   </component>
 </project>
