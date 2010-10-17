@@ -30,7 +30,7 @@ import org.objectweb.asm.MethodVisitor;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
-class OpenVerifier extends Verifier {
+public class OpenVerifier extends Verifier {
     @Override
     public void visitClass(ClassNode classNode) {
         addMetaClassFieldIfNeeded(classNode);
@@ -60,11 +60,11 @@ class OpenVerifier extends Verifier {
         node.setSetterBlock(null);
     }
 
-    protected void addInitialization(ClassNode node) {
+    public void addInitialization(ClassNode node) {
         super.addInitialization(node);
     }
 
-    protected void addInitialization(ClassNode node, ConstructorNode constructorNode) {
+    public void addInitialization(ClassNode node, ConstructorNode constructorNode) {
         if (constructorNode.getCode() instanceof BytecodeSequence)
             return;
 
