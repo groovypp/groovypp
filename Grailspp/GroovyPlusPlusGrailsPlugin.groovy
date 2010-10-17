@@ -1,8 +1,11 @@
+import org.mbte.gretty.grails.GrettyArtefactHandler
+import org.mbte.gretty.grails.GrettyBean
+
 class GroovyPlusPlusGrailsPlugin {
     // the plugin version
     def version = "#version"
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "1.3.4 > *"
+    def grailsVersion = "1.3.5 > *"
     // the other plugins this plugin depends on
     def dependsOn = [:]
     // resources that are excluded from plugin packaging
@@ -15,6 +18,14 @@ class GroovyPlusPlusGrailsPlugin {
     def authorEmail = "alex.tkachman@gmail.com"
     def title = "Groovy++ Integration"
     def description = '''\\
-The plugin integrating Groovy++ in to Grails by replacing jars in Grails installation for ones required for Groovy++
+The plugin integrating Groovy++ and Gretty in to Grails
 '''
+
+  def artefacts = [GrettyArtefactHandler]
+
+  def doWithSpring = {
+      gretty(GrettyBean) { bean ->
+          bean.singleton = true
+      }
+  }
 }
