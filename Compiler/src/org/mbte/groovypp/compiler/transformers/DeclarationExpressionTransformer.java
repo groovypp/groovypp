@@ -16,13 +16,15 @@
 
 package org.mbte.groovypp.compiler.transformers;
 
-import org.codehaus.groovy.ast.AnnotationNode;
-import org.codehaus.groovy.ast.ClassHelper;
-import org.codehaus.groovy.ast.ClassNode;
-import org.codehaus.groovy.ast.FieldNode;
+import org.apache.tools.ant.types.resources.Tokens;
+import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
-import org.mbte.groovypp.compiler.CompilerTransformer;
-import org.mbte.groovypp.compiler.TypeUtil;
+import org.codehaus.groovy.ast.stmt.BlockStatement;
+import org.codehaus.groovy.ast.stmt.ExpressionStatement;
+import org.codehaus.groovy.ast.stmt.Statement;
+import org.codehaus.groovy.syntax.Token;
+import org.codehaus.groovy.syntax.Types;
+import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 import org.objectweb.asm.MethodVisitor;
@@ -66,8 +68,13 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
                 type = right.getType();
             }
 
-            FieldNode fieldNode = compiler.classNode.addField(compiler.methodNode.getName() + "$" + ve.getName(), ACC_PRIVATE, type, exp.getRightExpression());
-            fieldNode.addAnnotation(new AnnotationNode(TypeUtil.NO_EXTERNAL_INITIALIZATION));
+            FieldNode fieldNode = compiler.classNode.addField(compiler.classNode.isScript() && compiler.methodNode.getName().equals("run") ? ve.getName() : compiler.methodNode.getName() + "$" + ve.getName(), ACC_PRIVATE, type, right);
+            ClassNodeCache.clearCache(compiler.classNode);
+            if(compiler.classNode instanceof ClosureClassNode)
+                fieldNode.addAnnotation(new AnnotationNode(TypeUtil.NO_EXTERNAL_INITIALIZATION));
+            else {
+                new OpenVerifier().addInitialization(compiler.classNode);
+            }
             ve.setAccessedVariable(fieldNode);
             return new BytecodeExpr(exp, TypeUtil.NULL_TYPE) {
                 protected void compile(MethodVisitor mv) {
