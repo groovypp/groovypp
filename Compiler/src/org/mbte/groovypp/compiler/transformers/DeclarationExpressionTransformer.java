@@ -68,7 +68,7 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
                 type = right.getType();
             }
 
-            FieldNode fieldNode = compiler.classNode.addField(compiler.classNode.isScript() && compiler.methodNode.getName().equals("run") ? ve.getName() : compiler.methodNode.getName() + "$" + ve.getName(), ACC_PRIVATE, type, right);
+            FieldNode fieldNode = compiler.classNode.addField(compiler.classNode.isScript() && compiler.methodNode.getName().equals("run") ? ve.getName() : compiler.methodNode.getName() + "$" + ve.getName(), ACC_PRIVATE, type, exp.getRightExpression());
             ClassNodeCache.clearCache(compiler.classNode);
             if(compiler.classNode instanceof ClosureClassNode)
                 fieldNode.addAnnotation(new AnnotationNode(TypeUtil.NO_EXTERNAL_INITIALIZATION));
