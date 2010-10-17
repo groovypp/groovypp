@@ -15,32 +15,20 @@
  */
 package org.mbte.groovypp.compiler.Issues
 
-class Issue309Test extends GroovyShellTestCase {
+class Issue310Test extends GroovyShellTestCase {
   void testMe () {
     shell.evaluate """
-@Typed package test
-
-@Field res = []
+@Typed(debug=true) package test
 
 def foo() {
-    @Field mf = 5
-    mf++
-    res << mf
+    @Field f1 = 5
+    @Field f2 = f1 + 1
+
+    assert f1 == 5
+    assert f2 == 6
 }
 
-println "@Field usage inside closure"
-(1..2).each{
-    @Field cf = 5
-    cf++
-    res << cf
-}
-
-println "@Field usage inside method"
-(1..2).each{
-    foo()
-}
-
-assert res == [6, 7, 6, 7]
-        """
+foo()
+"""
   }
 }
