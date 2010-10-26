@@ -27,11 +27,11 @@
           <root url="file://$MODULE_DIR$/../../../jackson-src-1.5.4/src/mapper/java" />
           <root url="file://$MODULE_DIR$/../../../apache-tomcat-7.0.0-src/java" />
           <root url="file://$MODULE_DIR$/../../../clojure-1.2.0-RC1/src/jvm" />
+          <root url="file://$MODULE_DIR$/../../jedis/src/main/java" />
         </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="jedis" />
   </component>
 </module>
 

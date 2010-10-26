@@ -431,7 +431,7 @@ public class ClosureUtil {
             constrParams.add(new Parameter(ownerField.getType(), "this$0"));
         for (int i = 0; i != fields.size(); ++i) {
             final FieldNode fieldNode = fields.get(i);
-            if (!fieldNode.getName().equals("this$0") && fieldNode.getAnnotations(TypeUtil.NO_EXTERNAL_INITIALIZATION).isEmpty())
+            if (!fieldNode.getName().equals("this$0") && !fieldNode.getName().equals("metaClass") && !fieldNode.getName().equals("$staticClassInfo") && fieldNode.getAnnotations(TypeUtil.NO_EXTERNAL_INITIALIZATION).isEmpty())
                 constrParams.add(new Parameter(fieldNode.getType(), fieldNode.getName()));
         }
         return constrParams.toArray(new Parameter[constrParams.size()]);
