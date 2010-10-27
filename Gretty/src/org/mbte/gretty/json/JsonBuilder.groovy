@@ -18,7 +18,7 @@
 import org.codehaus.jackson.JsonGenerator
 import org.codehaus.jackson.map.MappingJsonFactory
 
-abstract class JsonDefinition {
+abstract class JsonClosure {
 
     protected JsonGenerator gen
 
@@ -29,7 +29,7 @@ abstract class JsonDefinition {
             gen = JsonBuilder2.current.get()
 
         if(!gen)
-            throw new IllegalStateException("Can't use JsonDefinition outside of JsonBuilder")
+            throw new IllegalStateException("Can't use JsonClosure outside of JsonBuilder")
 
         define ()
     }
@@ -47,7 +47,7 @@ abstract class JsonDefinition {
                 gen.writeEndObject()
             break
 
-            case JsonDefinition:
+            case JsonClosure:
                 gen.writeObjectFieldStart(name)
                 obj.gen = gen
                 obj.define()
@@ -105,7 +105,7 @@ abstract class JsonDefinition {
                     gen.writeEndObject()
                     break
 
-                case JsonDefinition:
+                case JsonClosure:
                     e.gen = gen
                     gen.writeStartObject()
                     e.define()
@@ -157,16 +157,12 @@ class JsonBuilder2 {
         gen.useDefaultPrettyPrinter()
     }
 
-    void invokeUnresolvedMethod(String name, JsonDefinition obj) {
+    void call(JsonClosure obj) {
         try {
             current.set(gen)
 
             gen.writeStartObject()
-            gen.writeObjectFieldStart name
-            obj.gen = gen
-            obj.define()
-            obj.gen = null
-            gen.writeEndObject()
+            obj ()
             gen.writeEndObject()
             gen.close ()
         }
@@ -174,9 +170,17 @@ class JsonBuilder2 {
             current.remove()
         }
     }
+
+    void invokeUnresolvedMethod(String name, JsonClosure obj) {
+        call {
+            gen.writeObjectFieldStart name
+            obj ()
+            gen.writeEndObject()
+        }
+    }
 }
 
-JsonDefinition externalData = {
+JsonClosure externalData = {
     additionalData {
         married true
         conferences(['JavaOne', 'Gr8conf'])
@@ -201,4 +205,19 @@ builder.person {
     )
 
     externalData ()
+}
+
+builder = [new PrintWriter(System.out)]
+builder {
+    person {
+        firstName 'Guillaume'
+        lastName  'Laforge'
+        address (
+            city: 'Paris',
+            country: 'France',
+            zip: 12345,
+        )
+
+        externalData ()
+    }
 }
