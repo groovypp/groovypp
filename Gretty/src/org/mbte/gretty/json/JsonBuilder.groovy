@@ -18,7 +18,137 @@
 import org.codehaus.jackson.JsonGenerator
 import org.codehaus.jackson.map.MappingJsonFactory
 
+abstract class JsonDefinition {
+
+    protected JsonGenerator gen
+
+    abstract void define ()
+
+    void call () {
+        if(!gen)
+            gen = JsonBuilder2.current.get()
+
+        if(!gen)
+            throw new IllegalStateException("Can't use JsonDefinition outside of JsonBuilder")
+
+        define ()
+    }
+
+    void invokeUnresolvedMethod(String name, Object obj) {
+        if(obj == null) {
+            gen.writeNullField name
+            return
+        }
+
+        switch(obj) {
+            case Closure:
+                gen.writeObjectFieldStart(name)
+                obj.call()
+                gen.writeEndObject()
+            break
+
+            case JsonDefinition:
+                gen.writeObjectFieldStart(name)
+                obj.gen = gen
+                obj.define()
+                obj.gen = null
+                gen.writeEndObject()
+            break
+
+            case String:
+                gen.writeStringField(name, obj)
+            break
+
+            case Number:
+                gen.writeNumberField(name, obj)
+            break
+
+            case Map:
+                gen.writeObjectFieldStart(name)
+                for(e in obj.entrySet()) {
+                    invokeUnresolvedMethod(e.key.toString(), e.value)
+                }
+                gen.writeEndObject()
+            break
+
+            case Iterable:
+                gen.writeArrayFieldStart(name)
+                iterate(obj)
+                gen.writeEndArray()
+            break
+
+            case Object []:
+                invokeUnresolvedMethod(name, obj.iterator())
+            break
+
+            case Boolean:
+                gen.writeBooleanField(name, obj)
+            break
+
+            default:
+                gen.writeObjectField(name, obj)
+            break
+        }
+    }
+
+    void iterate(Iterable obj) {
+        for (e in obj) {
+            if(e == null) {
+                gen.writeNull()
+                continue
+            }
+
+            switch (e) {
+                case Closure:
+                    gen.writeStartObject()
+                    e.call()
+                    gen.writeEndObject()
+                    break
+
+                case JsonDefinition:
+                    e.gen = gen
+                    gen.writeStartObject()
+                    e.define()
+                    gen.writeEndObject()
+                    e.gen = null
+                    break
+
+                case Map:
+                    gen.writeStartObject()
+                    for (ee in e.entrySet()) {
+                        invokeUnresolvedMethod(ee.key.toString(), ee.value)
+                    }
+                    gen.writeEndObject()
+                    break
+
+                case String:
+                    gen.writeString(e)
+                    break
+
+                case Number:
+                    gen.writeNumber(e)
+                    break
+
+                case Boolean:
+                    gen.writeBoolean(e)
+                break
+
+                case Iterable:
+                    gen.writeStartArray()
+                    iterate(e)
+                    gen.writeEndArray()
+                    return
+
+                default:
+                    gen.writeObject(e)
+            }
+        }
+    }
+}
+
 class JsonBuilder2 {
+    protected static ThreadLocal current = []
+
     private final MappingJsonFactory factory = []
     private final JsonGenerator gen
 
@@ -27,131 +157,37 @@ class JsonBuilder2 {
         gen.useDefaultPrettyPrinter()
     }
 
-    abstract static class Definition {
-        protected JsonGenerator gen
+    void invokeUnresolvedMethod(String name, JsonDefinition obj) {
+        try {
+            current.set(gen)
 
-        abstract void define ()
-
-        final void invokeUnresolvedMethod(String name, Object obj) {
-            if(obj == null) {
-                gen.writeNullField name
-                return 
-            }
-
-            switch(obj) {
-                case Closure:
-                    gen.writeObjectFieldStart(name)
-                    obj.call()
-                    gen.writeEndObject()
-                break
-
-                case Definition:
-                    gen.writeObjectFieldStart(name)
-                    obj.gen = gen
-                    obj.define()
-                    obj.gen = null
-                    gen.writeEndObject()
-                break
-
-                case String:
-                    gen.writeStringField(name, obj)
-                break
-
-                case Number:
-                    gen.writeNumberField(name, obj)
-                break
-
-                case Map:
-                    gen.writeObjectFieldStart(name)
-                    for(e in obj.entrySet()) {
-                        invokeUnresolvedMethod(e.key.toString(), e.value)
-                    }
-                    gen.writeEndObject()
-                break
-
-                case Iterable:
-                    gen.writeArrayFieldStart(name)
-                    iterate(obj)
-                    gen.writeEndArray()
-                break
-
-                case Object []:
-                    invokeUnresolvedMethod(name, obj.iterator())
-                break
-
-                default:
-                    gen.writeObjectField(name, obj)
-                break
-            }
+            gen.writeStartObject()
+            gen.writeObjectFieldStart name
+            obj.gen = gen
+            obj.define()
+            obj.gen = null
+            gen.writeEndObject()
+            gen.writeEndObject()
+            gen.close ()
         }
-
-        private void iterate(Iterable obj) {
-            for (e in obj) {
-                if(e == null) {
-                    gen.writeNull()
-                    continue
-                }
-
-                switch (e) {
-                    case Closure:
-                        gen.writeStartObject()
-                        e.call()
-                        gen.writeEndObject()
-                        break
-
-                    case Definition:
-                        e.gen = gen
-                        gen.writeStartObject()
-                        e.define()
-                        gen.writeEndObject()
-                        e.gen = null
-                        break
-
-                    case Map:
-                        gen.writeStartObject()
-                        for (ee in e.entrySet()) {
-                            invokeUnresolvedMethod(ee.key.toString(), ee.value)
-                        }
-                        gen.writeEndObject()
-                        break
-
-                    case String:
-                        gen.writeString(e)
-                        break
-
-                    case Number:
-                        gen.writeNumber(e)
-                        break
-
-                    case Iterable:
-                        gen.writeStartArray()
-                        iterate(e)
-                        gen.writeEndArray()
-                        return
-
-                    default:
-                        gen.writeObject(e)
-                }
-            }
+        finally {
+            current.remove()
         }
-    }
-
-    void invokeUnresolvedMethod(String name, Definition obj) {
-        gen.writeStartObject()
-        gen.writeObjectFieldStart name
-        obj.gen = gen
-        obj.define()
-        obj.gen = null
-        gen.writeEndObject()
-        gen.writeEndObject()
-        gen.close ()
     }
 }
 
-JsonBuilder2.Definition externalData = {
-    z 239
-    h 45
-    time( new Date())
+JsonDefinition externalData = {
+    additionalData {
+        married true
+        conferences(['JavaOne', 'Gr8conf'])
+        projectRoles([
+                'Groovy' : 'Despot',
+                'Grails' : 'Commiter',
+                'Gaelyk' : 'Lead'
+        ])
+    }
+
+    whaeverElseData "xxxxxx", [x: 12, y:14], ['a', 'b', 'c']
 }
 
 JsonBuilder2 builder = [new PrintWriter(System.out)]
@@ -164,7 +200,5 @@ builder.person {
         zip: 12345,
     )
 
-    additionalData(["xxxxxx", [x: 12, y:14], externalData, ['a', 'b', 'c']])
-//        married = true
-//        conferences ['JavaOne', 'Gr8conf']
+    externalData ()
 }
