@@ -191,7 +191,7 @@ JsonClosure externalData = {
         ])
     }
 
-    whaeverElseData (["xxxxxx", [x: 12, y:14], ['a', 'b', 'c']])
+    whateverElseData (["xxxxxx", [x: 12, y:14], ['a', 'b', 'c']])
 }
 
 JsonBuilder2 builder = [new PrintWriter(System.out)]
