@@ -23,7 +23,7 @@ class LanguageTest extends GroovyShellTestCase {
         def cls = shell.classLoader.parseClass("""
 package groovypp.languages
 
-import org.mbte.groovypp.compiler.languages.ScriptLanguageDefinition as scriptLanguage
+scriptLanguage: org.mbte.groovypp.compiler.languages.ScriptLanguageDefinition
 
 class AbstractObject {
 }
@@ -63,7 +63,7 @@ void handleStatement(ClassNode clazz, Statement statement, BlockStatement constr
         def cls2 = cls.classLoader.parseClass("""
 package groovypp.languages
 
-import ${cls.name} as scriptLanguage
+scriptLanguage: ${cls.name}
 
 Pair<Integer,Integer> dimension = [0,12]
 """

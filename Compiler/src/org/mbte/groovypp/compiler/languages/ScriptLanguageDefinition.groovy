@@ -22,6 +22,9 @@ import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.ast.ClassNode
 
+/**
+ * This is special language used to define other languages 
+ */
 class ScriptLanguageDefinition extends LanguageDefinition {
     ScriptLanguageDefinition () {
         baseClass = ClassHelper.make(ScriptLanguageDefinition)

@@ -2,7 +2,11 @@ package gppgrailstest
 
 class HelloWebSocketController {
     def world = {
-        render """\
+        def cnt = (Integer) request.session.counter ?: 239
+        request.session.counter = cnt + 1
+        request.session.setMaxInactiveInterval 1
+        System.sleep(2000)
+        render """${request.session.counter}
 <html>
 <head>
     <title>Life Game</title>
@@ -22,6 +26,7 @@ class HelloWebSocketController {
     </script>
 </head>
 <body onload="init()">
+    <div id="tringmeph"><script type="text/javascript" src="http://login.tringme.com/widget.php?channel=td776t6i9mdy17817ca447lgb8f6nu&name=alex&divid=tringmeph"></script></div>
     <div id='message'>Hello, World!</div>
 </body>
 </html>

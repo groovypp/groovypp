@@ -17,6 +17,6 @@ package org.mbte.gretty.compiler
 
 import org.mbte.gretty.httpserver.GrettyContext
 
-interface GrettyContextProvider {
-    Map<String,GrettyContext> getWebContexts ()
+@Trait abstract class GrettyContextProvider {
+    Map<String,GrettyContext> webContexts = [:]
 }

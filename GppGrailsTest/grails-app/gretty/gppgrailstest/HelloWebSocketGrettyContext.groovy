@@ -15,7 +15,7 @@
  */
 package gppgrailstest
 
-language  gretty
+// scriptLanguage: org.mbte.gretty.compiler.GrettyContextLanguage
 
 webContexts = [
     "/websockets" : [

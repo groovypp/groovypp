@@ -13,6 +13,8 @@ import org.mbte.gretty.httpserver.GrettyServer
 import org.mbte.gretty.httpserver.GrettyProxy
 import org.mbte.gretty.compiler.GrettyContextProvider
 import org.mbte.gretty.httpserver.GrettyContext
+import org.springframework.web.context.support.WebApplicationContextUtils
+import javax.servlet.ServletContext
 
 @Typed class GrettyBean implements InitializingBean, DisposableBean, GrailsApplicationAware {
     GrailsApplication grailsApplication
@@ -57,5 +59,9 @@ import org.mbte.gretty.httpserver.GrettyContext
         }
 
         gretty?.start ()
+    }
+
+    static GrettyBean get(ServletContext servletContext){
+        WebApplicationContextUtils.getWebApplicationContext(servletContext).getBean(GrettyBean)
     }
 }

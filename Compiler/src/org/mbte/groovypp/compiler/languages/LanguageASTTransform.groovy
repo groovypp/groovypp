@@ -23,9 +23,6 @@ import org.codehaus.groovy.control.SourceUnit
 
 import org.codehaus.groovy.ast.ModuleNode
 
-import org.mbte.groovypp.compiler.languages.LanguageDefinition
-import org.codehaus.groovy.ast.ClassNode
-
 abstract class LanguageASTTransform {
 
     @GroovyASTTransformation(phase = CompilePhase.CONVERSION)
@@ -39,26 +36,11 @@ abstract class LanguageASTTransform {
 
             ModuleNode moduleNode = astNode
 
-            List<ClassNode> classes = moduleNode.getClasses();
-            if (!classes.size())
-                return
-
-            def clazz = classes[0]
-            if(!clazz.script)
-                return
-
             Class<LanguageDefinition> scriptLanguageClass
-            for(i in moduleNode.imports) {
-                if("scriptLanguage".equals(i.alias)) {
-                    try {
-                       scriptLanguageClass = moduleNode.context.classLoader.loadClass(i.className)
-                       if(!(LanguageDefinition.isAssignableFrom(scriptLanguageClass)))
-                           source.addError(["scriptLanguage class ${i.className} must extend org.mbte.groovypp.compiler.LanguageDefinition", i.lineNumber, i.columnNumber])
-                    }
-                    catch(e) {
-                       source.addError(["Failed to load scriptLanguage class ${i.className}", i.lineNumber, i.columnNumber])
-                       return
-                    }
+            for(p in ScriptLanguageProvider.findProviders(source.classLoader)) {
+                def lang = p.findScriptLanguage(moduleNode)
+                if(lang) {
+                    scriptLanguageClass = lang
                     break
                 }
             }

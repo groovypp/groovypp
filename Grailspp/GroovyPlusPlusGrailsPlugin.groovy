@@ -1,5 +1,6 @@
 import org.mbte.gretty.grails.GrettyArtefactHandler
 import org.mbte.gretty.grails.GrettyBean
+import org.mbte.gretty.grails.RedisSessionBean
 
 class GroovyPlusPlusGrailsPlugin {
     // the plugin version
@@ -27,5 +28,34 @@ The plugin integrating Groovy++ and Gretty in to Grails
       gretty(GrettyBean) { bean ->
           bean.singleton = true
       }
+
+      redisSessionListenerBean(RedisSessionBean) { bean -> 
+          bean.singleton = true
+      }
+  }
+
+    def doWithWebDescriptor = { webXml ->
+
+    def mappingElement = webXml.'listener'
+    mappingElement[0] + {
+      'listener' {
+        'listener-class'(RedisSessionBean.Listener.name)
+      }
+    }
+
+    mappingElement = webXml.'filter'
+    mappingElement[0] + {
+      'filter' {
+        'filter-name'(RedisSessionBean.Filter.name)
+        'filter-class'(RedisSessionBean.Filter.name)
+      }
+    }
+
+    mappingElement[0] + {
+      'filter-mapping' {
+        'filter-name'(RedisSessionBean.Filter.name)
+        'url-pattern'("/*")
+      }
+    }
   }
 }
