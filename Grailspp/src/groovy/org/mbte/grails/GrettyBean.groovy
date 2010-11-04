@@ -1,12 +1,8 @@
-package org.mbte.gretty.grails
+package org.mbte.grails
 
-import org.springframework.context.Lifecycle
-import org.springframework.context.ApplicationContextAware
-import org.springframework.context.ApplicationContext
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.DisposableBean
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import org.codehaus.groovy.grails.plugins.support.aware.GrailsConfigurationAware
+
 import org.codehaus.groovy.grails.plugins.support.aware.GrailsApplicationAware
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.mbte.gretty.httpserver.GrettyServer

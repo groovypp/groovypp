@@ -127,8 +127,10 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
             innerClassNode.addMethod("invokeMethod", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "args")}, ClassNode.EMPTY_ARRAY, null);
 
             for (FieldNode fieldNode : classNode.getFields()) {
-//                if (fieldNode.isStatic())
-//                    continue;
+                if (fieldNode.isStatic()) {
+                    innerClassNode.addField(fieldNode);
+                    continue;
+                }
 
                 final String getterName = "get" + Verifier.capitalize(fieldNode.getName());
                 MethodNode getter = classNode.getGetterMethod(getterName);

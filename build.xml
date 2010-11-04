@@ -574,9 +574,10 @@
         <copy file="${embeddable.jar.name}" tofile="${pseudo.embeddable.jar.name}"/>
 
         <zip destfile="${grails.zip}"
-             comment="The Groovy++ binary distribution.">
+             comment="The Groovy++ Grails Plugin binary distribution.">
 	        <zipfileset dir="tempbin" prefix="" />
             <zipfileset dir="Gretty/lib" prefix="lib" />
+            <zipfileset file="install/lib/junit-4.8.1" prefix="lib" />
         </zip>
 
         <delete dir="tempbin" quiet="true" />

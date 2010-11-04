@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.gretty.grails
+package org.mbte.grails
 
-import org.codehaus.groovy.grails.commons.AbstractInjectableGrailsClass
+import org.codehaus.groovy.grails.commons.ArtefactHandlerAdapter
+import org.mbte.grails.GrettyContextClass
 
-class DefaultGrettyContextClass extends AbstractInjectableGrailsClass implements GrettyContextClass {
+@Typed class GrettyArtefactHandler extends ArtefactHandlerAdapter {
 
-    public static final String GRETTY_CONTEXT = "GrettyContext";
+    static final String TYPE = "GrettyContext";
+    static final String PLUGIN_NAME = "groovy-plus-plus";
 
-    DefaultGrettyContextClass(Class clazz) {
-        super(clazz, GRETTY_CONTEXT);
+    GrettyArtefactHandler() {
+        super(TYPE, GrettyContextClass, DefaultGrettyContextClass,
+                DefaultGrettyContextClass.GRETTY_CONTEXT, false);
     }
 
-    MetaClass getMetaClass() {
-        GroovySystem.metaClassRegistry.getMetaClass DefaultGrettyContextClass
+    @Override
+    String getPluginName() {
+        return PLUGIN_NAME;
     }
 }

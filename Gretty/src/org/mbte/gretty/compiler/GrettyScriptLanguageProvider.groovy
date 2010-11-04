@@ -23,9 +23,8 @@ import org.codehaus.groovy.control.SourceUnit
 
 @Typed public class GrettyScriptLanguageProvider extends ScriptLanguageProvider {
 
-    private static final String GRETTY_DIR = "gretty";
-
-    private static final String GRAILS_APP_DIR = "grails-app";
+    static final String GRETTY_ANCHOR      = "grails-app${File.separatorChar}gretty${File.separatorChar}"
+    static final String CONTROLLERS_ANCHOR = "grails-app${File.separatorChar}controllers${File.separatorChar}"
 
     Class<LanguageDefinition> findScriptLanguage(ModuleNode moduleNode) {
         List<ClassNode> classes = moduleNode.getClasses();
@@ -36,23 +35,36 @@ import org.codehaus.groovy.control.SourceUnit
         if(!clazz.script)
             return null
 
-        if(isGrettyScript(moduleNode.context)) {
+        if(isGrailsScript(moduleNode.context, GRETTY_ANCHOR)) {
             return GrettyContextLanguage
+        }
+
+        if(isGrailsScript(moduleNode.context, CONTROLLERS_ANCHOR)) {
+            return ControllersLanguage
         }
     }
 
-    protected boolean isGrettyScript(SourceUnit sourceNode) {
-        def sourcePath = sourceNode.name
-        File sourceFile = [sourcePath]
-        def parent = sourceFile.parentFile
-        while (parent) {
-            def parentParent = parent.parentFile
-            if (parent.name == GRETTY_DIR && parentParent && parentParent.name == GRAILS_APP_DIR) {
-                return true
-            }
-            parent = parentParent
-        }
+    protected boolean isGrailsScript(SourceUnit sourceNode, String anchorPath) {
+        def pname = sourceNode.name
+        return pname.indexOf(anchorPath) != -1
+    }
 
-        return false
+    static void improveGrailsPackage(ModuleNode moduleNode, String anchorPath) {
+        def packageNode = moduleNode.package
+        if(!packageNode) {
+            def pname = moduleNode.context.name
+            def ind = pname.indexOf(anchorPath)
+            if(ind != -1) {
+                pname = pname.substring(ind + anchorPath.length())
+                ind = pname.lastIndexOf(File.separator)
+                if(ind != -1) {
+                    pname = pname.substring(0, ind).replace(File.separatorChar, '.')
+                    moduleNode.package = [pname]
+                    for(cls in moduleNode.classes) {
+                        cls.setName("$pname.${cls.name}")
+                    }
+                }
+            }
+        }
     }
 }

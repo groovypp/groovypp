@@ -13,9 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.gretty.grails
+package org.mbte.gretty
 
-import org.codehaus.groovy.grails.commons.InjectableGrailsClass
+import javax.servlet.http.HttpSession
 
-@Typed interface GrettyContextClass extends InjectableGrailsClass {
+class ServletCategory {
+    static def getAt(HttpSession session, String name) {
+        session.getAttribute(name)
+    }
+
+    static void putAt(HttpSession session, String name, def value) {
+        session.setAttribute(name, value)
+    }
 }

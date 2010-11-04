@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Typed package org.mbte.gretty.grails
+package org.mbte.grails
 
 import groovypp.concurrent.CallLaterExecutors
 import groovypp.concurrent.ResourcePool

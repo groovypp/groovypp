@@ -1,6 +1,9 @@
-import org.mbte.gretty.grails.GrettyArtefactHandler
-import org.mbte.gretty.grails.GrettyBean
-import org.mbte.gretty.grails.RedisSessionBean
+import org.mbte.grails.GrettyArtefactHandler
+import org.mbte.grails.GrettyBean
+import org.mbte.grails.RedisSessionBean
+import org.mbte.grails.GrettyBean
+import org.mbte.grails.RedisSessionBean
+import org.mbte.grails.GrettyArtefactHandler
 
 class GroovyPlusPlusGrailsPlugin {
     // the plugin version

@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gppgrailstest
+package org.mbte.grails
 
-webContexts = [
-    "/websockets" : [
-        public: {
-            websocket("/ws",[
-                onMessage: { msg ->
-                    socket.send(msg.toUpperCase())
-                },
+import org.codehaus.groovy.grails.commons.AbstractInjectableGrailsClass
+import org.mbte.grails.GrettyContextClass
 
-                onConnect: {
-                    socket.send("Welcome!")
-                }
-            ])
-        }
-    ]
-]
+class DefaultGrettyContextClass extends AbstractInjectableGrailsClass implements GrettyContextClass {
+
+    public static final String GRETTY_CONTEXT = "GrettyContext";
+
+    DefaultGrettyContextClass(Class clazz) {
+        super(clazz, GRETTY_CONTEXT);
+    }
+
+    MetaClass getMetaClass() {
+        GroovySystem.metaClassRegistry.getMetaClass DefaultGrettyContextClass
+    }
+}

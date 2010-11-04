@@ -13,32 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Typed(debug=true) package org.mbte.gretty.compiler
+@Typed package org.mbte.gretty.compiler
+
+/**
+ * This is very simple language
+ *
+ * webContexts: [
+ *
+ * ]
+ */
 
 import org.codehaus.groovy.ast.ClassHelper
 
 scriptLanguage: org.mbte.groovypp.compiler.languages.ScriptLanguageDefinition
-                                     
+
 interfaces: [ClassHelper.make(GrettyContextProvider)]
 
 def superConversion = conversion
 conversion = { moduleNode ->
-    def packageNode = moduleNode.package
-    if(!packageNode) {
-        def pname = moduleNode.context.name
-        def grettyPathAnchor = "grails-app${File.separatorChar}gretty/"
-        def ind = pname.indexOf(grettyPathAnchor)
-        if(ind != -1) {
-            pname = pname.substring(ind + grettyPathAnchor.length())
-            ind = pname.lastIndexOf(File.separator)
-            if(ind != -1) {
-                pname = pname.substring(0, ind).replace(File.separatorChar, '.')
-                moduleNode.package = [pname]
-                for(cls in moduleNode.classes) {
-                    cls.setName("$pname.${cls.name}")
-                }
-            }
-        }
-    }
+    GrettyScriptLanguageProvider.improveGrailsPackage moduleNode, GrettyScriptLanguageProvider.GRETTY_ANCHOR
     superConversion.execute moduleNode
 }
