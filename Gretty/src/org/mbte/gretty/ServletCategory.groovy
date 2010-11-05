@@ -25,4 +25,12 @@ class ServletCategory {
     static void putAt(HttpSession session, String name, def value) {
         session.setAttribute(name, value)
     }
+
+    static def getUnresolvedProperty(HttpSession session, String name) {
+        session.getAttribute(name)
+    }
+
+    static void setUnresolvedProperty(HttpSession session, String name, Object value) {
+        session.setAttribute(name, value)
+    }
 }
