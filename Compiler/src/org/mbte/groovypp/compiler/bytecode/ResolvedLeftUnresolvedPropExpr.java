@@ -52,21 +52,21 @@ public class ResolvedLeftUnresolvedPropExpr extends ResolvedLeftExpr {
         else {
             MethodNode method = compiler.findMethod(object.getType(), "setUnresolvedProperty", new ClassNode[]{ClassHelper.STRING_TYPE, getType()}, false);
             if(method != null && method.getReturnType().equals(ClassHelper.VOID_TYPE)) {
+                final CastExpression cast = new CastExpression(getType(), right);
+                cast.setSourcePosition(right);
+                final BytecodeExpr finalRight = (BytecodeExpr) compiler.transform(cast);
+
                 MethodCallExpression exp = new MethodCallExpression(new BytecodeExpr(object, object.getType()){
                     protected void compile(MethodVisitor mv) {
                     }
                 }, "setUnresolvedProperty", new ArgumentListExpression(new BytecodeExpr(parent, ClassHelper.STRING_TYPE){
                     protected void compile(MethodVisitor mv) {
                     }
-                }, new BytecodeExpr(right, right.getType()){
+                }, new BytecodeExpr(right, finalRight.getType()){
                     protected void compile(MethodVisitor mv) {
                     }
                 }));
                 exp.setSourcePosition(parent);
-
-                final CastExpression cast = new CastExpression(getType(), right);
-                cast.setSourcePosition(right);
-                final BytecodeExpr finalRight = (BytecodeExpr) compiler.transform(cast);
 
                 final BytecodeExpr delegate = (BytecodeExpr) compiler.transform(exp);
                 return new BytecodeExpr(parent, getType()) {

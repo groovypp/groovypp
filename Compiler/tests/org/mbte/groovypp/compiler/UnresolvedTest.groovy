@@ -38,4 +38,27 @@ class A {
        assert aa == 'AA'
         """
     }
+
+    void testInt () {
+        shell.evaluate """
+@Typed package p
+
+class A {
+    Map<String,Object> map = [:]
+
+    Object getUnresolvedProperty (String name) {
+        map [name]
+    }
+
+    void setUnresolvedProperty (String name, Object value) {
+        map [name] = value
+    }
+}
+       def map = new A()
+
+       Integer cnt = 10
+       map.lambada = cnt + 229
+       assert map.lambada == 239
+        """
+    }
 }
