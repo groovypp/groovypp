@@ -27,7 +27,6 @@ import org.codehaus.groovy.grails.web.metaclass.ChainMethod
 import org.codehaus.groovy.grails.web.servlet.mvc.TokenResponseHandler
 import org.codehaus.groovy.grails.web.mapping.UrlMappingsHolder
 
-@Typed(debug=true)
 @Trait abstract class ControllerMethods implements CommonWebProperties {
     String getActionUri() {
         "/$controllerName/$actionName"
@@ -63,7 +62,7 @@ import org.codehaus.groovy.grails.web.mapping.UrlMappingsHolder
         webRequest.getAttribute(GrailsApplicationAttributes.MODEL_AND_VIEW, 0)
     }
 
-    def getChainModel() {
+    Map getChainModel() {
         webRequest.flashScope["chainModel"]
     }
 
