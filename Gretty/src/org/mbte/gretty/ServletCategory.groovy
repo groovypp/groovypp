@@ -16,21 +16,65 @@
 package org.mbte.gretty
 
 import javax.servlet.http.HttpSession
+import javax.servlet.ServletConfig
 
+/**
+ * Extension methods for classes of servlet framework
+ */
 class ServletCategory {
+    /**
+     * Allows array-like syntax to access session attributes
+     *
+     * @param session
+     * @param name
+     * @return
+     */
     static def getAt(HttpSession session, String name) {
         session.getAttribute(name)
     }
 
+    /**
+     * Allows array-like syntax to access session attributes
+     *
+     * @param session
+     * @param name
+     * @param value
+     * @return
+     */
     static void putAt(HttpSession session, String name, def value) {
         session.setAttribute(name, value)
     }
 
+    /**
+     * Allows property-like syntax to access session attributes
+     *
+     * @param session
+     * @param name
+     * @return
+     */
     static def getUnresolvedProperty(HttpSession session, String name) {
         session.getAttribute(name)
     }
 
+    /**
+     * Allows property-like syntax to access session attributes
+     *
+     * @param session
+     * @param name
+     * @param value
+     */
     static void setUnresolvedProperty(HttpSession session, String name, Object value) {
         session.setAttribute(name, value)
+    }
+
+    /**
+     * Property-like access to initial parameters of ServletConfig
+     * 
+     * @param config
+     * @param name
+     * @return
+     */
+    static String getUnresolvedProperty(ServletConfig config, String name) {
+        config.getInitParameter(name)
     }
 }
