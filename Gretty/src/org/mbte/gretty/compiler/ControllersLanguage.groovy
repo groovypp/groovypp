@@ -49,6 +49,7 @@ import org.mbte.groovypp.compiler.TypeUtil
 import org.codehaus.groovy.ast.expr.PropertyExpression
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.AnnotationNode
+import org.codehaus.groovy.ast.expr.ConstantExpression
 
 scriptLanguage: org.mbte.groovypp.compiler.languages.ScriptLanguageDefinition
                                      
@@ -71,6 +72,15 @@ void handleStatement(ClassNode clazz, Statement statement, BlockStatement constr
                         prop.sourcePosition = statement
                         statement.statementLabel = null
                         statement.expression = EmptyExpression.INSTANCE
+                        return
+
+                    case VariableExpression:
+                        if("defaultAction" == statement.statementLabel) {
+                            def prop = clazz.addProperty(statement.statementLabel, Opcodes.ACC_PUBLIC|Opcodes.ACC_PUBLIC, ClassHelper.STRING_TYPE, new ConstantExpression(expr.name), null, null)
+                            prop.sourcePosition = statement
+                            statement.statementLabel = null
+                            statement.expression = EmptyExpression.INSTANCE
+                        }
                         return
                 }
             break
