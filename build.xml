@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<project name="Groovy Compiler" default="dist">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Groovy Compiler" default="dist">
 
 	<property name="app.name" value="groovypp" />
 
@@ -30,6 +30,7 @@
     <property name="stdlib.module.name" value="StdLib" />
     <property name="examples.module.name" value="Examples" />
     <property name="gretty.module.name" value="Gretty" />
+    <property name="grailspp.module.name" value="Grailspp" />
 
     <property name="version" value="${groovyPPVersion}"/>
     <property name="install.zip" value="${output.dir}/groovypp-${version}.zip"/>
@@ -44,6 +45,7 @@
     <property name="gretty.tests" location="${gretty.module.name}/tests" />
     <property name="stdlib.tests" location="${stdlib.module.name}/tests" />
     <property name="examples.src" location="${examples.module.name}/src" />
+    <property name="grailspp.src" location="${grailspp.module.name}/src.to.be.precompiled" />
 
     <property name="compiler.prod.output" location="${output.dir}/production/${compiler.module.name}" />
     <property name="compiler.test.output" location="${output.dir}/test/${compiler.module.name}" />
@@ -51,6 +53,7 @@
     <property name="stdlib.test.output" location="${output.dir}/test/${stdlib.module.name}" />
     <property name="gretty.prod.output" location="${output.dir}/production/${gretty.module.name}" />
     <property name="gretty.test.output" location="${output.dir}/test/${gretty.module.name}" />
+    <property name="grailspp.prod.output" location="${output.dir}/production/${grailspp.module.name}" />
     <property name="examples.prod.output" location="${output.dir}/production/${examples.module.name}" />
 	<property name="test.reports" location="${output.dir}/test-reports"/>
     <property name="test.reports.jar" location="${output.dir}/test-reports-jars"/>
@@ -59,17 +62,34 @@
 	<property name="jar.name" location="${output.dir}/${app.name}-${version}.jar"/>
     <property name="gretty.jar.name" location="${output.dir}/gretty-${version}.jar"/>
     <property name="gretty.all.jar.name" location="${output.dir}/gretty-all-${version}.jar"/>
+    <property name="grailspp.all.jar.name" location="${output.dir}/grailspp-all-${version}.jar"/>
 	<property name="embeddable.jar.name" location="${output.dir}/${app.name}-all-${version}.jar"/>
 	<property name="target.jvm" value="5" />
 
 	<property name="skipTests" value="false"/>
 
-	<path id="libs">
+    <path id="ivy.lib.path">
+        <fileset dir="install/lib" includes="*.jar"/>
+    </path>
+
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+
+    <ivy:cachepath organisation="org.grails" module="grails-web" revision="1.3.5" pathid="grailspp.lib.path.id" inline="true"/>
+    <ivy:cachepath organisation="org.freemarker" module="freemarker" revision="2.3.16" pathid="freemarker.lib.path.id" inline="true"/>
+    <ivy:cachepath organisation="org.codehaus.jackson" module="jackson-mapper-asl" revision="1.6.1" pathid="jackson.mapper.lib.path.id" inline="true"/>
+    <ivy:cachepath organisation="redis.clients" module="jedis" revision="1.3.1" pathid="jedis.lib.path.id" inline="true"/>
+    <ivy:cachepath organisation="org.slf4j" module="slf4j-log4j12" revision="1.6.1" pathid="slf4j.lib.path.id" inline="true"/>
+
+    <path id="libs">
 		<fileset dir="install/lib" includes="*.jar"/>
 	</path>
 
     <path id="gretty.libs">
         <fileset dir="${gretty.module.name}/lib" includes="*.jar"/>
+        <path refid="freemarker.lib.path.id"/>
+        <path refid="jackson.mapper.lib.path.id"/>
+        <path refid="jedis.lib.path.id"/>
+        <path refid="slf4j.lib.path.id"/>
     </path>
 
     <path id="compile.compiler.classpath">
@@ -122,6 +142,15 @@
         <pathelement location="${compiler.prod.output}"/>
         <pathelement location="${stdlib.prod.output}"/>
         <pathelement location="${gretty.prod.output}"/>
+    </path>
+
+    <path id="compile.grailspp.classpath">
+        <path refid="libs"/>
+        <path refid="gretty.libs"/>
+        <pathelement location="${compiler.prod.output}"/>
+        <pathelement location="${stdlib.prod.output}"/>
+        <pathelement location="${gretty.prod.output}"/>
+        <path refid="grailspp.lib.path.id"/>
     </path>
 
     <path id="tests.classpath">
@@ -179,6 +208,9 @@
 				<include name="asm*.jar"/>
 			</fileset>
 			<fileset dir="lib/cobertura"/>
+            <fileset dir="Grailspp/lib">
+                <include name="*.jar"/>
+            </fileset>
 		</classpath>
 	</taskdef>
 
@@ -290,6 +322,22 @@
         <groovyc classpathref="compile.gretty.tests.classpath" srcdir="${gretty.tests}" fork="yes" includeantruntime="no"
             destdir="${gretty.test.output}" verbose="true" >
         </groovyc >
+    </target>
+
+    <target name="compile.grailspp" depends="compile.gretty" description="compiles Grailspp">
+        <mkdir dir="${grailspp.prod.output}"/>
+        <groovyc classpathref="compile.grailspp.classpath" srcdir="${grailspp.src}" destdir="${grailspp.prod.output}"
+        	includeantruntime="no" fork="yes">
+        </groovyc >
+        <copy todir="${grailspp.prod.output}/META-INF">
+            <fileset dir="${grailspp.src}/META-INF"/>
+        </copy>
+
+        <jarjar jarfile="${grailspp.all.jar.name}">
+            <fileset dir="${grailspp.prod.output}" />
+            <rule pattern="org.objectweb.**" result="groovyjarjarasm.@1"/>
+        </jarjar>
+        <copy file="${grailspp.all.jar.name}" tofile="Grailspp/lib/grailspp-all-${version}.jar"/>
     </target>
 
     <target name="compile.examples"  depends="compile.tests.stdlib,compile.gretty">
@@ -552,7 +600,7 @@
         <delete dir="tempbin" quiet="true" />
     </target>
 
-    <target name="make.grails" depends="make.embeddable.jar" description="Build Grails Plugin">
+    <target name="make.grails" depends="make.embeddable.jar, compile.grailspp" description="Build Grails Plugin">
 		<delete dir="tempbin" quiet="true" />
 		<mkdir dir="tempbin" />
 
@@ -562,7 +610,10 @@
         </copy>
 
 		<copy todir="tempbin">
-			<fileset dir="Grailspp" />
+			<fileset dir="Grailspp">
+                <exclude name="src.to.be.precompiled/**"/>
+                <exclude name="*.iml"/>
+            </fileset>
 		</copy>
 
 		<replaceregexp match="#version"
@@ -570,8 +621,6 @@
 				byline="true">
 			<fileset dir='tempbin'/>
 		</replaceregexp>
-
-        <copy file="${embeddable.jar.name}" tofile="${pseudo.embeddable.jar.name}"/>
 
         <zip destfile="${grails.zip}"
              comment="The Groovy++ Grails Plugin binary distribution.">

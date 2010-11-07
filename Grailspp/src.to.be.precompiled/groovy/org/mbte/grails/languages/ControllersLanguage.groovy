@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.gretty.compiler
+package org.mbte.grails.languages
 
 /**
  * action: {
@@ -45,19 +45,18 @@ import org.codehaus.groovy.ast.Parameter
 import org.objectweb.asm.Opcodes
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.expr.EmptyExpression
-import org.mbte.groovypp.compiler.TypeUtil
-import org.codehaus.groovy.ast.expr.PropertyExpression
-import org.codehaus.groovy.ast.expr.ClassExpression
-import org.codehaus.groovy.ast.AnnotationNode
+
 import org.codehaus.groovy.ast.expr.ConstantExpression
+import org.mbte.gretty.compiler.GrettyScriptLanguageProvider
+import org.mbte.grails.compiler.GrailsScriptLanguageProvider
 
 scriptLanguage: org.mbte.groovypp.compiler.languages.ScriptLanguageDefinition
-                                     
+
 interfaces: [ ClassHelper.make("org.mbte.grails.ControllerMethods") ]
 
 def superConversion = conversion
 conversion = { moduleNode ->
-    GrettyScriptLanguageProvider.improveGrailsPackage moduleNode, GrettyScriptLanguageProvider.CONTROLLERS_ANCHOR
+    GrettyScriptLanguageProvider.improveGrailsPackage moduleNode, GrailsScriptLanguageProvider.CONTROLLERS_ANCHOR
     superConversion.execute moduleNode
 }
 
@@ -65,6 +64,28 @@ void handleStatement(ClassNode clazz, Statement statement, BlockStatement constr
     if (statement.statementLabel) {
         switch (statement) {
             case ExpressionStatement:
+                switch(statement.statementLabel) {
+                    case "defaultAction":
+                        if(statement.expression instanceof VariableExpression) {
+                            ConstantExpression ce = [((VariableExpression)statement.expression).name]
+                            ce.sourcePosition = statement.expression
+                            statement.expression = ce
+                        }
+
+                        def prop = clazz.addProperty(statement.statementLabel, Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, ClassHelper.STRING_TYPE, statement.expression, null, null)
+                        prop.sourcePosition = statement
+                        statement.statementLabel = null
+                        statement.expression = EmptyExpression.INSTANCE
+                    return
+
+                    case "allowedMethods":
+                        def prop = clazz.addProperty(statement.statementLabel, Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, ClassHelper.MAP_TYPE, statement.expression, null, null)
+                        prop.sourcePosition = statement
+                        statement.statementLabel = null
+                        statement.expression = EmptyExpression.INSTANCE
+                    return
+                }
+
                 def expr = statement.expression
                 switch(expr) {
                     case ClosureExpression:
@@ -72,15 +93,6 @@ void handleStatement(ClassNode clazz, Statement statement, BlockStatement constr
                         prop.sourcePosition = statement
                         statement.statementLabel = null
                         statement.expression = EmptyExpression.INSTANCE
-                        return
-
-                    case VariableExpression:
-                        if("defaultAction" == statement.statementLabel) {
-                            def prop = clazz.addProperty(statement.statementLabel, Opcodes.ACC_PUBLIC|Opcodes.ACC_PUBLIC, ClassHelper.STRING_TYPE, new ConstantExpression(expr.name), null, null)
-                            prop.sourcePosition = statement
-                            statement.statementLabel = null
-                            statement.expression = EmptyExpression.INSTANCE
-                        }
                         return
                 }
             break

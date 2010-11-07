@@ -24,7 +24,6 @@ import org.codehaus.groovy.control.SourceUnit
 @Typed public class GrettyScriptLanguageProvider extends ScriptLanguageProvider {
 
     static final String GRETTY_ANCHOR      = "grails-app${File.separatorChar}gretty${File.separatorChar}"
-    static final String CONTROLLERS_ANCHOR = "grails-app${File.separatorChar}controllers${File.separatorChar}"
 
     Class<LanguageDefinition> findScriptLanguage(ModuleNode moduleNode) {
         List<ClassNode> classes = moduleNode.getClasses();
@@ -37,10 +36,6 @@ import org.codehaus.groovy.control.SourceUnit
 
         if(isGrailsScript(moduleNode.context, GRETTY_ANCHOR)) {
             return GrettyContextLanguage
-        }
-
-        if(isGrailsScript(moduleNode.context, CONTROLLERS_ANCHOR)) {
-            return ControllersLanguage
         }
     }
 

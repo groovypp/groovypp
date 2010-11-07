@@ -16,7 +16,6 @@
 package org.mbte.grails
 
 import org.codehaus.groovy.grails.commons.AbstractInjectableGrailsClass
-import org.mbte.grails.GrettyContextClass
 
 class DefaultGrettyContextClass extends AbstractInjectableGrailsClass implements GrettyContextClass {
 

@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.grails
+package org.mbte.grails.languages
 
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
-import org.springframework.web.context.request.RequestContextHolder as RCH
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
-import org.codehaus.groovy.grails.web.servlet.FlashScope
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsHttpSession
+import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import javax.servlet.ServletContext
+import org.codehaus.groovy.grails.web.servlet.mvc.*
+import org.codehaus.groovy.grails.web.servlet.FlashScope
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
 import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.springframework.web.context.request.RequestContextHolder
 
 @Trait abstract class CommonWebProperties {
 
     GrailsWebRequest getWebRequest() {
-        RCH.currentRequestAttributes()
+        RequestContextHolder.currentRequestAttributes()
     }
 
     GrailsParameterMap getParams () {
