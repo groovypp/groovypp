@@ -76,12 +76,12 @@
 
     <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
 
-    <ivy:cachepath organisation="org.grails" module="grails-core" revision="1.3.5" pathid="grailspp.core.lib.path.id" inline="true"/>
-    <ivy:cachepath organisation="org.grails" module="grails-web" revision="1.3.5" pathid="grailspp.lib.path.id" inline="true"/>
-    <ivy:cachepath organisation="org.freemarker" module="freemarker" revision="2.3.16" pathid="freemarker.lib.path.id" inline="true"/>
-    <ivy:cachepath organisation="org.codehaus.jackson" module="jackson-mapper-asl" revision="1.6.1" pathid="jackson.mapper.lib.path.id" inline="true"/>
-    <ivy:cachepath organisation="redis.clients" module="jedis" revision="1.3.1" pathid="jedis.lib.path.id" inline="true"/>
-    <ivy:cachepath organisation="org.slf4j" module="slf4j-log4j12" revision="1.6.1" pathid="slf4j.lib.path.id" inline="true"/>
+    <ivy:cachepath organisation="org.grails" module="grails-core" revision="1.3.5" pathid="grailspp.core.lib.path.id" inline="true" keep="true"/>
+    <ivy:cachepath organisation="org.grails" module="grails-web" revision="1.3.5" pathid="grailspp.web.lib.path.id" inline="true" keep="true"/>
+    <ivy:cachepath organisation="org.freemarker" module="freemarker" revision="2.3.16" pathid="freemarker.lib.path.id" inline="true" keep="true"/>
+    <ivy:cachepath organisation="org.codehaus.jackson" module="jackson-mapper-asl" revision="1.6.1" pathid="jackson.mapper.lib.path.id" inline="true" keep="true"/>
+    <ivy:cachepath organisation="redis.clients" module="jedis" revision="1.3.1" pathid="jedis.lib.path.id" inline="true" keep="true"/>
+    <ivy:cachepath organisation="org.slf4j" module="slf4j-log4j12" revision="1.6.1" pathid="slf4j.lib.path.id" inline="true" keep="true"/>
 
     <path id="libs">
 		<fileset dir="install/lib" includes="*.jar"/>
@@ -154,7 +154,7 @@
         <pathelement location="${stdlib.prod.output}"/>
         <pathelement location="${gretty.prod.output}"/>
         <path refid="grailspp.core.lib.path.id"/>
-        <path refid="grailspp.lib.path.id"/>
+        <path refid="grailspp.web.lib.path.id"/>
     </path>
 
     <path id="compile.grailspp.tests.classpath">
