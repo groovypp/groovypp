@@ -257,7 +257,7 @@
         <mkdir dir="${compiler.test.output}"/>
 		<groovyc classpathref="compile.compiler.tests.classpath" srcdir="${compiler.tests}" destdir="${compiler.test.output}"
 			includeantruntime="no" fork="yes">
-            <javac  target="${target.jvm}/>
+            <javac  target="${target.jvm}" />
 		</groovyc >
 	</target>
 
@@ -266,7 +266,7 @@
         <mkdir dir="${stdlib.prod.output}"/>
         <groovyc classpathref="compile.stdlib.classpath" srcdir="${stdlib.src}" destdir="${stdlib.prod.output}"
         	includeantruntime="no" fork="yes">
-            <javac sourcepath="${stdlib.src}"  target="${target.jvm}/>
+            <javac sourcepath="${stdlib.src}"  target="${target.jvm}" />
         </groovyc >
         <move todir="${stdlib.test.output}">
             <fileset dir="${stdlib.prod.output}">
@@ -356,7 +356,7 @@
         <mkdir dir="${examples.prod.output}"/>
         <groovyc classpathref="compile.examples.classpath" srcdir="${examples.src}" fork="yes" destdir="${examples.prod.output}"
         	verbose="true" includeantruntime="no">
-            <javac sourcepath="${examples.src}"  target="${target.jvm}/>
+            <javac sourcepath="${examples.src}"  target="${target.jvm}"/>
         </groovyc >
     </target>
 
