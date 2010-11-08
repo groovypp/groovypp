@@ -25,7 +25,7 @@ import org.codehaus.groovy.ast.expr.PropertyExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.expr.Expression
 
-class StandardLanguageProvider extends ScriptLanguageProvider {
+@Typed class StandardLanguageProvider extends ScriptLanguageProvider {
     Class<LanguageDefinition> findScriptLanguage(ModuleNode moduleNode) {
         List<ClassNode> classes = moduleNode.getClasses();
         if (!classes.size())

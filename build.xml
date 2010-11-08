@@ -45,7 +45,8 @@
     <property name="gretty.tests" location="${gretty.module.name}/tests" />
     <property name="stdlib.tests" location="${stdlib.module.name}/tests" />
     <property name="examples.src" location="${examples.module.name}/src" />
-    <property name="grailspp.src" location="${grailspp.module.name}/src.to.be.precompiled" />
+    <property name="grailspp.src" location="${grailspp.module.name}/src" />
+    <property name="grailspp.tests" location="${grailspp.module.name}/tests" />
 
     <property name="compiler.prod.output" location="${output.dir}/production/${compiler.module.name}" />
     <property name="compiler.test.output" location="${output.dir}/test/${compiler.module.name}" />
@@ -54,6 +55,7 @@
     <property name="gretty.prod.output" location="${output.dir}/production/${gretty.module.name}" />
     <property name="gretty.test.output" location="${output.dir}/test/${gretty.module.name}" />
     <property name="grailspp.prod.output" location="${output.dir}/production/${grailspp.module.name}" />
+    <property name="grailspp.test.output" location="${output.dir}/test/${grailspp.module.name}" />
     <property name="examples.prod.output" location="${output.dir}/production/${examples.module.name}" />
 	<property name="test.reports" location="${output.dir}/test-reports"/>
     <property name="test.reports.jar" location="${output.dir}/test-reports-jars"/>
@@ -153,6 +155,11 @@
         <path refid="grailspp.lib.path.id"/>
     </path>
 
+    <path id="compile.grailspp.tests.classpath">
+        <path refid="compile.grailspp.classpath"/>
+        <pathelement location="${grailspp.prod.output}"/>
+    </path>
+
     <path id="tests.classpath">
         <path refid="libs"/>
         <pathelement location="${compiler.prod.output}"/>
@@ -208,14 +215,13 @@
 				<include name="asm*.jar"/>
 			</fileset>
 			<fileset dir="lib/cobertura"/>
-            <fileset dir="Grailspp/lib">
-                <include name="*.jar"/>
-            </fileset>
 		</classpath>
 	</taskdef>
 
 	<target name="clean">
 		<delete dir="${output.dir}"/>
+        <delete dir="Grailspp/lib"/>
+        <mkdir dir="Grailspp/lib"/>
 		<delete file="cobertura.ser" quiet="true"/>
     </target>
 
@@ -279,7 +285,6 @@
             <fileset dir="${stdlib.prod.output}" />
             <rule pattern="org.objectweb.**" result="groovyjarjarasm.@1"/>
         </jarjar>
-        <copy file="${embeddable.jar.name}" todir="Grailspp/lib"/>
     </target>
 
     <target name="compile.tests.stdlib"  depends="compile.gretty">
@@ -314,7 +319,6 @@
             <fileset dir="${gretty.prod.output}" />
             <rule pattern="org.objectweb.**" result="groovyjarjarasm.@1"/>
         </jarjar>
-        <copy file="${gretty.all.jar.name}" tofile="Grailspp/lib/gretty-all-${version}.jar"/>
     </target>
 
     <target name="compile.tests.gretty"  depends="compile.gretty">
@@ -337,7 +341,13 @@
             <fileset dir="${grailspp.prod.output}" />
             <rule pattern="org.objectweb.**" result="groovyjarjarasm.@1"/>
         </jarjar>
-        <copy file="${grailspp.all.jar.name}" tofile="Grailspp/lib/grailspp-all-${version}.jar"/>
+    </target>
+
+    <target name="compile.tests.grailspp" depends="compile.grailspp" description="compiles Grailspp tests">
+        <mkdir dir="${grailspp.test.output}"/>
+        <groovyc classpathref="compile.grailspp.tests.classpath" srcdir="${grailspp.tests}" destdir="${grailspp.test.output}"
+        	includeantruntime="no" fork="yes">
+        </groovyc >
     </target>
 
     <target name="compile.examples"  depends="compile.tests.stdlib,compile.gretty">
@@ -350,7 +360,7 @@
 
     <target name="clean-test" depends="clean,test" description="run unit tests"/>
 
-    <target name="test" depends="coverage-instrument,compile.tests.compiler,compile.tests.stdlib,compile.tests.gretty"
+    <target name="test" depends="coverage-instrument,compile.tests.compiler,compile.tests.stdlib,compile.tests.gretty,compile.tests.grailspp"
             description="run unit tests" unless="_skipTests_">
         <mkdir dir="${test.reports}"/>
         <junit printsummary="yes" fork="yes" forkmode="perBatch" includeantruntime="no">
@@ -364,6 +374,7 @@
                 <pathelement location="${stdlib.prod.output}"/>
                 <pathelement location="${compiler.prod.output}"/>
                 <pathelement location="${gretty.prod.output}"/>
+                <pathelement location="${grailspp.prod.output}"/>
             	<path>
                     <fileset dir="install/lib" includes="*.jar"/>
                 </path>
@@ -371,6 +382,7 @@
                 <pathelement location="${stdlib.test.output}"/>
                 <pathelement location="${compiler.test.output}"/>
                 <pathelement location="${gretty.test.output}"/>
+                <pathelement location="${grailspp.test.output}"/>
             </classpath>
 
             <batchtest todir="${test.reports}">
@@ -381,6 +393,9 @@
                     <include name="**/*Test.class"/>
                 </fileset>
                 <fileset dir="${gretty.test.output}">
+                    <include name="**/*Test.class"/>
+                </fileset>
+                <fileset dir="${grailspp.test.output}">
                     <include name="**/*Test.class"/>
                 </fileset>
             </batchtest>
@@ -604,14 +619,9 @@
 		<delete dir="tempbin" quiet="true" />
 		<mkdir dir="tempbin" />
 
-        <mkdir dir="Grailspp/lib" />
-        <copy todir="Grailspp/lib">
-            <fileset dir="Gretty/lib" />
-        </copy>
-
 		<copy todir="tempbin">
 			<fileset dir="Grailspp">
-                <exclude name="src.to.be.precompiled/**"/>
+                <exclude name="src/**"/>
                 <exclude name="*.iml"/>
             </fileset>
 		</copy>
@@ -627,9 +637,23 @@
 	        <zipfileset dir="tempbin" prefix="" />
             <zipfileset dir="Gretty/lib" prefix="lib" />
             <zipfileset file="install/lib/junit-4.8.1" prefix="lib" />
+            <zipfileset file="${embeddable.jar.name}" prefix="lib"/>
+            <zipfileset file="${grailspp.all.jar.name}" prefix="lib"/>
+            <zipfileset file="${gretty.all.jar.name}" prefix="lib"/>
         </zip>
 
         <delete dir="tempbin" quiet="true" />
+    </target>
+
+    <target name="reinstall.grails.plugin" >
+        <exec executable="/Development/grails-1.3.5/bin/grails" dir="GppGrailsTest">
+            <arg value="uninstall-plugin"/>
+            <arg value="groovy-plus-plus"/>
+        </exec>
+        <exec executable="/Development/grails-1.3.5/bin/grails" dir="GppGrailsTest">
+            <arg value="install-plugin"/>
+            <arg value="${grails.zip}"/>
+        </exec>
     </target>
 
     <target name="package.src" description="Package sources">

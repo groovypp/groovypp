@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.gretty.compiler
+package org.mbte.grails.compiler
+
+import org.mbte.grails.languages.GrettyContextProvider
 
 @Typed class GrettyContextLanguageTest extends GroovyShellTestCase {
     void testMe () {
         Class<GrettyContextProvider> res = shell.classLoader.parseClass("""\
-scriptLanguage: org.mbte.gretty.compiler.GrettyContextLanguage
+scriptLanguage: org.mbte.grails.languages.GrettyContextLanguage
 
 webContexts: [
     "/websockets": [
@@ -32,7 +34,7 @@ webContexts: [
     }
 
     void testGrails () {
-        Class<GrettyContextProvider> res = shell.classLoader.parseClass("""\
+        Class<org.mbte.grails.languages.GrettyContextProvider> res = shell.classLoader.parseClass("""\
 webContexts: [
     "/websockets": [
             static: 'abcd'

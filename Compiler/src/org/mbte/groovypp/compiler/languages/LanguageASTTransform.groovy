@@ -38,14 +38,8 @@ abstract class LanguageASTTransform {
 
             Class<LanguageDefinition> scriptLanguageClass
             for(p in ScriptLanguageProvider.findProviders(source.classLoader)) {
-                def lang = p.findScriptLanguage(moduleNode)
-                if(lang) {
-                    scriptLanguageClass = lang
-                    break
-                }
+                p.findScriptLanguage(moduleNode)?.newInstance()?.apply(moduleNode)
             }
-
-            scriptLanguageClass?.newInstance()?.apply(moduleNode)
         }
     }
 }

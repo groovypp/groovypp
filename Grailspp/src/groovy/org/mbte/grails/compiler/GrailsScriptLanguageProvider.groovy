@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.gretty.compiler
+package org.mbte.grails.compiler
 
-import org.mbte.groovypp.compiler.languages.ScriptLanguageProvider
-import org.mbte.groovypp.compiler.languages.LanguageDefinition
-import org.codehaus.groovy.ast.ModuleNode
 import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.ModuleNode
+import org.mbte.groovypp.compiler.languages.LanguageDefinition
+
+import org.mbte.grails.languages.ControllersLanguage
+import org.mbte.groovypp.compiler.languages.ScriptLanguageProvider
 import org.codehaus.groovy.control.SourceUnit
+import org.mbte.grails.languages.GrettyContextLanguage
 
-@Typed public class GrettyScriptLanguageProvider extends ScriptLanguageProvider {
+@Typed public class GrailsScriptLanguageProvider extends ScriptLanguageProvider {
 
+    static final String CONTROLLERS_ANCHOR = "grails-app${File.separatorChar}controllers${File.separatorChar}"
     static final String GRETTY_ANCHOR      = "grails-app${File.separatorChar}gretty${File.separatorChar}"
 
     Class<LanguageDefinition> findScriptLanguage(ModuleNode moduleNode) {
@@ -34,11 +38,16 @@ import org.codehaus.groovy.control.SourceUnit
         if(!clazz.script)
             return null
 
+        if(isGrailsScript(moduleNode.context, CONTROLLERS_ANCHOR)) {
+            return ControllersLanguage
+        }
+
         if(isGrailsScript(moduleNode.context, GRETTY_ANCHOR)) {
             return GrettyContextLanguage
         }
-    }
 
+        return null
+    }
     protected boolean isGrailsScript(SourceUnit sourceNode, String anchorPath) {
         def pname = sourceNode.name
         return pname.indexOf(anchorPath) != -1

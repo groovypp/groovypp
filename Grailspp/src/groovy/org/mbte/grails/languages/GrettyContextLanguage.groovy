@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Typed package org.mbte.gretty.compiler
+package org.mbte.grails.languages
 
 /**
  * This is very simple language
@@ -24,13 +24,14 @@
  */
 
 import org.codehaus.groovy.ast.ClassHelper
+import org.mbte.grails.compiler.GrailsScriptLanguageProvider
 
 scriptLanguage: org.mbte.groovypp.compiler.languages.ScriptLanguageDefinition
 
-interfaces: [ClassHelper.make(GrettyContextProvider)]
+interfaces: [ClassHelper.make(org.mbte.grails.languages.GrettyContextProvider)]
 
 def superConversion = conversion
 conversion = { moduleNode ->
-    GrettyScriptLanguageProvider.improveGrailsPackage moduleNode, GrettyScriptLanguageProvider.GRETTY_ANCHOR
+    GrailsScriptLanguageProvider.improveGrailsPackage moduleNode, GrailsScriptLanguageProvider.GRETTY_ANCHOR
     superConversion.execute moduleNode
 }

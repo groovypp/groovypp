@@ -47,16 +47,15 @@ import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.ast.expr.EmptyExpression
 
 import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.mbte.gretty.compiler.GrettyScriptLanguageProvider
 import org.mbte.grails.compiler.GrailsScriptLanguageProvider
 
 scriptLanguage: org.mbte.groovypp.compiler.languages.ScriptLanguageDefinition
 
-interfaces: [ ClassHelper.make("org.mbte.grails.ControllerMethods") ]
+interfaces: [ ClassHelper.make("org.mbte.grails.languages.ControllerMethods") ]
 
 def superConversion = conversion
 conversion = { moduleNode ->
-    GrettyScriptLanguageProvider.improveGrailsPackage moduleNode, GrailsScriptLanguageProvider.CONTROLLERS_ANCHOR
+    GrailsScriptLanguageProvider.improveGrailsPackage moduleNode, GrailsScriptLanguageProvider.CONTROLLERS_ANCHOR
     superConversion.execute moduleNode
 }
 

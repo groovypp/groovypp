@@ -7,7 +7,7 @@ import org.codehaus.groovy.grails.plugins.support.aware.GrailsApplicationAware
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.mbte.gretty.httpserver.GrettyServer
 import org.mbte.gretty.httpserver.GrettyProxy
-import org.mbte.gretty.compiler.GrettyContextProvider
+import org.mbte.grails.languages.GrettyContextProvider
 import org.mbte.gretty.httpserver.GrettyContext
 import org.springframework.web.context.support.WebApplicationContextUtils
 import javax.servlet.ServletContext
