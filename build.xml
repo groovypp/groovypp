@@ -78,7 +78,7 @@
 
     <ivy:configure/>
     <ivy:resolve />
-    <ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle"/>
+    <ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle" sync="true"/>
 
     <path id="libs">
 		<fileset dir="install/lib" includes="*.jar"/>
