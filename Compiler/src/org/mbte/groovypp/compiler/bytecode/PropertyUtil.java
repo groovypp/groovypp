@@ -40,6 +40,7 @@ import org.objectweb.asm.Opcodes;
 
 public class PropertyUtil {
     public static final Object GET_MAP = new Object ();
+    public static final Object GET_UNRESOLVED = new Object ();
 
     public static BytecodeExpr createGetProperty(final PropertyExpression exp, final CompilerTransformer compiler, String propName, ClassNode type, final BytecodeExpr object, Object prop) {
         if (prop instanceof MethodNode) {
@@ -101,7 +102,11 @@ public class PropertyUtil {
         }
 
         if (prop == GET_MAP) {
-            return new org.mbte.groovypp.compiler.bytecode.ResolvedLeftMapExpr(exp, object, propName);
+            return new ResolvedLeftMapExpr(exp, object, propName);
+        }
+
+        if(prop == GET_UNRESOLVED) {
+            return new ResolvedLeftUnresolvedPropExpr(exp, object, propName, compiler);
         }
 
         final Expression anchor = exp.isImplicitThis() ? exp : exp.getProperty();
@@ -177,10 +182,17 @@ public class PropertyUtil {
             return res;
         }
 
-        if (!onlyStatic && (type.implementsInterface(ClassHelper.MAP_TYPE) || type.equals(ClassHelper.MAP_TYPE)) ) {
-            return GET_MAP;
+        if (!onlyStatic) {
+            if ((type.implementsInterface(ClassHelper.MAP_TYPE) || type.equals(ClassHelper.MAP_TYPE))) {
+                return GET_MAP;
+            }
+
+            MethodNode method = compiler.findMethod(type, "getUnresolvedProperty", new ClassNode[]{ ClassHelper.STRING_TYPE}, false);
+            if(method != null) {
+                return GET_UNRESOLVED;
+            }
         }
-        
+
         return null;
     }
 

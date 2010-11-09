@@ -17,6 +17,8 @@
 package groovypp.concurrent
 
 import java.util.concurrent.Executor
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicReference
 
 @GrUnit({
     testWithFixedPool(10) {
@@ -41,7 +43,7 @@ import java.util.concurrent.Executor
     Executor executor
     boolean  runFair
 
-    private volatile Pair<FQueue<Action<R,Object>>,FList<R>> state = [FQueue.emptyQueue,null]
+    private volatile Pair<FQueue<Function1<R,Object>>,FList<R>> state = [FQueue.emptyQueue,null]
 
     /**
      * @return created pooled resources
@@ -49,6 +51,8 @@ import java.util.concurrent.Executor
     abstract Iterable<R> initResources ()
 
     abstract static class Action<R,D> extends BindLater<D> implements Function1<R,D> {}
+
+    abstract static class SyncAction<R,D> extends BindLater<R> implements Function1<R,D> {}
 
     final <D> BindLater<D> execute (Action<R,D> action, BindLater.Listener<D> whenDone = null) {
         action.whenBound(whenDone)
@@ -76,13 +80,41 @@ import java.util.concurrent.Executor
         }
     }
 
-    private final <D> Object scheduledAction(Action<R,D> action, R resource) {
-        try {
-            action.set(action(resource))
+    final <D> D executeSync (SyncAction<R,D> action) {
+        if (state.second == null) {
+            initPool ()
         }
-        catch(t) {
-            t.printStackTrace()
-            action.setException(t)
+        for (;;) {
+            def s = state
+            if (s.second.empty) {
+                // no resource available, so put action in to the queue
+                if(state.compareAndSet(s, [s.first.addLast(action), FList.emptyList])) {
+                    return action(action.get())
+                }
+            }
+            else {
+                // queue is guaranteed to be empty
+                if(state.compareAndSet(s, [FQueue.emptyQueue, s.second.tail])) {
+                    return action(s.second.head)
+                }
+            }
+        }
+    }
+
+    private final <D> Object scheduledAction(Function1<R,D> action, R resource) {
+        switch (action) {
+            case SyncAction:
+                action.set(resource)
+            break
+
+            case Action:
+                try {
+                    action.set(action(resource))
+                }
+                catch(t) {
+                    action.setException(t)
+                }
+            break
         }
 
         for (;;) {

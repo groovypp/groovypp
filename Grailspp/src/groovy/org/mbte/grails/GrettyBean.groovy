@@ -1,18 +1,16 @@
-package org.mbte.gretty.grails
+package org.mbte.grails
 
-import org.springframework.context.Lifecycle
-import org.springframework.context.ApplicationContextAware
-import org.springframework.context.ApplicationContext
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.DisposableBean
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import org.codehaus.groovy.grails.plugins.support.aware.GrailsConfigurationAware
+
 import org.codehaus.groovy.grails.plugins.support.aware.GrailsApplicationAware
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.mbte.gretty.httpserver.GrettyServer
 import org.mbte.gretty.httpserver.GrettyProxy
-import org.mbte.gretty.compiler.GrettyContextProvider
+import org.mbte.grails.languages.GrettyContextProvider
 import org.mbte.gretty.httpserver.GrettyContext
+import org.springframework.web.context.support.WebApplicationContextUtils
+import javax.servlet.ServletContext
 
 @Typed class GrettyBean implements InitializingBean, DisposableBean, GrailsApplicationAware {
     GrailsApplication grailsApplication
@@ -57,5 +55,9 @@ import org.mbte.gretty.httpserver.GrettyContext
         }
 
         gretty?.start ()
+    }
+
+    static GrettyBean get(ServletContext servletContext){
+        WebApplicationContextUtils.getWebApplicationContext(servletContext).getBean(GrettyBean)
     }
 }

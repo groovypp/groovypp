@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.gretty.compiler
+package org.mbte.grails
 
-@Typed class GrettyContextASTTransformationTest extends GroovyShellTestCase {
-    void testMe () {
-        GrettyContextProvider res = shell.parse("""\
-language gretty
+import org.codehaus.groovy.grails.commons.ArtefactHandlerAdapter
+import org.mbte.grails.GrettyContextClass
 
-webContexts = [
-    "/websockets": [
-        static: 'abcd'
-        ]
-]
-""")
+@Typed class GrettyArtefactHandler extends ArtefactHandlerAdapter {
 
-        assert res.webContexts['/websockets'].'static' == 'abcd'
+    static final String TYPE = "GrettyContext";
+    static final String PLUGIN_NAME = "groovy-plus-plus";
+
+    GrettyArtefactHandler() {
+        super(TYPE, GrettyContextClass, DefaultGrettyContextClass,
+                DefaultGrettyContextClass.GRETTY_CONTEXT, false);
+    }
+
+    @Override
+    String getPluginName() {
+        return PLUGIN_NAME;
     }
 }

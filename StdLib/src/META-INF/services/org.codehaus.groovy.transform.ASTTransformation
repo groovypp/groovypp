@@ -3,5 +3,8 @@ org.mbte.groovypp.compiler.TraitASTTransformFinal
 
 org.mbte.groovypp.compiler.AsyncASTTransform
 org.mbte.groovypp.compiler.SerialASTTransform
+org.mbte.groovypp.compiler.CloneableASTTransform
 org.mbte.groovypp.compiler.StructASTTransform
 org.mbte.groovypp.compiler.GrunitASTTransform
+
+org.mbte.groovypp.compiler.languages.LanguageASTTransform$Conversion

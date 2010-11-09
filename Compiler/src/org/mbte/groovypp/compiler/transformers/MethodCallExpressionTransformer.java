@@ -191,6 +191,15 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
                 }
             }
 
+            ClassNode [] na = new ClassNode[argTypes.length+1];
+            na[0] = ClassHelper.STRING_TYPE;
+            System.arraycopy(argTypes, 0, na, 1, argTypes.length);
+            foundMethod = findMethodWithClosureCoercion(object.getType(), "invokeUnresolvedMethod", na, compiler, false);
+            if(foundMethod != null) {
+                ((TupleExpression)args).getExpressions().add(0, compiler.transform(new ConstantExpression(methodName)));
+                return createCall(exp, compiler, args, object, foundMethod);
+            }
+
             return dynamicOrError(exp, compiler, methodName, type, argTypes, "Cannot find method ");
         }
 
@@ -227,6 +236,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
         boolean isSuper = ((VariableExpression) exp.getObjectExpression()).isSuperExpression();
 
         boolean staticOnly = false;
+        ClassNode originalThisType = thisType;
         while (thisType != null) {
             ClassNode declaringType = isSuper ? thisType.getSuperClass() : thisType;
             foundMethod = findMethodWithClosureCoercion(declaringType, methodName, argTypes, compiler, staticOnly);
@@ -303,6 +313,53 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
             }
             else {
                 thisType = ownerField.getType();
+            }
+        }
+
+        if(!isSuper) {
+            ClassNode [] na = new ClassNode[argTypes.length+1];
+            na[0] = ClassHelper.STRING_TYPE;
+            System.arraycopy(argTypes, 0, na, 1, argTypes.length);
+
+            thisType = originalThisType;
+            staticOnly = false;
+            while (thisType != null) {
+                ClassNode declaringType = thisType;
+                foundMethod = findMethodWithClosureCoercion(declaringType, "invokeUnresolvedMethod", na, compiler, staticOnly);
+
+                if (foundMethod != null) {
+                    // 'super' access is always permitted.
+                    final ClassNode accessType = declaringType;
+                    if (!AccessibilityCheck.isAccessible(foundMethod.getModifiers(),
+                            foundMethod.getDeclaringClass(), compiler.classNode, accessType)) {
+                        return dynamicOrError(exp, compiler, methodName, declaringType, argTypes, "Cannot access method ");
+                    }
+
+
+                    if (foundMethod.isStatic())
+                        object = null;
+                    else {
+                        if (thisType != compiler.classNode && thisType != foundMethod.getDeclaringClass() &&
+                                !foundMethod.isPublic()) {
+                            // super call to outer class' super method needs to be proxied.
+                            foundMethod = compiler.context.getSuperMethodDelegate(foundMethod, thisType);
+                        }
+                        object = createThisFetchingObject(exp, compiler, thisType);
+                    }
+
+                    ((TupleExpression)args).getExpressions().add(0, compiler.transform(new ConstantExpression(methodName)));
+                    return createCall(exp, compiler, args, object, foundMethod);
+                }
+
+                compiler.context.setOuterClassInstanceUsed(thisType);
+                FieldNode ownerField = thisType.getField("this$0");
+                if (ownerField == null) {
+                    thisType = thisType.getOuterClass();
+                    staticOnly = true;
+                }
+                else {
+                    thisType = ownerField.getType();
+                }
             }
         }
 

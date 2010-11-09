@@ -79,10 +79,16 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 
+    debug  'org.mbte.gretty.grails'
+
     warn   'org.mortbay.log'
 }
 
 gretty {
     localAddress = new InetSocketAddress(9090)
-    proxyTo = new InetSocketAddress(8080)
+//    proxyTo = new InetSocketAddress(8080)
+}
+
+redisSessionManager {
+//    host = 'localhost'
 }

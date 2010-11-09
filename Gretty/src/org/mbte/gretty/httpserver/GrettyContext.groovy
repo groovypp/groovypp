@@ -81,7 +81,7 @@ import org.jboss.netty.handler.codec.http.HttpMethod
         webPath = path.endsWith("/") ? path.substring(0,path.length()-1) : path
 
         if(staticFiles) {
-            def file = new File(staticFiles)
+            def file = new File(staticFiles).canonicalFile
             if(!file.exists() || !file.directory || file.hidden) {
                 throw new IOException("directory $staticFiles does not exists or hidden")
             }

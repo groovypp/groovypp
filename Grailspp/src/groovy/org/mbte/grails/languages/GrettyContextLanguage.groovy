@@ -13,9 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.gretty.grails
+package org.mbte.grails.languages
 
-import org.codehaus.groovy.grails.commons.InjectableGrailsClass
+/**
+ * This is very simple language
+ *
+ * webContexts: [
+ *
+ * ]
+ */
 
-@Typed interface GrettyContextClass extends InjectableGrailsClass {
+import org.codehaus.groovy.ast.ClassHelper
+import org.mbte.grails.compiler.GrailsScriptLanguageProvider
+
+scriptLanguage: org.mbte.groovypp.compiler.languages.ScriptLanguageDefinition
+
+interfaces: [ClassHelper.make(org.mbte.grails.languages.GrettyContextProvider)]
+
+def superConversion = conversion
+conversion = { moduleNode ->
+    GrailsScriptLanguageProvider.improveGrailsPackage moduleNode, GrailsScriptLanguageProvider.GRETTY_ANCHOR
+    superConversion.execute moduleNode
 }

@@ -13,10 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.gretty.compiler
+package org.mbte.grails
 
-import org.mbte.gretty.httpserver.GrettyContext
+import org.codehaus.groovy.grails.commons.AbstractInjectableGrailsClass
 
-interface GrettyContextProvider {
-    Map<String,GrettyContext> getWebContexts ()
+class DefaultGrettyContextClass extends AbstractInjectableGrailsClass implements GrettyContextClass {
+
+    public static final String GRETTY_CONTEXT = "GrettyContext";
+
+    DefaultGrettyContextClass(Class clazz) {
+        super(clazz, GRETTY_CONTEXT);
+    }
+
+    MetaClass getMetaClass() {
+        GroovySystem.metaClassRegistry.getMetaClass DefaultGrettyContextClass
+    }
 }
