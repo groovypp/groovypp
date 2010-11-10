@@ -213,7 +213,7 @@
         <delete dir="Grailspp/lib"/>
         <mkdir dir="Grailspp/lib"/>
 		<delete file="cobertura.ser" quiet="true"/>
-        <ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle" sync="true"/>
+        <ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle" sync="true" conf="default"/>
     </target>
 
 	<target name="compile.compiler" depends="releaseinfo" description="compiles compiler source files">
