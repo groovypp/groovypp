@@ -76,8 +76,6 @@
 
     <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
 
-    <ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle" sync="true"/>
-
     <path id="libs">
 		<fileset dir="install/lib" includes="*.jar"/>
 	</path>
@@ -124,7 +122,6 @@
         <path refid="gretty.libs"/>
         <pathelement location="${compiler.prod.output}"/>
         <pathelement location="${stdlib.prod.output}"/>
-        <pathelement location="${compiler.prod.output}"/>
         <path refid="ivy.cache"/>
     </path>
 
@@ -134,10 +131,7 @@
     </path>
 
     <path id="compile.gretty.tests.classpath">
-        <path refid="libs"/>
-        <path refid="gretty.libs"/>
-        <pathelement location="${compiler.prod.output}"/>
-        <pathelement location="${stdlib.prod.output}"/>
+        <path refid="compile.gretty.classpath"/>
         <pathelement location="${gretty.prod.output}"/>
     </path>
 
@@ -214,10 +208,12 @@
 	</taskdef>
 
 	<target name="clean">
+        <delete dir="ivy.cache"/>
 		<delete dir="${output.dir}"/>
         <delete dir="Grailspp/lib"/>
         <mkdir dir="Grailspp/lib"/>
 		<delete file="cobertura.ser" quiet="true"/>
+        <ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle" sync="true"/>
     </target>
 
 	<target name="compile.compiler" depends="releaseinfo" description="compiles compiler source files">
@@ -378,6 +374,7 @@
                 <pathelement location="${compiler.test.output}"/>
                 <pathelement location="${gretty.test.output}"/>
                 <pathelement location="${grailspp.test.output}"/>
+                <fileset dir="ivy.cache"/>
             </classpath>
 
             <batchtest todir="${test.reports}">
@@ -668,7 +665,7 @@
         </zip>
     </target>
 	
-	<target name="dist" depends="make.install, make.grails, package.src" description="build the distribution archives"/>
+	<target name="dist" depends="clean, make.install, make.grails, package.src" description="build the distribution archives"/>
 
 	<target name="check.groovypp.jar">
 	    <available file="${jar.name}" property="groovypp.jar.present"/>
