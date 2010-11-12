@@ -74,7 +74,7 @@ class Issue196Test extends GroovyTestCase {
 	   	File f = new File(bogusFile)
 	   	String path = f.getAbsolutePath()
 	   	path = path.substring(0, path.length() - bogusFile.length())
-	   	dynSrcDir = new File(path + File.separatorChar + 'out' + File.separatorChar + 'test' + File.separatorChar + 'Groovypp')
+	   	dynSrcDir = new File(path + File.separatorChar + 'out' + File.separatorChar + 'test' + File.separatorChar + 'Compiler')
 	}
 
 }

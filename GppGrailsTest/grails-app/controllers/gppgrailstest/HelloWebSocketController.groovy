@@ -1,6 +1,7 @@
 import javax.servlet.http.HttpServletRequest
+import gppgrailstest.BookService
 
-def bookService
+BookService bookService
 
 defaultAction: world
 

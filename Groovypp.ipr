@@ -2069,6 +2069,7 @@
       <module fileurl="file://$PROJECT_DIR$/Examples/Examples.iml" filepath="$PROJECT_DIR$/Examples/Examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GrailsLibs/GrailsLibs.iml" filepath="$PROJECT_DIR$/GrailsLibs/GrailsLibs.iml" />
       <module fileurl="file://$PROJECT_DIR$/Grailspp/Grailspp.iml" filepath="$PROJECT_DIR$/Grailspp/Grailspp.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />

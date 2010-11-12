@@ -26,7 +26,7 @@
 	<property name="stagingDirectory" value="${output.dir}/staging"/>
 	<property name="output.instrumented.dir" value="${output.dir}/instrumented"/>
 
-    <property name="compiler.module.name" value="Groovypp" />
+    <property name="compiler.module.name" value="Compiler" />
     <property name="stdlib.module.name" value="StdLib" />
     <property name="examples.module.name" value="Examples" />
     <property name="gretty.module.name" value="Gretty" />
@@ -70,18 +70,18 @@
 
 	<property name="skipTests" value="false"/>
 
-    <path id="ivy.lib.path">
-        <fileset dir="lib" includes="ivy*.jar"/>
-    </path>
+    <!--<path id="ivy.lib.path">-->
+        <!--<fileset dir="lib" includes="ivy*.jar"/>-->
+    <!--</path>-->
 
-    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    <!--<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>-->
 
     <path id="libs">
 		<fileset dir="install/lib" includes="*.jar"/>
 	</path>
 
-    <path id="ivy.cache">
-		<fileset dir="ivy.cache" includes="*.jar"/>
+    <path id="grails.libs">
+		<fileset dir="GrailsLibs" includes="*.jar"/>
 	</path>
 
     <path id="gretty.libs">
@@ -122,7 +122,7 @@
         <path refid="gretty.libs"/>
         <pathelement location="${compiler.prod.output}"/>
         <pathelement location="${stdlib.prod.output}"/>
-        <path refid="ivy.cache"/>
+        <path refid="grails.libs"/>
     </path>
 
     <path id="compile.gretty.classpath2">
@@ -141,7 +141,7 @@
         <pathelement location="${compiler.prod.output}"/>
         <pathelement location="${stdlib.prod.output}"/>
         <pathelement location="${gretty.prod.output}"/>
-        <path refid="ivy.cache"/>
+        <path refid="grails.libs"/>
     </path>
 
     <path id="compile.grailspp.tests.classpath">
@@ -208,12 +208,13 @@
 	</taskdef>
 
 	<target name="clean">
-        <delete dir="ivy.cache"/>
+        <!--<delete dir="ivy.cache"/>-->
 		<delete dir="${output.dir}"/>
         <delete dir="Grailspp/lib"/>
         <mkdir dir="Grailspp/lib"/>
 		<delete file="cobertura.ser" quiet="true"/>
-        <ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle" sync="true" conf="default"/>
+
+        <!--<ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle" sync="true" conf="default"/>-->
     </target>
 
 	<target name="compile.compiler" depends="releaseinfo" description="compiles compiler source files">
@@ -374,7 +375,7 @@
                 <pathelement location="${compiler.test.output}"/>
                 <pathelement location="${gretty.test.output}"/>
                 <pathelement location="${grailspp.test.output}"/>
-                <fileset dir="ivy.cache"/>
+                <fileset dir="GrailsLibs"/>
             </classpath>
 
             <batchtest todir="${test.reports}">
@@ -659,6 +660,7 @@
 		<include name="Examples/"/>
         <include name="Grailspp/"/>
         <include name="GppGrailsTest/"/>
+        <include name="GrailsLibs/"/>
 		<include name="build.properties"/>
 		<include name="build.xml"/>
 		<include name="build.properties"/>
