@@ -43,7 +43,8 @@ import org.jboss.netty.buffer.ChannelBuffers
             }
 
             if(match) {
-                def res = ChannelBuffers.wrappedBuffer("<cross-domain-policy><allow-access-from domain=\"localhost\" to-ports=\"8080\"/></cross-domain-policy>X".bytes)
+                def xmlRes = "<cross-domain-policy><allow-access-from domain=\"*\" to-ports=\"*\"/></cross-domain-policy> "
+                def res = ChannelBuffers.wrappedBuffer(xmlRes.bytes)
                 res.setByte(res.capacity()-1, 0)
                 e.channel.write(res).addListener {
                     e.channel.close()
