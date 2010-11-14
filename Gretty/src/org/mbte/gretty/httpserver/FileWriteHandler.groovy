@@ -24,6 +24,8 @@ import org.jboss.netty.channel.ChannelDownstreamHandler
 import org.jboss.netty.channel.ChannelEvent
 import org.jboss.netty.channel.MessageEvent
 import org.jboss.netty.channel.Channels
+import org.jboss.netty.handler.stream.ChunkedStream
+import org.jboss.netty.buffer.ChannelBuffers
 
 @Typed class FileWriteHandler implements ChannelDownstreamHandler {
     public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent evt) throws Exception {

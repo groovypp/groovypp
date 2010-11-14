@@ -1,6 +1,15 @@
+@Typed package examples
+
 import org.mbte.gretty.httpserver.GrettyServer
 
 GrettyServer server = [
-        static: "."
+    staticResources: "META-INF/web-socket-js",
+    localAddress: new InetSocketAddress(8080),
+
+    public: {
+        websocket("/") { msg ->
+            println msg
+        }
+    }
 ]
 server.start ()
