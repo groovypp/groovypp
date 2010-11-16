@@ -28,19 +28,20 @@ import org.springframework.context.ApplicationContext
     }
 
     void afterPropertiesSet() {
-        ConfigObject config = grailsApplication.config.gretty ?: [:]
+        ConfigObject config = grailsApplication.config.gretty
 
-        SocketAddress localAddress = config["localAddress"]
+        SocketAddress localAddress = config?.localAddress
 
-        SocketAddress proxyTo = config["proxyTo"]
+        SocketAddress proxyTo = config?.proxyTo
         if(proxyTo) {
             proxy = [proxyTo]
             localAddress = localAddress ?: new InetSocketAddress(8081)
         }
 
+        def artefacts = grailsApplication.getArtefacts(GrettyArtefactHandler.TYPE)
         if(localAddress) {
             Map<String,GrettyContext> wc = [:]
-            for(ar in grailsApplication.getArtefacts(GrettyArtefactHandler.TYPE)) {
+            for(ar in artefacts) {
                 GrettyContextProvider provider = applicationContext.getBean(ar.fullName)
                 def contexts = provider.webContexts
                 wc.putAll(contexts)
@@ -55,6 +56,10 @@ import org.springframework.context.ApplicationContext
                     proxy?.handle(request, response)
                 }
             ]
+        }
+        else {
+            if(artefacts.length != 0)
+                throw new IllegalStateException("Gretty is not configured")
         }
 
         gretty?.start ()
