@@ -28,6 +28,16 @@ The plugin integrating Groovy++ and Gretty in to Grails
   def artefacts = [GrettyArtefactHandler]
 
   def doWithSpring = {
+      for (gc in application.grettyContextClasses) {
+          log.debug "Configuring gretty context $gc.fullName"
+          if (gc.available) {
+              "${gc.fullName}"(gc.clazz) { bean ->
+                  bean.singleton = true
+                  bean.autowire = "byName"
+              }
+          }
+      }
+
       gretty(GrettyBean) { bean ->
           bean.singleton = true
       }

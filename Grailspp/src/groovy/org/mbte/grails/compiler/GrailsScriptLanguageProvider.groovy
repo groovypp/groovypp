@@ -26,6 +26,7 @@ import org.mbte.grails.languages.GrettyContextLanguage
 
 @Typed public class GrailsScriptLanguageProvider extends ScriptLanguageProvider {
 
+    static final String SERVICES_ANCHOR    = "grails-app${File.separatorChar}services${File.separatorChar}"
     static final String CONTROLLERS_ANCHOR = "grails-app${File.separatorChar}controllers${File.separatorChar}"
     static final String GRETTY_ANCHOR      = "grails-app${File.separatorChar}gretty${File.separatorChar}"
 
@@ -48,6 +49,7 @@ import org.mbte.grails.languages.GrettyContextLanguage
 
         return null
     }
+
     protected boolean isGrailsScript(SourceUnit sourceNode, String anchorPath) {
         def pname = sourceNode.name
         return pname.indexOf(anchorPath) != -1

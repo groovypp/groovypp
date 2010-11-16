@@ -23,8 +23,7 @@ import org.codehaus.groovy.ast.expr.PropertyExpression
 @Typed abstract class ScriptLanguageProvider {
     abstract Class<LanguageDefinition> findScriptLanguage(ModuleNode moduleNode)
 
-    private static class Info extends LinkedHashMap<String,ScriptLanguageProvider>{
-    }
+    private static class Info extends LinkedHashMap<String,ScriptLanguageProvider>{}
 
     private static final WeakHashMap<ClassLoader,Info> providers = [:]
     private static final Info NONE = []

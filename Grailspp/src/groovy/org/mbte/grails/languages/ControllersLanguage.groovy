@@ -48,6 +48,10 @@ import org.codehaus.groovy.ast.expr.EmptyExpression
 
 import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.mbte.grails.compiler.GrailsScriptLanguageProvider
+import org.springframework.core.io.Resource
+import org.codehaus.groovy.grails.plugins.GrailsPluginUtils
+import org.codehaus.groovy.grails.commons.GrailsResourceUtils
+import org.mbte.grails.compiler.ArtefactCache
 
 scriptLanguage: org.mbte.groovypp.compiler.languages.ScriptLanguageDefinition
 
@@ -118,7 +122,10 @@ void handleStatement(ClassNode clazz, Statement statement, BlockStatement constr
                     case DeclarationExpression:
                         def varExpr = (VariableExpression) expr.leftExpression
                         if(varExpr.getName().endsWith("Service")) {
-                            varExpr.setType(ClassHelper.make("${varExpr.name[0].toUpperCase()}${varExpr.name.substring(1)}"))
+                            def serviceName = "${varExpr.name[0].toUpperCase()}${varExpr.name.substring(1)}"
+                            def arName = ArtefactCache.findArtefactClass(serviceName)
+                            if(arName)
+                                varExpr.setType(ClassHelper.make(arName))
                         }
                         def prop = clazz.addProperty(varExpr.name, Opcodes.ACC_PUBLIC, varExpr.getType(), expr.rightExpression, null, null)
                         prop.sourcePosition = statement

@@ -633,12 +633,13 @@
             <zipfileset file="${embeddable.jar.name}" prefix="lib"/>
             <zipfileset file="${grailspp.all.jar.name}" prefix="lib"/>
             <zipfileset file="${gretty.all.jar.name}" prefix="lib"/>
+            <zipfileset dir="${gretty.src}/META-INF/web-socket-js" prefix="web-app/js"/>
         </zip>
 
         <delete dir="tempbin" quiet="true" />
     </target>
 
-    <target name="reinstall.grails.plugin" >
+    <target name="reinstall.grails.plugin" depends="make.grails">
         <exec executable="/Development/grails-1.3.5/bin/grails" dir="GppGrailsTest">
             <arg value="uninstall-plugin"/>
             <arg value="groovy-plus-plus"/>
