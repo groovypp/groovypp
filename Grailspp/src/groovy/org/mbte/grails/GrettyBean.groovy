@@ -28,7 +28,7 @@ import org.springframework.context.ApplicationContext
     }
 
     void afterPropertiesSet() {
-        ConfigObject config = grailsApplication.config.gretty
+        ConfigObject config = grailsApplication.config.gretty ?: [:]
 
         SocketAddress localAddress = config["localAddress"]
 
