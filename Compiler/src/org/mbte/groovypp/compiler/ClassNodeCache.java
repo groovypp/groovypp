@@ -135,7 +135,8 @@ public class ClassNodeCache {
                 "java.lang.Object withDataInputStream(java.io.File, groovy.lang.Closure)",
                 "java.lang.Object withInputStream(java.net.URL, groovy.lang.Closure)",
                 "java.lang.Object withStream(java.io.InputStream, groovy.lang.Closure)",
-                "java.lang.Object withStream(java.io.OutputStream, groovy.lang.Closure)"
+                "java.lang.Object withStream(java.io.OutputStream, groovy.lang.Closure)",
+                "void times(java.lang.Number, groovy.lang.Closure)"
         )), false);
         initDgm(SwingGroovyMethods.class, false);
         initDgm(SqlGroovyMethods.class, false);
