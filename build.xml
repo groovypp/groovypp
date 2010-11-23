@@ -590,13 +590,13 @@
 
     <target name="publish-googlecode" depends="dist">
         <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
-            filename="${jar.name}" targetfilename="${jar.name}" summary="Groovy++ Jar ${version}"
+            filename="${jar.name}" targetfilename="${jar.name}" summary="Groovy++ Jar ${version} (use with groovy-1.7.5.jar)"
         labels="Featured" verbose="true"/>
         <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
-            filename="${embeddable.jar.name}" targetfilename="${embeddable.jar.name}" summary="Groovy++ Embeddable ${version}"
+            filename="${embeddable.jar.name}" targetfilename="${embeddable.jar.name}" summary="Groovy++ Embeddable Jar ${version} (use with groovy-all-1.7.5.jar)"
         labels="Featured" verbose="true"/>
 	    <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
-    	    filename="${install.zip}" targetfilename="${install.zip}" summary="Groovy++ ${version}"
+    	    filename="${install.zip}" targetfilename="${install.zip}" summary="Groovy 1.7.5 including Groovy++ ${version}"
 	    labels="Featured" verbose="true"/>
         <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
                 filename="${src.zip}" targetfilename="${src.zip}" summary="Groovy++ Sources ${version}"
