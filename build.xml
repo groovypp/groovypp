@@ -352,7 +352,7 @@
 
     <target name="clean-test" depends="clean,test.stdlib" description="run unit tests"/>
 
-    <target name="test.stdlib" depends="compile.tests.compiler,compile.tests.stdlib"
+    <target name="test.stdlib" depends="compile.tests.compiler,compile.tests.stdlib,coverage-instrument"
                 description="run unit tests" unless="_skipTests_">
             <mkdir dir="${test.reports}"/>
             <junit printsummary="yes" fork="yes" forkmode="perBatch" includeantruntime="no">
@@ -360,10 +360,13 @@
                 <jvmarg value="-ea"/>
 
                 <classpath>
-                    <pathelement location="${jar.name}"/>
+				    <fileset dir="lib/cobertura"/>
+                    <pathelement location="${output.instrumented.dir}"/>
                     <path>
                         <fileset dir="install/lib" includes="*.jar"/>
                     </path>
+                    <pathelement location="${stdlib.prod.output}"/>
+                    <pathelement location="${compiler.prod.output}"/>
                     <pathelement location="${stdlib.test.output}"/>
                     <pathelement location="${compiler.test.output}"/>
                 </classpath>
@@ -485,6 +488,21 @@
 	<target name="check.groovypp.jar">
 	    <available file="${jar.name}" property="groovypp.jar.present"/>
 	</target>
+
+    <target name="coverage-instrument"
+            depends="compile.compiler,compile.stdlib" if="_forceCoverage_">
+        <cobertura-instrument todir="${output.instrumented.dir}">
+            <fileset dir="${compiler.prod.output}/"/>
+            <fileset dir="${stdlib.prod.output}/"/>
+        </cobertura-instrument>
+    </target>
+
+    <target name="coverage-report">
+        <cobertura-report destdir="${cobertura.report.dir}" format="xml">
+            <fileset dir="Compiler/src"/>
+            <fileset dir="${stdlib.src}"/>
+        </cobertura-report>
+    </target>
 
 	<macrodef name="run.benchmark">
 		<attribute name="className"/>
