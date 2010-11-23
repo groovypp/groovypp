@@ -18,40 +18,40 @@
 
 
 
-package org.mbte.groovypp.compiler
-
-import org.codehaus.groovy.tools.FileSystemCompiler
-import org.codehaus.groovy.control.CompilerConfiguration
-import groovy.util.test.GroovyFileSystemCompilerTestCase
-
-class A extends GroovyFileSystemCompilerTestCase {
-    A () {
-        def file = new File("Gretty/lib")
-        additionalClasspath = ""
-        def files = file.listFiles()
-        for(f in files) {
-            if(f.name.endsWith(".jar"))
-                additionalClasspath = additionalClasspath  + f + ":"
-        }
-    }
-}
-
-extendsTest A
-
-testCompilerNotNull { assertNotNull compiler }
-
-def finder = new FileNameFinder()
-def srcDir = "./Gretty/src/"
-
-testSrcExists {
-    assertTrue new File(srcDir).exists()
-}
-
-checkNamesNonEmpty {
-    def names = finder.getFileNames(srcDir, "**/*.groovy")
-    names.addAll(finder.getFileNames(srcDir, "**/*.java"))
-
-    assertFalse names.empty
-}
-
-compiler.compile (names as String[])
+//package org.mbte.groovypp.compiler
+//
+//import org.codehaus.groovy.tools.FileSystemCompiler
+//import org.codehaus.groovy.control.CompilerConfiguration
+//import groovy.util.test.GroovyFileSystemCompilerTestCase
+//
+//class A extends GroovyFileSystemCompilerTestCase {
+//    A () {
+//        def file = new File("Gretty/lib")
+//        additionalClasspath = ""
+//        def files = file.listFiles()
+//        for(f in files) {
+//            if(f.name.endsWith(".jar"))
+//                additionalClasspath = additionalClasspath  + f + ":"
+//        }
+//    }
+//}
+//
+//extendsTest A
+//
+//testCompilerNotNull { assertNotNull compiler }
+//
+//def finder = new FileNameFinder()
+//def srcDir = "./Gretty/src/"
+//
+//testSrcExists {
+//    assertTrue new File(srcDir).exists()
+//}
+//
+//checkNamesNonEmpty {
+//    def names = finder.getFileNames(srcDir, "**/*.groovy")
+//    names.addAll(finder.getFileNames(srcDir, "**/*.java"))
+//
+//    assertFalse names.empty
+//}
+//
+//compiler.compile (names as String[])
