@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.grails
+package org.mbte.grails.languages
 
-import org.codehaus.groovy.grails.commons.ArtefactHandlerAdapter
-import org.mbte.grails.GrettyContextClass
+import org.mbte.groovypp.compiler.languages.LanguageDefinition
+import org.mbte.grails.compiler.GrailsScriptLanguageProvider
 
-@Typed class GrettyArtefactHandler extends ArtefactHandlerAdapter {
+@Typed class ControllerLanguage extends GrailsLanguage {
 
-    static final String TYPE = "GrettyContext";
-    static final String PLUGIN_NAME = "groovy-plus-plus";
+    ControllerLanguage() {
+        super(GrailsScriptLanguageProvider.CONTROLLERS_ANCHOR)
 
-    GrettyArtefactHandler() {
-        super(TYPE, GrettyContextClass, DefaultGrettyContextClass,
-                DefaultGrettyContextClass.GRETTY_CONTEXT, false);
-    }
-
-    @Override
-    String getPluginName() {
-        return PLUGIN_NAME;
+        def oldConversion = conversion
+        conversion = { moduleNode ->
+            moduleNode.classes[0]
+            oldConversion.execute moduleNode
+        }
     }
 }

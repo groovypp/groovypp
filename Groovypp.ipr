@@ -2068,10 +2068,8 @@
       <module fileurl="file://$PROJECT_DIR$/Compiler/Compiler.iml" filepath="$PROJECT_DIR$/Compiler/Compiler.iml" />
       <module fileurl="file://$PROJECT_DIR$/Examples/Examples.iml" filepath="$PROJECT_DIR$/Examples/Examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" />
       <module fileurl="file://$PROJECT_DIR$/GrailsLibs/GrailsLibs.iml" filepath="$PROJECT_DIR$/GrailsLibs/GrailsLibs.iml" />
       <module fileurl="file://$PROJECT_DIR$/Grailspp/Grailspp.iml" filepath="$PROJECT_DIR$/Grailspp/Grailspp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Grailspp/Grailspp-grailsPlugins.iml" filepath="$PROJECT_DIR$/Grailspp/Grailspp-grailsPlugins.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/apache-tomcat-7.0.2-src.iml" filepath="$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/apache-tomcat-7.0.2-src.iml" />

@@ -18,7 +18,7 @@ package org.mbte.grails.compiler
 import org.codehaus.groovy.grails.commons.GrailsResourceUtils
 import org.codehaus.groovy.grails.plugins.GrailsPluginUtils
 
-class ArtefactCache {
+@Typed class ArtefactCache {
 
     static String findArtefactClass(String simpleName) {
         def basedir = System.getProperty("base.dir") ?: "."

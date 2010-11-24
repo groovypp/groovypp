@@ -137,10 +137,8 @@
 
     <path id="compile.grailspp.classpath">
         <path refid="libs"/>
-        <path refid="gretty.libs"/>
         <pathelement location="${compiler.prod.output}"/>
         <pathelement location="${stdlib.prod.output}"/>
-        <pathelement location="${gretty.prod.output}"/>
         <path refid="grails.libs"/>
     </path>
 
@@ -320,7 +318,7 @@
         </groovyc >
     </target>
 
-    <target name="compile.grailspp" depends="compile.gretty" description="compiles Grailspp">
+    <target name="compile.grailspp" depends="compile.stdlib" description="compiles Grailspp">
         <mkdir dir="${grailspp.prod.output}"/>
         <groovyc classpathref="compile.grailspp.classpath" srcdir="${grailspp.src}" destdir="${grailspp.prod.output}"
         	includeantruntime="no" fork="yes">
@@ -342,7 +340,7 @@
         </groovyc >
     </target>
 
-    <target name="compile.examples"  depends="compile.tests.stdlib,compile.gretty">
+    <target name="compile.examples"  depends="compile.tests.stdlib">
         <mkdir dir="${examples.prod.output}"/>
         <groovyc classpathref="compile.examples.classpath" srcdir="${examples.src}" fork="yes" destdir="${examples.prod.output}"
         	verbose="true" includeantruntime="no">
@@ -428,47 +426,42 @@
         </zip>
     </target>
 
-    <!--<target name="make.grails" depends="make.embeddable.jar, compile.grailspp" description="Build Grails Plugin">-->
-		<!--<delete dir="tempbin" quiet="true" />-->
-		<!--<mkdir dir="tempbin" />-->
+    <target name="make.grails" depends="compile.grailspp" description="Build Grails Plugin">
+		<delete dir="tempbin" quiet="true" />
+		<mkdir dir="tempbin" />
 
-		<!--<copy todir="tempbin">-->
-			<!--<fileset dir="Grailspp">-->
-                <!--<exclude name="src/**"/>-->
-                <!--<exclude name="*.iml"/>-->
-            <!--</fileset>-->
-		<!--</copy>-->
+		<copy todir="tempbin">
+			<fileset dir="Grailspp">
+                <exclude name="src/**"/>
+                <exclude name="*.iml"/>
+            </fileset>
+		</copy>
 
-		<!--<replaceregexp match="#version"-->
-				<!--replace="${version}"-->
-				<!--byline="true">-->
-			<!--<fileset dir='tempbin'/>-->
-		<!--</replaceregexp>-->
+		<replaceregexp match="#version"
+				replace="${version}"
+				byline="true">
+			<fileset dir='tempbin'/>
+		</replaceregexp>
 
-        <!--<zip destfile="${grails.zip}"-->
-             <!--comment="The Groovy++ Grails Plugin binary distribution.">-->
-	        <!--<zipfileset dir="tempbin" prefix="" />-->
-            <!--<zipfileset dir="Gretty/lib" prefix="lib" />-->
-            <!--<zipfileset file="install/lib/junit-4.8.1" prefix="lib" />-->
-            <!--<zipfileset file="${embeddable.jar.name}" prefix="lib"/>-->
-            <!--<zipfileset file="${grailspp.all.jar.name}" prefix="lib"/>-->
-            <!--<zipfileset file="${gretty.all.jar.name}" prefix="lib"/>-->
-            <!--<zipfileset dir="${gretty.src}/META-INF/web-socket-js" prefix="web-app/js"/>-->
-        <!--</zip>-->
+        <zip destfile="${grails.zip}"
+             comment="The Groovy++ Grails Plugin binary distribution.">
+	        <zipfileset dir="tempbin" prefix="" />
+            <zipfileset file="${grailspp.all.jar.name}" prefix="lib"/>
+        </zip>
 
-        <!--<delete dir="tempbin" quiet="true" />-->
-    <!--</target>-->
+        <delete dir="tempbin" quiet="true" />
+    </target>
 
-    <!--<target name="reinstall.grails.plugin" depends="make.grails">-->
-        <!--<exec executable="/Development/grails-1.3.5/bin/grails" dir="GppGrailsTest">-->
-            <!--<arg value="uninstall-plugin"/>-->
-            <!--<arg value="groovy-plus-plus"/>-->
-        <!--</exec>-->
-        <!--<exec executable="/Development/grails-1.3.5/bin/grails" dir="GppGrailsTest">-->
-            <!--<arg value="install-plugin"/>-->
-            <!--<arg value="${grails.zip}"/>-->
-        <!--</exec>-->
-    <!--</target>-->
+    <target name="reinstall.grails.plugin" depends="make.grails">
+        <exec executable="/Development/grails-1.3.5/bin/grails" dir="GppGrailsTest">
+            <arg value="uninstall-plugin"/>
+            <arg value="groovy-plus-plus"/>
+        </exec>
+        <exec executable="/Development/grails-1.3.5/bin/grails" dir="GppGrailsTest">
+            <arg value="install-plugin"/>
+            <arg value="${grails.zip}"/>
+        </exec>
+    </target>
 
     <target name="package.src" description="Package sources">
         <zip destfile="${src.zip}" basedir="." comment="The Groovy++ source distribution">
@@ -483,7 +476,7 @@
         </zip>
     </target>
 	
-	<target name="dist" depends="clean-test, make.install, package.src" description="build the distribution archives"/>
+	<target name="dist" depends="clean-test, make.install, package.src, make.grails" description="build the distribution archives"/>
 
 	<target name="check.groovypp.jar">
 	    <available file="${jar.name}" property="groovypp.jar.present"/>
@@ -522,7 +515,7 @@
 	</macrodef>
 
 	<!--, clean, compile.examples-->
-	<target name="run.benchmarks" depends="check.groovypp.jar">
+	<target name="run.benchmarks" depends="compile.examples, check.groovypp.jar">
 		<fail message="No groovypp.jar. Please build one first" unless="groovypp.jar.present"/>
 		<echo message="Running benchmarks" />
 		<record name="benchmarks.txt" action="start" />
@@ -601,8 +594,8 @@
         <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
                 filename="${src.zip}" targetfilename="${src.zip}" summary="Groovy++ Sources ${version}"
             labels="Featured" verbose="true"/>
-        <!--<gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"-->
-            <!--filename="${grails.zip}" targetfilename="${grails.zip}" summary="Groovy++ Grails Plugin ${version}"-->
-        <!--labels="Featured" verbose="true"/>-->
+        <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
+            filename="${grails.zip}" targetfilename="${grails.zip}" summary="Groovy++ Grails Plugin ${version}"
+        labels="Featured" verbose="true"/>
     </target>
 </project>

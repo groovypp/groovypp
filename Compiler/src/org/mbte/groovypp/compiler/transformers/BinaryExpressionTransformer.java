@@ -397,7 +397,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                 compiler.addError("Cannot find method " + PresentationUtil.getText(object.getType()) + ".getAt(" + PresentationUtil.getText(indexExp.getType()) + ")", bin);
                 return null;
             } else {
-                return callMethod(bin, "getAt", compiler, object, indexExp);
+                return new UnresolvedArrayLikeBytecodeExpr(bin, object, indexExp, compiler);
             }
         }
     }

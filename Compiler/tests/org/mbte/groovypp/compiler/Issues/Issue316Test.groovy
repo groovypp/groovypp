@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.grails.languages
+package org.mbte.groovypp.compiler.Issues
 
-import org.mbte.gretty.httpserver.GrettyContext
-
-@Trait abstract class GrettyContextProvider {
-    Map<String,GrettyContext> webContexts = [:]
+class Issue316Test extends GroovyShellTestCase {
+    void testMe () {
+        shell.evaluate("""
+@Typed(value=TypePolicy.MIXED) package p
+Serializable var = [0:12]
+assert var[0] == 12
+assert (var[0] = 13) == 13
+""")
+    }
 }
