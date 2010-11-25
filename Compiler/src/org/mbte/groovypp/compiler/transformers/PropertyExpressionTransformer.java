@@ -60,14 +60,18 @@ public class PropertyExpressionTransformer extends ExprTransformer<PropertyExpre
 
         String propName;
         if (!(originalProperty instanceof ConstantExpression) || !(((ConstantExpression) originalProperty).getValue() instanceof String)) {
-            if (originalProperty instanceof ClosureExpression) {
-                final MethodCallExpression mce = new MethodCallExpression(exp.getObjectExpression(), "apply", new ArgumentListExpression(originalProperty));
-                mce.setSourcePosition(exp);
-                return compiler.transform(mce);
-            }
-            else {
+//            if (originalProperty instanceof ClosureExpression) {
+//                final MethodCallExpression mce = new MethodCallExpression(exp.getObjectExpression(), "apply", new ArgumentListExpression(originalProperty));
+//                mce.setSourcePosition(exp);
+//                return compiler.transform(mce);
+//            }
+//            else {
+            if (compiler.policy == TypePolicy.STATIC) {
                 compiler.addError("Non-static property name", originalProperty);
                 return null;
+            }
+            else {
+                return new UnresolvedPropertyBytecodeExpr(exp, (BytecodeExpr)compiler.transform(exp.getObjectExpression()), (BytecodeExpr)compiler.transform(originalProperty), compiler);
             }
         } else {
             propName = (String) ((ConstantExpression) originalProperty).getValue();
