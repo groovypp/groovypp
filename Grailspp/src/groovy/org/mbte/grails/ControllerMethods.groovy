@@ -27,7 +27,7 @@ import org.codehaus.groovy.grails.web.metaclass.ChainMethod
 import org.codehaus.groovy.grails.web.servlet.mvc.TokenResponseHandler
 import org.codehaus.groovy.grails.web.mapping.UrlMappingsHolder
 
-@Trait abstract class ControllerMethods implements org.mbte.grails.CommonWebProperties {
+@Trait abstract class ControllerMethods implements CommonWebProperties, org.mbte.grails.RenderMethods, org.mbte.grails.BindMethods {
     String getActionUri() {
         "/$controllerName/$actionName"
     }
@@ -74,54 +74,6 @@ import org.codehaus.groovy.grails.web.mapping.UrlMappingsHolder
         ChainMethod.invoke this, args
     }
 
-    static final RenderDynamicMethod render = []
-
-    def render(Object o) {
-        render.invoke(this, "render", [o?.inspect()] as Object[])
-    }
-
-    def render(String txt) {
-        render.invoke(this, "render", [txt] as Object[])
-    }
-
-    def render(Map args) {
-        render.invoke(this, "render", [args] as Object[])
-    }
-
-    def render(Closure c) {
-        render.invoke(this, "render", [c] as Object[])
-    }
-
-    def render(Map args, Closure c) {
-        render.invoke(this, "render", [args, c] as Object[])
-    }
-
-    static final BindDynamicMethod bind = []
-    // the bindData method
-    def bindData(Object target, Object args) {
-        bind.invoke(this, "bindData", [target, args] as Object[])
-    }
-
-    def bindData(Object target, Object args, List disallowed) {
-        bind.invoke(this, "bindData", [target, args, [exclude: disallowed]] as Object[])
-    }
-
-    def bindData(Object target, Object args, List disallowed, String filter) {
-        bind.invoke(this, "bindData", [target, args, [exclude: disallowed], filter] as Object[])
-    }
-
-    def bindData(Object target, Object args, Map includeExclude) {
-        bind.invoke(this, "bindData", [target, args, includeExclude] as Object[])
-    }
-
-    def bindData(Object target, Object args, Map includeExclude, String filter) {
-        bind.invoke(this, "bindData", [target, args, includeExclude, filter] as Object[])
-    }
-
-    def bindData(Object target, Object args, String filter) {
-        bind.invoke(this, "bindData", [target, args, filter] as Object[])
-    }
-
     // the withForm method
     static final WithFormMethod withFormMethod = []
 
@@ -132,7 +84,7 @@ import org.codehaus.groovy.grails.web.mapping.UrlMappingsHolder
     static RedirectDynamicMethod redirect
     def redirect(Map args) {
         if(!redirect)
-            redirect = [grailsApplication.parentContext]
+            redirect = [grailsApplication.mainContext]
         redirect.invoke(this, "redirect", args)
     }
 

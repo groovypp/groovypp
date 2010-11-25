@@ -6,6 +6,8 @@
         <webroots>
           <root url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/web-app" relative="/" />
           <root url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/grails-app/views" relative="/" />
+          <root url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/web-app" relative="/" />
+          <root url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/grails-app/views" relative="/" />
         </webroots>
         <sourceRoots />
       </configuration>
@@ -13,17 +15,17 @@
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91">
-      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/grails-app/utils" isTestSource="false" />
-      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/grails-app/controllers" isTestSource="false" />
-      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/grails-app/domain" isTestSource="false" />
-      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/grails-app/services" isTestSource="false" />
-      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/grails-app/taglib" isTestSource="false" />
-      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/test/unit" isTestSource="true" />
-      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/test/integration" isTestSource="true" />
-      <excludeFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/target/classes" />
-      <excludeFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/target/test-classes" />
-      <excludeFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/web-app/plugins" />
+    <content url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92">
+      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/grails-app/utils" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/grails-app/controllers" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/grails-app/domain" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/grails-app/services" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/grails-app/taglib" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/test/unit" isTestSource="true" />
+      <sourceFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/test/integration" isTestSource="true" />
+      <excludeFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/target/classes" />
+      <excludeFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/target/test-classes" />
+      <excludeFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/web-app/plugins" />
     </content>
     <content url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/hibernate-1.3.5">
       <excludeFolder url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/hibernate-1.3.5/target/classes" />
@@ -43,14 +45,14 @@
       <library name="Grails User Library">
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.mbte.groovypp/groovypp-all/jars/groovypp-all-0.4.91.jar!/" />
-          <root url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/lib" />
           <root url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/tomcat-1.3.5/lib" />
+          <root url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/lib" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
           <root url="file://$MODULE_DIR$/../Grailspp/src/groovy" />
         </SOURCES>
-        <jarDirectory url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.91/lib" recursive="false" />
+        <jarDirectory url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/groovy-plus-plus-0.4.92/lib" recursive="false" />
         <jarDirectory url="file://$USER_HOME$/.grails/1.3.5/projects/GppGrailsTest/plugins/tomcat-1.3.5/lib" recursive="false" />
       </library>
     </orderEntry>

@@ -42,7 +42,7 @@ import org.codehaus.groovy.ast.ClassNode
     def typed = typedList && !typedList.empty
 
     if (!typed) {
-      typedList = moduleNode.package.getAnnotations(TypeUtil.TYPED)
+      typedList = moduleNode.package?.getAnnotations(TypeUtil.TYPED)
       typed = typedList && !typedList.empty
     }
 
