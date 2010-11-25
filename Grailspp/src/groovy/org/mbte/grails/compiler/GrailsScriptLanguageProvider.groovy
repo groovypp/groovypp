@@ -21,7 +21,6 @@ import org.mbte.groovypp.compiler.languages.LanguageDefinition
 
 import org.mbte.groovypp.compiler.languages.ScriptLanguageProvider
 import org.codehaus.groovy.control.SourceUnit
-import org.mbte.grails.languages.ControllerLanguage
 
 @Typed public class GrailsScriptLanguageProvider extends ScriptLanguageProvider {
 

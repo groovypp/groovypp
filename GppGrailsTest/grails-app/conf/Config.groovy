@@ -83,12 +83,3 @@ log4j = {
 
     warn   'org.mortbay.log'
 }
-
-gretty {
-    localAddress = new InetSocketAddress("${InetAddress.localHost.hostAddress}", 9090)
-//    proxyTo = new InetSocketAddress(8080)
-}
-
-redisSessionManager {
-//    host = 'localhost'
-}

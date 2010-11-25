@@ -471,6 +471,10 @@
 		<include name="Compiler/"/>
 		<include name="StdLib/"/>
 		<include name="Examples/"/>
+        <include name="Grailspp/"/>
+        <include name="GppGrailsTest/"/>
+        <include name="GrailsLibs/"/>
+        <include name="Examples/"/>
 		<include name="build.xml"/>
 		<include name="build.properties"/>
         </zip>
