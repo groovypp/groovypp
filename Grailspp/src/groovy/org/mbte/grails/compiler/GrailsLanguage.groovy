@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.grails.languages
+package org.mbte.grails.compiler
 
 import org.mbte.groovypp.compiler.languages.LanguageDefinition
 import org.codehaus.groovy.ast.ModuleNode
 import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.ClassHelper
 
 @Typed class GrailsLanguage extends LanguageDefinition {
 
@@ -35,6 +36,18 @@ import org.codehaus.groovy.ast.ClassNode
 
     void apply(ModuleNode moduleNode) {
         conversion?.execute(moduleNode)
+    }
+
+    void improveServiceFields(ModuleNode moduleNode) {
+      for(c in moduleNode.classes) {
+        for(f in c.fields) {
+          if(f.name.endsWith("Service") && f.type == ClassHelper.DYNAMIC_TYPE) {
+            def name = ArtefactCache.findArtefactClass("${f.name[0].toUpperCase()}${f.name.substring(1)}")
+            if(name)
+              f.type = ClassHelper.make(name)
+          }
+        }
+      }
     }
 
     void improveGrailsPackage(ModuleNode moduleNode) {

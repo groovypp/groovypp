@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.grails.languages
+package gppgrailstest
 
-import org.mbte.groovypp.compiler.languages.LanguageDefinition
-import org.mbte.grails.compiler.GrailsScriptLanguageProvider
+import grails.test.*
 
-@Typed class ControllerLanguage extends GrailsLanguage {
+@Typed class TypedServiceTests extends GrailsUnitTestCase {
+    protected void setUp() {
+        super.setUp()
+    }
 
-    ControllerLanguage() {
-        super(GrailsScriptLanguageProvider.CONTROLLERS_ANCHOR)
+    protected void tearDown() {
+        super.tearDown()
+    }
 
-        def oldConversion = conversion
-        conversion = { moduleNode ->
-            moduleNode.classes[0]
-            oldConversion.execute moduleNode
-        }
+    void testSomething() {
+      def fields = TypedController.fields
+      for(f in fields) {
+        if(f.name == 'typedService')
+          assert f.type == TypedService
+      }
     }
 }

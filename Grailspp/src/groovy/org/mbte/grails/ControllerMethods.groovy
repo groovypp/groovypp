@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.grails.languages
+package org.mbte.grails
 
 import org.codehaus.groovy.grails.web.metaclass.ForwardMethod
 import org.codehaus.groovy.grails.web.metaclass.WithFormMethod
@@ -26,9 +26,8 @@ import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
 import org.codehaus.groovy.grails.web.metaclass.ChainMethod
 import org.codehaus.groovy.grails.web.servlet.mvc.TokenResponseHandler
 import org.codehaus.groovy.grails.web.mapping.UrlMappingsHolder
-import org.mbte.grails.languages.CommonWebProperties
 
-@Trait abstract class ControllerMethods implements CommonWebProperties {
+@Trait abstract class ControllerMethods implements org.mbte.grails.CommonWebProperties {
     String getActionUri() {
         "/$controllerName/$actionName"
     }
