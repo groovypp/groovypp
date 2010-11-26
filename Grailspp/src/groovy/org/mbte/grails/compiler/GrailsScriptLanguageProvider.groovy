@@ -29,6 +29,7 @@ import org.codehaus.groovy.control.SourceUnit
     static final String DOMAIN_ANCHOR      = "grails-app${File.separatorChar}domain${File.separatorChar}"
     static final String TAGLIB_ANCHOR      = "grails-app${File.separatorChar}taglib${File.separatorChar}"
     static final String UTILS_ANCHOR       = "grails-app${File.separatorChar}utils${File.separatorChar}"
+    static final String VIEWS_ANCHOR       = "grails-app${File.separatorChar}views${File.separatorChar}"
 
     static final Map<String,Class> anchors = [
             (CONTROLLERS_ANCHOR) : ControllerLanguage
@@ -38,6 +39,9 @@ import org.codehaus.groovy.control.SourceUnit
         List<ClassNode> classes = moduleNode.getClasses();
         if (!classes.size())
             return null
+
+        if(moduleNode.context.name.endsWith("_gsp"))
+          return GspLanguage
 
         for(e in anchors.entrySet()) {
             if(isGrailsScript(moduleNode.context, e.key)) {
