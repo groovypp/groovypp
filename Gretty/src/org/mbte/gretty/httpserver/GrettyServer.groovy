@@ -48,6 +48,13 @@ import org.mbte.gretty.AbstractServer
         defaultContext.static = staticFiles
     }
 
+    void setStaticResources(String staticResources) {
+        if(!defaultContext)
+            defaultContext = []
+        defaultContext.staticResources = staticResources
+    }
+
+
     void setPublic (GrettyPublicDescription description) {
         if(!defaultContext)
             defaultContext = []
@@ -81,6 +88,8 @@ import org.mbte.gretty.AbstractServer
 
      protected void buildPipeline(ChannelPipeline pipeline) {
         super.buildPipeline(pipeline)
+
+        pipeline.addLast("flash.policy.file", new FlashPolicyFileHandler(this))
 
         pipeline.addLast("http.request.decoder", new GrettyRequestDecoder())
         pipeline.addLast("http.request.encoder", new HttpResponseEncoder())

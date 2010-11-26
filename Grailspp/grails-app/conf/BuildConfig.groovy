@@ -1,12 +1,12 @@
-import grails.util.Environment
-
 grails.project.dependency.resolution = {
-    inherits "global"
+    repositories {
+        inherits "global"
+        mavenRepo "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/"
+    }
 
     dependencies {
-        provided group:'redis.clients', name:'jedis', version:'1.3.1'
-        provided group:'org.codehaus.jackson', name:'jackson-mapper-asl', version:'1.6.1'
-        provided group:'org.freemarker', name:'freemarker', version:'2.3.16'
-        provided group:'org.slf4j', name:'slf4j-log4j12', version:'1.6.1'
+        runtime(
+                [group:'org.mbte.groovypp', name:'groovypp-all', version:'#version']
+        )
     }
 }

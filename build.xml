@@ -26,7 +26,7 @@
 	<property name="stagingDirectory" value="${output.dir}/staging"/>
 	<property name="output.instrumented.dir" value="${output.dir}/instrumented"/>
 
-    <property name="compiler.module.name" value="Groovypp" />
+    <property name="compiler.module.name" value="Compiler" />
     <property name="stdlib.module.name" value="StdLib" />
     <property name="examples.module.name" value="Examples" />
     <property name="gretty.module.name" value="Gretty" />
@@ -70,20 +70,18 @@
 
 	<property name="skipTests" value="false"/>
 
-    <path id="ivy.lib.path">
-        <fileset dir="lib" includes="ivy*.jar"/>
-    </path>
+    <!--<path id="ivy.lib.path">-->
+        <!--<fileset dir="lib" includes="ivy*.jar"/>-->
+    <!--</path>-->
 
-    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
-
-    <ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle" sync="true"/>
+    <!--<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>-->
 
     <path id="libs">
 		<fileset dir="install/lib" includes="*.jar"/>
 	</path>
 
-    <path id="ivy.cache">
-		<fileset dir="ivy.cache" includes="*.jar"/>
+    <path id="grails.libs">
+		<fileset dir="GrailsLibs" includes="*.jar"/>
 	</path>
 
     <path id="gretty.libs">
@@ -124,8 +122,7 @@
         <path refid="gretty.libs"/>
         <pathelement location="${compiler.prod.output}"/>
         <pathelement location="${stdlib.prod.output}"/>
-        <pathelement location="${compiler.prod.output}"/>
-        <path refid="ivy.cache"/>
+        <path refid="grails.libs"/>
     </path>
 
     <path id="compile.gretty.classpath2">
@@ -134,20 +131,15 @@
     </path>
 
     <path id="compile.gretty.tests.classpath">
-        <path refid="libs"/>
-        <path refid="gretty.libs"/>
-        <pathelement location="${compiler.prod.output}"/>
-        <pathelement location="${stdlib.prod.output}"/>
+        <path refid="compile.gretty.classpath"/>
         <pathelement location="${gretty.prod.output}"/>
     </path>
 
     <path id="compile.grailspp.classpath">
         <path refid="libs"/>
-        <path refid="gretty.libs"/>
         <pathelement location="${compiler.prod.output}"/>
         <pathelement location="${stdlib.prod.output}"/>
-        <pathelement location="${gretty.prod.output}"/>
-        <path refid="ivy.cache"/>
+        <path refid="grails.libs"/>
     </path>
 
     <path id="compile.grailspp.tests.classpath">
@@ -214,10 +206,13 @@
 	</taskdef>
 
 	<target name="clean">
+        <!--<delete dir="ivy.cache"/>-->
 		<delete dir="${output.dir}"/>
         <delete dir="Grailspp/lib"/>
         <mkdir dir="Grailspp/lib"/>
 		<delete file="cobertura.ser" quiet="true"/>
+
+        <!--<ivy:retrieve pattern="ivy.cache/[artifact]-[revision].[ext]" type="jar,bundle" sync="true" conf="default"/>-->
     </target>
 
 	<target name="compile.compiler" depends="releaseinfo" description="compiles compiler source files">
@@ -282,7 +277,7 @@
         </jarjar>
     </target>
 
-    <target name="compile.tests.stdlib"  depends="compile.gretty">
+    <target name="compile.tests.stdlib"  depends="compile.stdlib">
 	    <mkdir dir="${stdlib.test.output}"/>
         <groovyc classpathref="compile.compiler.tests.classpath" srcdir="${stdlib.tests}" fork="yes" includeantruntime="no"
             destdir="${stdlib.test.output}" verbose="true" >
@@ -323,7 +318,7 @@
         </groovyc >
     </target>
 
-    <target name="compile.grailspp" depends="compile.gretty" description="compiles Grailspp">
+    <target name="compile.grailspp" depends="compile.stdlib" description="compiles Grailspp">
         <mkdir dir="${grailspp.prod.output}"/>
         <groovyc classpathref="compile.grailspp.classpath" srcdir="${grailspp.src}" destdir="${grailspp.prod.output}"
         	includeantruntime="no" fork="yes">
@@ -345,7 +340,7 @@
         </groovyc >
     </target>
 
-    <target name="compile.examples"  depends="compile.tests.stdlib,compile.gretty">
+    <target name="compile.examples"  depends="compile.tests.stdlib">
         <mkdir dir="${examples.prod.output}"/>
         <groovyc classpathref="compile.examples.classpath" srcdir="${examples.src}" fork="yes" destdir="${examples.prod.output}"
         	verbose="true" includeantruntime="no">
@@ -353,192 +348,45 @@
         </groovyc >
     </target>
 
-    <target name="clean-test" depends="clean,test" description="run unit tests"/>
+    <target name="clean-test" depends="clean,test.stdlib" description="run unit tests"/>
 
-    <target name="test" depends="coverage-instrument,compile.tests.compiler,compile.tests.stdlib,compile.tests.gretty,compile.tests.grailspp"
-            description="run unit tests" unless="_skipTests_">
-        <mkdir dir="${test.reports}"/>
-        <junit printsummary="yes" fork="yes" forkmode="perBatch" includeantruntime="no">
-            <jvmarg value="-Xmx512m"/>
-            <jvmarg value="-ea"/>
+    <target name="test.stdlib" depends="compile.tests.compiler,compile.tests.stdlib,coverage-instrument"
+                description="run unit tests" unless="_skipTests_">
+            <mkdir dir="${test.reports}"/>
+            <junit printsummary="yes" fork="yes" forkmode="perBatch" includeantruntime="no">
+                <jvmarg value="-Xmx512m"/>
+                <jvmarg value="-ea"/>
 
-            <classpath>
-				<fileset dir="lib/cobertura"/>
-            	<pathelement location="${output.instrumented.dir}"/>
-	            
-                <pathelement location="${stdlib.prod.output}"/>
-                <pathelement location="${compiler.prod.output}"/>
-                <pathelement location="${gretty.prod.output}"/>
-                <pathelement location="${grailspp.prod.output}"/>
-            	<path>
-                    <fileset dir="install/lib" includes="*.jar"/>
-                </path>
-                <path refid="gretty.libs"/>
-                <pathelement location="${stdlib.test.output}"/>
-                <pathelement location="${compiler.test.output}"/>
-                <pathelement location="${gretty.test.output}"/>
-                <pathelement location="${grailspp.test.output}"/>
-            </classpath>
+                <classpath>
+				    <fileset dir="lib/cobertura"/>
+                    <pathelement location="${output.instrumented.dir}"/>
+                    <path>
+                        <fileset dir="install/lib" includes="*.jar"/>
+                    </path>
+                    <pathelement location="${stdlib.prod.output}"/>
+                    <pathelement location="${compiler.prod.output}"/>
+                    <pathelement location="${stdlib.test.output}"/>
+                    <pathelement location="${compiler.test.output}"/>
+                </classpath>
 
-            <batchtest todir="${test.reports}">
-                <fileset dir="${compiler.test.output}">
-                    <include name="**/*Test.class"/>
+                <batchtest todir="${test.reports}">
+                    <fileset dir="${compiler.test.output}">
+                        <include name="**/*Test.class"/>
+                    </fileset>
+                    <fileset dir="${stdlib.test.output}">
+                        <include name="**/*Test.class"/>
+                    </fileset>
+                </batchtest>
+                <formatter type="xml"/>
+            </junit>
+
+            <junitreport todir="${test.reports}">
+                <fileset dir="${test.reports}">
+                    <include name="TEST-*.xml"/>
                 </fileset>
-                <fileset dir="${stdlib.test.output}">
-                    <include name="**/*Test.class"/>
-                </fileset>
-                <fileset dir="${gretty.test.output}">
-                    <include name="**/*Test.class"/>
-                </fileset>
-                <fileset dir="${grailspp.test.output}">
-                    <include name="**/*Test.class"/>
-                </fileset>
-            </batchtest>
-        	<formatter type="xml"/>
-        </junit>
-
-    	<junitreport todir="${test.reports}">
-    		<fileset dir="${test.reports}">
-    			<include name="TEST-*.xml"/>
-    		</fileset>
-    		<report todir="${test.reports}"/>
-    	</junitreport>
-    </target>
-
-    <target name="test.jar" depends="clean,make.jar,compile.tests.compiler,compile.tests.stdlib,compile.tests.gretty"
-            description="run unit tests against jars" unless="_skipTests_">
-        <mkdir dir="${test.reports.jar}"/>
-        <junit printsummary="yes" fork="yes" forkmode="perBatch" includeantruntime="no">
-            <jvmarg value="-Xmx512m"/>
-            <jvmarg value="-ea"/>
-
-            <classpath>
-            	<path>
-                    <fileset dir="install/lib" includes="*.jar"/>
-                    <fileset file="${jar.name}"/>
-                    <fileset file="${gretty.jar.name}"/>
-                </path>
-                <path refid="gretty.libs"/>
-                <pathelement location="${stdlib.test.output}"/>
-                <pathelement location="${compiler.test.output}"/>
-                <pathelement location="${gretty.test.output}"/>
-            </classpath>
-
-            <batchtest todir="${test.reports.jar}">
-                <fileset dir="${compiler.test.output}">
-                    <include name="**/*Test.class"/>
-                </fileset>
-                <fileset dir="${stdlib.test.output}">
-                    <include name="**/*Test.class"/>
-                </fileset>
-                <fileset dir="${gretty.test.output}">
-                    <include name="**/*Test.class"/>
-                </fileset>
-            </batchtest>
-        	<formatter type="xml"/>
-        </junit>
-
-    	<junitreport todir="${test.reports.jar}">
-    		<fileset dir="${test.reports.jar}">
-    			<include name="TEST-*.xml"/>
-    		</fileset>
-    		<report todir="${test.reports.jar}"/>
-    	</junitreport>
-    </target>
-
-	<target name="coverage-instrument"
-	        depends="compile.compiler,compile.stdlib" if="_forceCoverage_">
-		<cobertura-instrument todir="${output.instrumented.dir}">
-			<fileset dir="${compiler.prod.output}/"/>
-			<fileset dir="${stdlib.prod.output}/"/>
-		</cobertura-instrument>
-	</target>
-
-	<target name="coverage-report">
-		<cobertura-report destdir="${cobertura.report.dir}" format="xml">
-			<fileset dir="Compiler/src"/>
-			<fileset dir="${stdlib.src}"/>
-		</cobertura-report>
-	</target>
-
-    <target name="make.jar" depends="test,compile.examples" description="Build application jar file">
-    </target>
-
-    <target name="make.embeddable.jar" depends="make.jar"
-        description="Build embeddable application jar file">
-        <delete dir="${stagingDirectory}" quiet="true"/>
-
-        <copy toDir="${stagingDirectory}">
-            <fileset dir="${deploy.lib.dir}">
-                <include name="antlr*.jar"/>
-                <include name="asm*.jar"/>
-
-                <exclude name="asm-attr*.jar"/>
-                <exclude name="asm-util*.jar"/>
-                <exclude name="asm-analysis*.jar"/>
-            </fileset>
-        </copy>
-
-        <unzip dest="${stagingDirectory}/groovy">
-            <patternset>
-                <exclude name="META-INF/MANIFEST.MF"/>
-            </patternset>
-            <globmapper from="META-INF/LICENSE.txt" to="META-INF/GROOVY-LICENSE.txt"/>
-            <fileset dir="${deploy.lib.dir}">
-                <include name="groovy-1.7.5.jar" />
-            </fileset>
-        </unzip>
-        <unzip dest="${stagingDirectory}/cli">
-            <patternset>
-                <exclude name="META-INF/MANIFEST.MF"/>
-            </patternset>
-            <globmapper from="META-INF/LICENSE.txt" to="META-INF/CLI-LICENSE.txt"/>
-            <fileset dir="${deploy.lib.dir}">
-                <include name="commons-cli-*.jar"/>
-            </fileset>
-        </unzip>
-	    <unzip dest="${stagingDirectory}/groovypp">
-		    <fileset dir="out">
-		        <include name="${app.name}-${version}.jar"/>
-		    </fileset>
-	    </unzip>
-	    <unzip dest="${stagingDirectory}/junit">
-		    <patternset>
-		        <exclude name="META-INF/MANIFEST.MF"/>
-		    </patternset>
-		    <mapper>
-		        <globmapper from="LICENSE.txt" to="META-INF/JUNIT-LICENSE.txt"/>
-			</mapper>
-		    <fileset dir="${deploy.lib.dir}">
-		        <include name="junit-*.jar"/>
-		    </fileset>
-	    </unzip>
-
-	    <!-- Concatenate the AST Transform definitions, and remove groovypp's  ASTTransformation fil
-	        to avoid clashes -->
-	    <concat destfile="${stagingDirectory}/groovy/META-INF/services/org.codehaus.groovy.transform.ASTTransformation"
-		    append="true">
-		    <header filtering="no" trimleading="yes">
-			    # Added by Groovy++
-		    </header>
-		    <filelist dir="${stagingDirectory}/groovypp/META-INF/services"
-			       files="org.codehaus.groovy.transform.ASTTransformation"/>
-	    </concat>
-
-	    <delete
-			file="${stagingDirectory}/groovypp/META-INF/services/org.codehaus.groovy.transform.ASTTransformation" />
-
-        <jarjar jarfile="${embeddable.jar.name}">
-            <zipgroupfileset dir="${stagingDirectory}" includes="*.jar" />
-            <fileset dir="${stagingDirectory}/groovy" />
-	        <fileset dir="${stagingDirectory}/groovypp" />
-            <fileset dir="${stagingDirectory}/cli" />
-	        <fileset dir="${stagingDirectory}/junit" />
-            <rule pattern="antlr.**" result="groovyjarjarantlr.@1"/>
-            <rule pattern="org.objectweb.**" result="groovyjarjarasm.@1"/>
-            <rule pattern="org.apache.commons.cli.**" result="groovyjarjarcommonscli.@1"/>
-        </jarjar>
-    </target>
+                <report todir="${test.reports}"/>
+            </junitreport>
+        </target>
 
     <target name="releaseinfo">
         <copy file="Compiler/src/META-INF/groovypp-release-info.properties"
@@ -568,49 +416,17 @@
         </copy>
     </target>
 
-    <target name="make.install" depends="make.embeddable.jar" description="Build installation">
-
-		<!-- Prepare scripts to run with renamed groovy jar -->
-		<delete dir="tempbin" quiet="true" />
-		<mkdir dir="tempbin" />
-		<copy todir="tempbin">
-			<fileset dir="install/bin" />
-		</copy>
-
-		<replaceregexp match="groovy-1.7.5(.*).jar"
-				replace="groovy-1.7.5\1-${version}.jar"
-				byline="true">
-			<fileset dir="tempbin" includes="startGroovy*"/>
-		</replaceregexp>
-
+    <target name="make.install" depends="test.stdlib" description="Build installation">
         <zip destfile="${install.zip}"
              comment="The Groovy++ binary distribution.">
-	        <zipfileset dir="install" prefix="" >
-		        <!--<exclude name="embeddable/**" />-->
-		        <!--<exclude name="lib/groovy-1.7.5*.jar" />-->
-		        <exclude name="bin/**" />
-	        </zipfileset>
+	        <zipfileset dir="install" prefix="" />
 
-	        <mappedresources>
-		        <fileset dir="install/lib">
-			        <include name="groovy-1.7.5.jar" />
-		        </fileset>
-		        <globmapper from="groovy-1.7.5*.jar"
-		                    to="lib/groovy-1.7.5*-${version}.jar"/>
-	        </mappedresources>
-
-            <zipfileset dir="Gretty/lib" prefix="lib/gretty" />
             <zipfileset file="${jar.name}" prefix="lib"/>
-            <zipfileset file="${gretty.jar.name}" prefix="lib/gretty"/>
 			<zipfileset file="${embeddable.jar.name}" prefix="embeddable"/>
-            <zipfileset file="${gretty.all.jar.name}" prefix="embeddable"/>
-	        <zipfileset dir="tempbin" prefix="bin"/>
         </zip>
-
-        <delete dir="tempbin" quiet="true" />
     </target>
 
-    <target name="make.grails" depends="make.embeddable.jar, compile.grailspp" description="Build Grails Plugin">
+    <target name="make.grails" depends="compile.grailspp" description="Build Grails Plugin">
 		<delete dir="tempbin" quiet="true" />
 		<mkdir dir="tempbin" />
 
@@ -630,17 +446,13 @@
         <zip destfile="${grails.zip}"
              comment="The Groovy++ Grails Plugin binary distribution.">
 	        <zipfileset dir="tempbin" prefix="" />
-            <zipfileset dir="Gretty/lib" prefix="lib" />
-            <zipfileset file="install/lib/junit-4.8.1" prefix="lib" />
-            <zipfileset file="${embeddable.jar.name}" prefix="lib"/>
             <zipfileset file="${grailspp.all.jar.name}" prefix="lib"/>
-            <zipfileset file="${gretty.all.jar.name}" prefix="lib"/>
         </zip>
 
         <delete dir="tempbin" quiet="true" />
     </target>
 
-    <target name="reinstall.grails.plugin" >
+    <target name="reinstall.grails.plugin" depends="make.grails">
         <exec executable="/Development/grails-1.3.5/bin/grails" dir="GppGrailsTest">
             <arg value="uninstall-plugin"/>
             <arg value="groovy-plus-plus"/>
@@ -658,21 +470,36 @@
 		<include name="maven/"/>
 		<include name="Compiler/"/>
 		<include name="StdLib/"/>
-        <include name="Gretty/"/>
 		<include name="Examples/"/>
         <include name="Grailspp/"/>
         <include name="GppGrailsTest/"/>
-		<include name="build.properties"/>
+        <include name="GrailsLibs/"/>
+        <include name="Examples/"/>
 		<include name="build.xml"/>
 		<include name="build.properties"/>
         </zip>
     </target>
 	
-	<target name="dist" depends="make.install, make.grails, package.src" description="build the distribution archives"/>
+	<target name="dist" depends="clean-test, make.install, package.src, make.grails" description="build the distribution archives"/>
 
 	<target name="check.groovypp.jar">
 	    <available file="${jar.name}" property="groovypp.jar.present"/>
 	</target>
+
+    <target name="coverage-instrument"
+            depends="compile.compiler,compile.stdlib" if="_forceCoverage_">
+        <cobertura-instrument todir="${output.instrumented.dir}">
+            <fileset dir="${compiler.prod.output}/"/>
+            <fileset dir="${stdlib.prod.output}/"/>
+        </cobertura-instrument>
+    </target>
+
+    <target name="coverage-report">
+        <cobertura-report destdir="${cobertura.report.dir}" format="xml">
+            <fileset dir="Compiler/src"/>
+            <fileset dir="${stdlib.src}"/>
+        </cobertura-report>
+    </target>
 
 	<macrodef name="run.benchmark">
 		<attribute name="className"/>
@@ -692,7 +519,7 @@
 	</macrodef>
 
 	<!--, clean, compile.examples-->
-	<target name="run.benchmarks" depends="check.groovypp.jar">
+	<target name="run.benchmarks" depends="compile.examples, check.groovypp.jar">
 		<fail message="No groovypp.jar. Please build one first" unless="groovypp.jar.present"/>
 		<echo message="Running benchmarks" />
 		<record name="benchmarks.txt" action="start" />
@@ -759,8 +586,14 @@
 	</target>
 
     <target name="publish-googlecode" depends="dist">
+        <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
+            filename="${jar.name}" targetfilename="${jar.name}" summary="Groovy++ Jar ${version} (use with groovy-1.7.5.jar)"
+        labels="Featured" verbose="true"/>
+        <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
+            filename="${embeddable.jar.name}" targetfilename="${embeddable.jar.name}" summary="Groovy++ Embeddable Jar ${version} (use with groovy-all-1.7.5.jar)"
+        labels="Featured" verbose="true"/>
 	    <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
-    	    filename="${install.zip}" targetfilename="${install.zip}" summary="Groovy++ ${version}"
+    	    filename="${install.zip}" targetfilename="${install.zip}" summary="Groovy 1.7.5 including Groovy++ ${version}"
 	    labels="Featured" verbose="true"/>
         <gcupload username="${googlecode.user}" password="${googlecode.password}" projectname="groovypptest"
                 filename="${src.zip}" targetfilename="${src.zip}" summary="Groovy++ Sources ${version}"

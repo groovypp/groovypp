@@ -294,4 +294,11 @@ abstract class Iterations {
     static <T> SupplyStream<T> supply(Iterable<T> iterable) {
         iterable.iterator().supply ()
     }
+
+    static void times(Number self, Function1<Integer,Object> closure) {
+        def size = self.intValue()
+        for (int i = 0; i < size; i++) {
+            closure(i);
+        }
+    }
 }

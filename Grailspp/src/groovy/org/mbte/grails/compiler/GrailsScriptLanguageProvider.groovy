@@ -19,56 +19,40 @@ import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.ModuleNode
 import org.mbte.groovypp.compiler.languages.LanguageDefinition
 
-import org.mbte.grails.languages.ControllersLanguage
 import org.mbte.groovypp.compiler.languages.ScriptLanguageProvider
 import org.codehaus.groovy.control.SourceUnit
-import org.mbte.grails.languages.GrettyContextLanguage
 
 @Typed public class GrailsScriptLanguageProvider extends ScriptLanguageProvider {
 
+    static final String SERVICES_ANCHOR    = "grails-app${File.separatorChar}services${File.separatorChar}"
     static final String CONTROLLERS_ANCHOR = "grails-app${File.separatorChar}controllers${File.separatorChar}"
-    static final String GRETTY_ANCHOR      = "grails-app${File.separatorChar}gretty${File.separatorChar}"
+    static final String DOMAIN_ANCHOR      = "grails-app${File.separatorChar}domain${File.separatorChar}"
+    static final String TAGLIB_ANCHOR      = "grails-app${File.separatorChar}taglib${File.separatorChar}"
+    static final String UTILS_ANCHOR       = "grails-app${File.separatorChar}utils${File.separatorChar}"
+    static final String VIEWS_ANCHOR       = "grails-app${File.separatorChar}views${File.separatorChar}"
+
+    static final Map<String,Class> anchors = [
+            (CONTROLLERS_ANCHOR) : ControllerLanguage
+    ]
 
     Class<LanguageDefinition> findScriptLanguage(ModuleNode moduleNode) {
         List<ClassNode> classes = moduleNode.getClasses();
         if (!classes.size())
             return null
 
-        def clazz = classes[0]
-        if(!clazz.script)
-            return null
+        if(moduleNode.context.name.endsWith("_gsp"))
+          return GspLanguage
 
-        if(isGrailsScript(moduleNode.context, CONTROLLERS_ANCHOR)) {
-            return ControllersLanguage
-        }
-
-        if(isGrailsScript(moduleNode.context, GRETTY_ANCHOR)) {
-            return GrettyContextLanguage
+        for(e in anchors.entrySet()) {
+            if(isGrailsScript(moduleNode.context, e.key)) {
+                return e.value
+            }
         }
 
         return null
     }
-    protected boolean isGrailsScript(SourceUnit sourceNode, String anchorPath) {
-        def pname = sourceNode.name
-        return pname.indexOf(anchorPath) != -1
-    }
 
-    static void improveGrailsPackage(ModuleNode moduleNode, String anchorPath) {
-        def packageNode = moduleNode.package
-        if(!packageNode) {
-            def pname = moduleNode.context.name
-            def ind = pname.indexOf(anchorPath)
-            if(ind != -1) {
-                pname = pname.substring(ind + anchorPath.length())
-                ind = pname.lastIndexOf(File.separator)
-                if(ind != -1) {
-                    pname = pname.substring(0, ind).replace(File.separatorChar, '.')
-                    moduleNode.package = [pname]
-                    for(cls in moduleNode.classes) {
-                        cls.setName("$pname.${cls.name}")
-                    }
-                }
-            }
-        }
+    protected boolean isGrailsScript(SourceUnit sourceNode, String anchorPath) {
+        sourceNode.name.indexOf(anchorPath) != -1
     }
 }

@@ -101,5 +101,21 @@ import groovypp.concurrent.FList
                 break
             }
         }
+
+        boolean equals(o) {
+            if (this.is(o)) return true;
+
+            if (getClass() != o.class) return false;
+
+            Channeled channeled = (Channeled) o;
+
+            if (channel != channeled.channel) return false;
+
+            return true;
+        }
+
+        int hashCode() {
+            return (channel != null ? channel.hashCode() : 0);
+        }
     }
 }

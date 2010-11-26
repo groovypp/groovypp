@@ -394,10 +394,10 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             }
 
             if (compiler.policy == TypePolicy.STATIC) {
-                compiler.addError("Cannot find method 'getAt' for type: " + PresentationUtil.getText(object.getType()), bin);
+                compiler.addError("Cannot find method " + PresentationUtil.getText(object.getType()) + ".getAt(" + PresentationUtil.getText(indexExp.getType()) + ")", bin);
                 return null;
             } else {
-                return callMethod(bin, "getAt", compiler, object, indexExp);
+                return new UnresolvedArrayLikeBytecodeExpr(bin, object, indexExp, compiler);
             }
         }
     }

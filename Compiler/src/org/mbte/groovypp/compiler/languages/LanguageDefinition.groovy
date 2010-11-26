@@ -96,10 +96,6 @@ class LanguageDefinition {
         }
     }
 
-    abstract static class TopLevelStatementHandler {
-        abstract void handle(Statement statement)
-    }
-
     protected void moveStatement(Statement s, BlockStatement cbs) {
         cbs.statements << s
     }

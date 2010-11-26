@@ -16,7 +16,6 @@
 
 package groovypp.concurrent
 
-import org.junit.Assert
 import java.util.concurrent.*
 import groovypp.concurrent.CallLaterPool.GroovyThread
 
@@ -69,7 +68,7 @@ class CallLaterExecutors {
         test.test ()
     }
 
-    abstract static class TestWithPool extends Assert implements Runnable {
+    abstract static class TestWithPool implements Runnable {
         CallLaterPool pool
 
         final void test () {
@@ -77,8 +76,8 @@ class CallLaterExecutors {
                 throw new RejectedExecutionException("Task rejected: $run");
             }
             run ()
-            assertTrue(pool.shutdownNow().empty)
-            assertTrue(pool.awaitTermination(10,TimeUnit.SECONDS))
+            assert(pool.shutdownNow().empty)
+            assert(pool.awaitTermination(10,TimeUnit.SECONDS))
         }
     }
 

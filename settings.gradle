@@ -1,1 +1,1 @@
-include "compiler"
+include "Compiler,StdLib"

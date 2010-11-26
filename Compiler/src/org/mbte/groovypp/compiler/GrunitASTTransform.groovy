@@ -39,7 +39,7 @@ import org.codehaus.groovy.ast.stmt.*
 @Typed
 @GroovyASTTransformation (phase = CompilePhase.CONVERSION)
 class GrunitASTTransform implements ASTTransformation, Opcodes {
-    static final ClassNode GROOVY_TEST_CASE = make(GroovyTestCase)
+    static final ClassNode GROOVY_TEST_CASE = make("groovy.util.GroovyTestCase")
 
     void visit(ASTNode[] nodes, SourceUnit source) {
         ModuleNode module = nodes[0]

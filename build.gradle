@@ -1,0 +1,29 @@
+subprojects { prj ->
+    apply plugin: 'groovy'
+
+    dependencies {
+        groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
+        compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
+        compile "junit:junit:4.8.1"
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    sourceSets {
+        main {
+            groovy {
+                srcDir "src"
+                classesDir = file("../out/production/${prj.name}")
+            }
+        }
+        test {
+            groovy {
+                srcDir 'tests'
+                classesDir = file("../out/test/${prj.name}")
+
+            }
+        }
+    }
+}

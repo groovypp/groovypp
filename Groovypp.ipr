@@ -54,6 +54,7 @@
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+          <option name="USE_RELATIVE_INDENTS" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="gsp">
           <option name="INDENT_SIZE" value="2" />
@@ -63,6 +64,7 @@
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+          <option name="USE_RELATIVE_INDENTS" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="java">
           <option name="INDENT_SIZE" value="4" />
@@ -72,6 +74,7 @@
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+          <option name="USE_RELATIVE_INDENTS" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="js">
           <option name="INDENT_SIZE" value="4" />
@@ -81,6 +84,7 @@
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+          <option name="USE_RELATIVE_INDENTS" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="jsp">
           <option name="INDENT_SIZE" value="4" />
@@ -90,6 +94,7 @@
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+          <option name="USE_RELATIVE_INDENTS" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="php">
           <option name="INDENT_SIZE" value="4" />
@@ -99,6 +104,7 @@
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+          <option name="USE_RELATIVE_INDENTS" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="sql">
           <option name="INDENT_SIZE" value="2" />
@@ -108,6 +114,7 @@
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+          <option name="USE_RELATIVE_INDENTS" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="xml">
           <option name="INDENT_SIZE" value="4" />
@@ -117,6 +124,7 @@
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+          <option name="USE_RELATIVE_INDENTS" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="yml">
           <option name="INDENT_SIZE" value="2" />
@@ -126,9 +134,11 @@
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+          <option name="USE_RELATIVE_INDENTS" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
       </value>
     </option>
+    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
   </component>
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
@@ -185,6 +195,9 @@
     <option name="DEPRECATION" value="false" />
   </component>
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
+  <component name="EntryPointsManager">
+    <entry_points version="2.0" />
+  </component>
   <component name="FacetAutodetectingManager">
     <autodetection-disabled>
       <facet-type id="Groovy">
@@ -1422,6 +1435,29 @@
               <file url="file://$PROJECT_DIR$/Test/web/WEB-INF/web.xml" />
             </files>
           </module>
+          <module name="apache-tomcat-7.0.2-src">
+            <files>
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/conf/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/output/build/conf/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/output/build/webapps/ROOT/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/output/build/webapps/docs/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/output/build/webapps/docs/appdev/sample/web/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/output/build/webapps/examples/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/output/build/webapps/host-manager/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/output/build/webapps/manager/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/test/webapp-2.3/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/test/webapp-2.4/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/test/webapp-2.5/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/test/webapp-3.0-fragments/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/test/webapp-3.0/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/webapps/ROOT/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/webapps/docs/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/webapps/docs/appdev/sample/web/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/webapps/examples/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/webapps/host-manager/WEB-INF/web.xml" />
+              <file url="file://$PROJECT_DIR$/../../apache-tomcat-7.0.2-src/webapps/manager/WEB-INF/web.xml" />
+            </files>
+          </module>
         </modules>
       </facet-type>
       <facet-type id="Struts2">
@@ -2069,6 +2105,7 @@
       <module fileurl="file://$PROJECT_DIR$/Examples/Examples.iml" filepath="$PROJECT_DIR$/Examples/Examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" filepath="$PROJECT_DIR$/GppGrailsTest/GppGrailsTest-grailsPlugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GrailsLibs/GrailsLibs.iml" filepath="$PROJECT_DIR$/GrailsLibs/GrailsLibs.iml" />
       <module fileurl="file://$PROJECT_DIR$/Grailspp/Grailspp.iml" filepath="$PROJECT_DIR$/Grailspp/Grailspp.iml" />
       <module fileurl="file://$PROJECT_DIR$/Gretty/Gretty.iml" filepath="$PROJECT_DIR$/Gretty/Gretty.iml" />
       <module fileurl="file://$PROJECT_DIR$/StdLib/StdLib.iml" filepath="$PROJECT_DIR$/StdLib/StdLib.iml" />
@@ -2078,6 +2115,9 @@
       <module fileurl="file://$PROJECT_DIR$/install/install.iml" filepath="$PROJECT_DIR$/install/install.iml" />
       <module fileurl="file://$PROJECT_DIR$/maven/maven.iml" filepath="$PROJECT_DIR$/maven/maven.iml" />
     </modules>
+  </component>
+  <component name="ProjectResources">
+    <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
@@ -2102,6 +2142,7 @@
         <value defaultName="moduleWithDependencies" />
       </option>
       <envs />
+      <patterns />
       <RunnerSettings RunnerId="Debug">
         <option name="DEBUG_PORT" value="54125" />
         <option name="TRANSPORT" value="0" />
@@ -2301,21 +2342,6 @@
     </Base>
   </component>
   <component name="libraryTable">
-    <library name="GROOVY">
-      <CLASSES>
-        <root url="file://$PROJECT_DIR$/install/lib" />
-      </CLASSES>
-      <JAVADOC />
-      <SOURCES>
-        <root url="file://$PROJECT_DIR$/../../netty-3.2.1.Final/src/main/java" />
-        <root url="file://$PROJECT_DIR$/../../jackson-src-1.5.4/src/mapper/java" />
-        <root url="file://$PROJECT_DIR$/../../jackson-src-1.5.4/src/java" />
-        <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
-        <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
-        <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
-      </SOURCES>
-      <jarDirectory url="file://$PROJECT_DIR$/install/lib" recursive="false" />
-    </library>
     <library name="AppEngine API">
       <CLASSES>
         <root url="file://$PROJECT_DIR$/../../appengine-java-sdk-1.3.8/lib/user" />
@@ -2434,6 +2460,21 @@
         <root url="file://$PROJECT_DIR$/../../grails-1.3.5/src/java" />
         <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
       </SOURCES>
+    </library>
+    <library name="GROOVY">
+      <CLASSES>
+        <root url="file://$PROJECT_DIR$/install/lib" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="file://$PROJECT_DIR$/../../netty-3.2.1.Final/src/main/java" />
+        <root url="file://$PROJECT_DIR$/../../jackson-src-1.5.4/src/mapper/java" />
+        <root url="file://$PROJECT_DIR$/../../jackson-src-1.5.4/src/java" />
+        <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
+        <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
+        <root url="file://$PROJECT_DIR$/../../GroovyDev/src/main" />
+      </SOURCES>
+      <jarDirectory url="file://$PROJECT_DIR$/install/lib" recursive="false" />
     </library>
   </component>
 </project>

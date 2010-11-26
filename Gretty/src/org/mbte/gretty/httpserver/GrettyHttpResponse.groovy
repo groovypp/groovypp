@@ -31,6 +31,9 @@ import org.objectweb.asm.Opcodes
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.ChannelFutureListener
 import org.jboss.netty.handler.codec.http.HttpVersion
+import org.jboss.netty.handler.stream.ChunkedStream
+import org.jboss.netty.handler.codec.http.DefaultHttpChunk
+import org.jboss.netty.handler.codec.http.DefaultHttpChunkTrailer
 
 @Typed class GrettyHttpResponse extends DefaultHttpResponse {
 
@@ -109,6 +112,12 @@ import org.jboss.netty.handler.codec.http.HttpVersion
             case File:
                 setHeader(HttpHeaders.Names.CONTENT_LENGTH, obj.length())
                 this.responseBody = obj
+            break
+
+            case InputStream:
+                def bytes = obj.bytes
+                setHeader(HttpHeaders.Names.CONTENT_LENGTH, bytes.length)
+                this.responseBody = ChannelBuffers.wrappedBuffer(bytes)
             break
 
             default:

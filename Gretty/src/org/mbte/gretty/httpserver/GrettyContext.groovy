@@ -27,6 +27,8 @@ import org.jboss.netty.handler.codec.http.HttpMethod
 
 @Typed class GrettyContext {
     String               staticFiles
+    String               staticResources
+    ClassLoader          staticResourcesClassLoader = this.class.classLoader
     protected String     webPath
 
     ClassLoader          classLoader
@@ -52,6 +54,19 @@ import org.jboss.netty.handler.codec.http.HttpMethod
             }
             else {
                 response.responseBody = staticFile.first
+            }
+            return
+        }
+
+        def staticResource = request.method == HttpMethod.GET ? findStaticResource(localUri) : null
+        if(staticResource) {
+            response.status = staticResource.second
+            if (staticResource.second.code != 200) {
+                response.setHeader(CONTENT_TYPE, "text/html; charset=UTF-8")
+                response.responseBody = "Failure: ${staticFile.second}\r\n"
+            }
+            else {
+                response.responseBody = staticResource.first
             }
             return
         }
@@ -130,6 +145,25 @@ import org.jboss.netty.handler.codec.http.HttpMethod
         }
 
         [file,OK]
+    }
+
+    private Pair<InputStream, HttpResponseStatus> findStaticResource(String uri) {
+        if (!staticResources)
+            return null
+
+        if(uri.startsWith('/'))
+            uri = uri.substring(1)
+
+        def url = staticResourcesClassLoader.getResource("$staticResources/$uri")
+        if(!url)
+            return null
+
+        try {
+            return [url.openStream(),OK]
+        }
+        catch(e) {
+            return [null,INTERNAL_SERVER_ERROR]
+        }
     }
 
     void setDefault (GrettyHttpHandler handler) {
