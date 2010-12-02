@@ -26,7 +26,7 @@ import groovypp.concurrent.CallLater
  * No more than one message processed at any given moment
  */
 @Typed abstract class ExecutingChannel<M> extends MessageChannel<M> implements Runnable {
-    private final Timer globalChannelsTimer = []
+    private final static Timer globalChannelsTimer = []
 
     protected volatile FQueue<M> queue = FQueue.emptyQueue
 
