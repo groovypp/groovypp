@@ -16,7 +16,7 @@
 
 package groovypp.channels
 
-@Typed abstract class LoopChannel extends SupervisedChannel {
+@Typed abstract class LoopChannel<O extends SupervisedChannel> extends SupervisedChannel<O> {
     protected volatile boolean stopped
 
     protected abstract boolean doLoopAction ()
