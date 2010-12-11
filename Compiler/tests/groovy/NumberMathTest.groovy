@@ -72,28 +72,28 @@ class NumberMathTest extends GroovyShellTestCase {
             assert BD * BD instanceof BigDecimal
 
             //Division (/) promotes differently so change the expected results:
-            assert I / I instanceof Integer
-//            assert I / F instanceof Double
-//            assert I / D instanceof Double
-//            assert I / BI instanceof BigDecimal
-//            assert I / BD instanceof BigDecimal
+            assert I / I instanceof BigDecimal
+            assert I / F instanceof Double
+            assert I / D instanceof Double
+            assert I / BI instanceof BigDecimal
+            assert I / BD instanceof BigDecimal
 
-//            assert F / L instanceof Double
-//            assert D / L instanceof Double
-//            assert BI / L instanceof BigDecimal
-//            assert BD / L instanceof BigDecimal
-//
-//            assert F / F instanceof Double
-//            assert F / BI instanceof Double
-//            assert F / BD instanceof Double
-//
-//            assert F / D instanceof Double
-//            assert BI / D instanceof Double
-//            assert BD / D instanceof Double
-//
-//            assert BI / BI instanceof BigDecimal
-//            assert BD / BI instanceof BigDecimal
-//            assert BD / BD instanceof BigDecimal
+            assert F / L instanceof Double
+            assert D / L instanceof Double
+            assert BI / L instanceof BigDecimal
+            assert BD / L instanceof BigDecimal
+
+            assert F / F instanceof Double
+            assert F / BI instanceof Double
+            assert F / BD instanceof Double
+
+            assert F / D instanceof Double
+            assert BI / D instanceof Double
+            assert BD / D instanceof Double
+
+            assert BI / BI instanceof BigDecimal
+            assert BD / BI instanceof BigDecimal
+            assert BD / BD instanceof BigDecimal
 
 
           }
@@ -122,8 +122,8 @@ class NumberMathTest extends GroovyShellTestCase {
           def BD2 = new BigDecimal("2.0")
           def BD20 = new BigDecimal("2.00")
 
-          assert I1 / I2 == 0
-          assert I3 / I2 == 1
+          assert I1 / I2 == 0.5
+          assert I3 / I2 == 1.5
           assert F1 / F2 instanceof Double
           junit.framework.Assert.assertEquals F1 / F2, 0.5, 0.0000000001
           assert D1 / D2 instanceof Double
@@ -209,9 +209,9 @@ class NumberMathTest extends GroovyShellTestCase {
 
           @Typed
           def u() {
-            long d = 100L
+            def d = 100L
             d /= 33L
-            assert d.class == long.class
+            assert d.class == BigDecimal.class
           }
 
           u()
@@ -240,5 +240,16 @@ class NumberMathTest extends GroovyShellTestCase {
           u()
         """)
     assertEquals(-1, res)
+  }
+
+  void testIntegerIntdiv() {
+    def res = shell.evaluate("""
+          @Typed(debug=true)
+          def u() {
+              5.intdiv(2)
+          }
+          u()
+        """)
+    assertEquals(2, res)
   }
 }

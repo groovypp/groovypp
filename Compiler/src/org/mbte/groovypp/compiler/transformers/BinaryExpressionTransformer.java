@@ -254,8 +254,8 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
 
             if (tokenType == Types.DIVIDE
                     && (
-                    /*mathType0.equals(ClassHelper.int_TYPE) ||
-                            mathType0.equals(ClassHelper.long_TYPE) ||*/
+                            mathType0.equals(ClassHelper.int_TYPE)  ||
+                            mathType0.equals(ClassHelper.long_TYPE) ||
                             mathType0.equals(ClassHelper.BigInteger_TYPE)))
                 mathType0 = ClassHelper.BigDecimal_TYPE;
 
