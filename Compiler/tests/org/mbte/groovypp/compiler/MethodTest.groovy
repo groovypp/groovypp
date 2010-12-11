@@ -198,4 +198,34 @@ class X {
     assertEquals([null, null, "ull", ['n', 'u']], res)
   }
 
+  void testAddSet() {
+    def res = shell.evaluate("""
+
+    @Typed package p
+
+    interface A {}
+
+    class AA implements A {}
+
+    class B extends AbstractSet<A> {
+      private Set<A> inner = []
+
+      @Override boolean add(A e) {
+        return inner.add(e)
+      }
+
+      @Override Iterator<A> iterator() {
+        inner.iterator()
+      }
+
+      @Override int size() {
+        inner.size()
+      }
+    }
+
+    def b = new B()
+    A a = new AA ()
+    b.add(a)
+          """)
+  }
 }
