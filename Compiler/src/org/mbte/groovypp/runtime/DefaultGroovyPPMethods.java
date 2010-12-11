@@ -30,6 +30,7 @@ import org.mbte.groovypp.compiler.TypeUtil;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -662,5 +663,39 @@ public class DefaultGroovyPPMethods extends DefaultGroovyMethodsSupport {
     public static int gppRecord(ValueRecorder recorder, int value, int column) {
         recorder.record(value, column);
         return value;
+    }
+
+    public static Number negate(Number value) {
+        if (value instanceof Integer) {
+            Integer number = (Integer) value;
+            return Integer.valueOf(-number.intValue());
+        }
+        if (value instanceof Long) {
+            Long number = (Long) value;
+            return -number;
+        }
+        if (value instanceof BigInteger) {
+            return ((BigInteger) value).negate();
+        }
+        if (value instanceof BigDecimal) {
+            return ((BigDecimal) value).negate();
+        }
+        if (value instanceof Double) {
+            Double number = (Double) value;
+            return -number;
+        }
+        if (value instanceof Float) {
+            Float number = (Float) value;
+            return -number;
+        }
+        if (value instanceof Short) {
+        	Short number = (Short) value;
+        	return Short.valueOf((short) -number.shortValue());
+        }
+        if (value instanceof Byte) {
+        	Byte number = (Byte) value;
+        	return Byte.valueOf((byte) -number.byteValue());
+        }
+        throw new UnsupportedOperationException(value.getClass().getName() + ".negate()");
     }
 }

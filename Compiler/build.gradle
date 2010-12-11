@@ -9,8 +9,8 @@ compileGroovy.doFirst {
 
 compileGroovy.doLast {
     copy {
-        from '../StsLib/src'
-        into '../out/production/Compiler'
+        from '../StdLib/src'
+        into '../out/production/StdLib'
         exclude '**/*.java'
         exclude '**/*.groovy'
     }
