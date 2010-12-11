@@ -77,6 +77,8 @@ public class MethodSelection {
         // get primitive type indexes
         int fromIndex = getPrimitiveIndex(from);
         int toIndex = getPrimitiveIndex(to);
+        if(from.isGenericsPlaceHolder() && !ClassHelper.isPrimitiveType(to))
+            return 0;
         if (fromIndex == -1 || toIndex == -1) return -1;
         return PRIMITIVE_DISTANCE_TABLE[toIndex][fromIndex];
     }
