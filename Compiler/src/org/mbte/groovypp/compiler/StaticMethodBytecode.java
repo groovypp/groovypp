@@ -80,7 +80,7 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
         }
         catch (Throwable t) {
             clear ();
-//            t.printStackTrace();
+            t.printStackTrace();
             compiler.addError("Internal Error: " + t.toString(), methodNode);
         }
 

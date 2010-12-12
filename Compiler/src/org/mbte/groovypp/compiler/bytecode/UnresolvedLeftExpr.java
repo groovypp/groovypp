@@ -18,6 +18,7 @@ package org.mbte.groovypp.compiler.bytecode;
 
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassHelper;
+import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.syntax.Token;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
@@ -52,12 +53,13 @@ public class UnresolvedLeftExpr extends ResolvedLeftExpr {
     }
 
     public BytecodeExpr createAssign(ASTNode parent, final BytecodeExpr right, CompilerTransformer compiler) {
-        return new BytecodeExpr(parent, ClassHelper.getWrapper(right.getType())) {
+        final BytecodeExpr finalRight = (BytecodeExpr) compiler.transformToGround(right);
+        return new BytecodeExpr(parent, ClassHelper.getWrapper(finalRight.getType())) {
             protected void compile(MethodVisitor mv) {
                 object.visit(mv);
                 mv.visitLdcInsn(propName);
-                right.visit(mv);
-                box(right.getType(), mv);
+                finalRight.visit(mv);
+                box(finalRight.getType(), mv);
                 mv.visitInsn(DUP_X2);
                 mv.visitMethodInsn(INVOKESTATIC, "org/codehaus/groovy/runtime/InvokerHelper", "setProperty", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)V");
             }

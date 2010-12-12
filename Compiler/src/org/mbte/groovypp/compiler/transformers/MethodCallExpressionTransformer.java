@@ -55,6 +55,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
                 compiler.addError("Non-static method name", exp);
                 return null;
             } else {
+                exp.setArguments(compiler.transform(exp.getArguments()));
                 return createDynamicCall(exp, compiler);
             }
         } else {
@@ -570,7 +571,10 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
         final List<Expression> args = ((TupleExpression) exp.getArguments()).getExpressions();
 
         for (int i = 0; i != args.size(); ++i) {
-            BytecodeExpr arg = compiler.transformSynthetic((BytecodeExpr) args.get(i));
+            Expression expression = args.get(i);
+            if(!(expression instanceof BytecodeExpr))
+                expression = compiler.transform(expression);
+            BytecodeExpr arg = compiler.transformSynthetic((BytecodeExpr) expression);
             if (arg instanceof CompiledClosureBytecodeExpr) {
                 compiler.processPendingClosure((CompiledClosureBytecodeExpr) arg);
             }
