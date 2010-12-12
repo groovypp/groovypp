@@ -23,9 +23,6 @@ import org.codehaus.groovy.ast.expr.*;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
-import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.MapExpressionTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -90,7 +87,11 @@ public class TernaryExpressionTransformer extends ExprTransformer<TernaryExpress
         }
 
         private BytecodeExpr transfromElvis(ElvisOperatorExpression ee, CompilerTransformer compiler) {
-            ee = (ElvisOperatorExpression) ee.transformExpression(compiler);
+            Expression ret = new ElvisOperatorExpression(
+                    compiler.transformToGround(ee.getTrueExpression()),
+                    compiler.transformToGround(ee.getFalseExpression()));
+            ret.setSourcePosition(ee);
+            ee = (ElvisOperatorExpression) ret;
             final ElvisOperatorExpression eee = ee;
             final BytecodeExpr be = (BytecodeExpr) ee.getBooleanExpression().getExpression();
             final BytecodeExpr brunch = compiler.castToBoolean( new BytecodeExpr(be, be.getType()){

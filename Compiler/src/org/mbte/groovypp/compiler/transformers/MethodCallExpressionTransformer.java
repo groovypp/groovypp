@@ -483,7 +483,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
     }
 
     private Expression transformSafe(MethodCallExpression exp, CompilerTransformer compiler) {
-        final BytecodeExpr object = (BytecodeExpr) compiler.transform(exp.getObjectExpression());
+        final BytecodeExpr object = (BytecodeExpr) compiler.transformToGround(exp.getObjectExpression());
         ClassNode type = TypeUtil.wrapSafely(object.getType());
 
         MethodCallExpression callExpression = new MethodCallExpression(new BytecodeExpr(object, type) {
