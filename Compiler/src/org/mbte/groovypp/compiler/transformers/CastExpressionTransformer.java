@@ -236,7 +236,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             if (cast.getExpression() instanceof ListExpression) {
                 return compiler.castToString( new ListExpressionTransformer.TransformedListExpr( (ListExpression)cast.getExpression(), TypeUtil.ARRAY_LIST_TYPE, compiler, true));
             }
-            return compiler.castToString((BytecodeExpr)compiler.transform(cast.getExpression()));
+            return compiler.castToString(expr);
         }
 
         if (expr.getType().implementsInterface(TypeUtil.TTHIS)) {
