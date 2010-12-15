@@ -39,9 +39,15 @@ public class ResolvedFieldBytecodeExpr extends ResolvedLeftExpr {
     private CompilerTransformer compiler;
     private ASTNode parent;
     private final BytecodeExpr value;
+    private final boolean attribute;
 
     public ResolvedFieldBytecodeExpr(ASTNode parent, FieldNode fieldNode, BytecodeExpr object, BytecodeExpr value, CompilerTransformer compiler) {
+        this(parent, fieldNode, object, value, compiler, false);
+    }
+
+    public ResolvedFieldBytecodeExpr(ASTNode parent, FieldNode fieldNode, BytecodeExpr object, BytecodeExpr value, CompilerTransformer compiler, boolean attribute) {
         super(parent, getType(object, fieldNode));
+        this.attribute = attribute;
         this.parent = parent;
         this.fieldNode = fieldNode;
         this.object = object;
@@ -133,7 +139,7 @@ public class ResolvedFieldBytecodeExpr extends ResolvedLeftExpr {
         op.setSourcePosition(parent);
         final BytecodeExpr transformedOp = (BytecodeExpr) compiler.transform(op);
 
-        Object prop = PropertyUtil.resolveSetProperty(object != null ? object.getType() : fieldNode.getDeclaringClass(),
+        Object prop = attribute ? fieldNode : PropertyUtil.resolveSetProperty(object != null ? object.getType() : fieldNode.getDeclaringClass(),
                 fieldNode.getName(), getType(), compiler, isThis());
         final CastExpression cast = new CastExpression(getType(), transformedOp);
         cast.setSourcePosition(right);

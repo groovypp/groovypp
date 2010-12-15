@@ -16,17 +16,10 @@
 
 package org.mbte.groovypp.compiler.transformers;
 
-import org.apache.tools.ant.types.resources.Tokens;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.ast.stmt.BlockStatement;
-import org.codehaus.groovy.ast.stmt.ExpressionStatement;
-import org.codehaus.groovy.ast.stmt.Statement;
-import org.codehaus.groovy.syntax.Token;
-import org.codehaus.groovy.syntax.Types;
 import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 import org.objectweb.asm.MethodVisitor;
 
 public class DeclarationExpressionTransformer extends ExprTransformer<DeclarationExpression> {

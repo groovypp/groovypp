@@ -414,7 +414,6 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
 
             case Types.DIVIDE:
                 if (type == ClassHelper.int_TYPE) {
-                    addWarning("In Groovy++ integer division produces int and not BigDecimal", be);
                     mv.visitInsn(IDIV);
                 }
                 else if (type == ClassHelper.double_TYPE)

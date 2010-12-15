@@ -55,6 +55,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
                 compiler.addError("Non-static method name", exp);
                 return null;
             } else {
+                exp.setArguments(compiler.transform(exp.getArguments()));
                 return createDynamicCall(exp, compiler);
             }
         } else {
@@ -468,8 +469,8 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
     }
 
     private Expression createCall(MethodCallExpression exp, CompilerTransformer compiler, Expression args, BytecodeExpr object, MethodNode foundMethod) {
+        final ResolvedMethodBytecodeExpr call = ResolvedMethodBytecodeExpr.create(exp, foundMethod, object, (TupleExpression) args, compiler);
         if (foundMethod.getReturnType().equals(ClassHelper.VOID_TYPE)) {
-            final ResolvedMethodBytecodeExpr call = ResolvedMethodBytecodeExpr.create(exp, foundMethod, object, (TupleExpression) args, compiler);
             return new BytecodeExpr(exp, TypeUtil.NULL_TYPE) {
                 protected void compile(MethodVisitor mv) {
                     call.visit(mv);
@@ -478,11 +479,11 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
             };
         }
         else
-            return ResolvedMethodBytecodeExpr.create(exp, foundMethod, object, (TupleExpression) args, compiler);
+            return call;
     }
 
     private Expression transformSafe(MethodCallExpression exp, CompilerTransformer compiler) {
-        final BytecodeExpr object = (BytecodeExpr) compiler.transform(exp.getObjectExpression());
+        final BytecodeExpr object = (BytecodeExpr) compiler.transformToGround(exp.getObjectExpression());
         ClassNode type = TypeUtil.wrapSafely(object.getType());
 
         MethodCallExpression callExpression = new MethodCallExpression(new BytecodeExpr(object, type) {
@@ -570,7 +571,10 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
         final List<Expression> args = ((TupleExpression) exp.getArguments()).getExpressions();
 
         for (int i = 0; i != args.size(); ++i) {
-            BytecodeExpr arg = compiler.transformSynthetic((BytecodeExpr) args.get(i));
+            Expression expression = args.get(i);
+            if(!(expression instanceof BytecodeExpr))
+                expression = compiler.transform(expression);
+            BytecodeExpr arg = compiler.transformSynthetic((BytecodeExpr) expression);
             if (arg instanceof CompiledClosureBytecodeExpr) {
                 compiler.processPendingClosure((CompiledClosureBytecodeExpr) arg);
             }

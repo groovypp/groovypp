@@ -257,29 +257,29 @@ public class ClassNodeCache {
 
         final Set<ClassNode> ifaces = getAllInterfaces(type);
         for (ClassNode node : ifaces) {
-            addMethods(methodsMap, staticMethodsMap, node.getMethods(), true);
+            addMethods(methodsMap, staticMethodsMap, node.getMethods(), true, type);
         }
 
         for (ClassNode cn : getSuperClassesAndSelf(type)) {
-            addMethods(methodsMap, staticMethodsMap, cn.getMethods(), cn == type);
+            addMethods(methodsMap, staticMethodsMap, cn.getMethods(), cn == type, type);
 
             final List<MethodNode> list = dgmMethods.get(cn);
             if (list != null) {
-                addMethods(methodsMap, staticMethodsMap, list, true);
+                addMethods(methodsMap, staticMethodsMap, list, true, type);
             }
         }
 
         for (ClassNode node : ifaces) {
             final List<MethodNode> list = dgmMethods.get(node);
             if (list != null) {
-                addMethods(methodsMap, staticMethodsMap, list, true);
+                addMethods(methodsMap, staticMethodsMap, list, true, type);
             }
         }
 
         if (type.isArray()) {
             final MethodNode cloneNode = new MethodNode("clone", Opcodes.ACC_PUBLIC, ClassHelper.OBJECT_TYPE, Parameter.EMPTY_ARRAY, ClassNode.EMPTY_ARRAY, null);
             cloneNode.setDeclaringClass(type);
-            addMethods(methodsMap, staticMethodsMap, Collections.singletonList(cloneNode), true);
+            addMethods(methodsMap, staticMethodsMap, Collections.singletonList(cloneNode), true, type);
         }
         info.methods = methodsMap;
         info.staticMethods = staticMethodsMap;
@@ -356,16 +356,17 @@ public class ClassNodeCache {
     static void addMethods(Map<String, Object> nameMap,
                            Map<String, Object> staticMethodsMap,
                            List<MethodNode> methods,
-                           boolean usePrivate) {
+                           boolean usePrivate,
+                           ClassNode type) {
         for (MethodNode m : methods) {
             if ((m.getModifiers() & Opcodes.ACC_BRIDGE) == 0) {
                 if (usePrivate || !m.isPrivate()) {
-                    nameMap.put(m.getName(), addMethodToList(nameMap.get(m.getName()), m));
+                    nameMap.put(m.getName(), addMethodToList(nameMap.get(m.getName()), m, type));
                     if (m.isStatic()) {
-                        staticMethodsMap.put(m.getName(), addMethodToList(staticMethodsMap.get(m.getName()), m));
+                        staticMethodsMap.put(m.getName(), addMethodToList(staticMethodsMap.get(m.getName()), m, type));
                         if (m.getParameters().length > 0) {
                             if (m.getParameters()[0].getType().equals(m.getDeclaringClass())) {
-                                nameMap.put(m.getName(), addMethodToList(nameMap.get(m.getName()), createDGM(m)));
+                                nameMap.put(m.getName(), addMethodToList(nameMap.get(m.getName()), createDGM(m), type));
                             }
                         }
                     }
@@ -396,14 +397,14 @@ public class ClassNodeCache {
         return res;
     }
 
-    public static Object addMethodToList(Object o, MethodNode method) {
+    public static Object addMethodToList(Object o, MethodNode method, ClassNode type) {
         if (o == null) {
             return method;
         }
 
         if (o instanceof MethodNode) {
             MethodNode match = (MethodNode) o;
-            if (!isMatchingMethod(match, method)) {
+            if (!isMatchingMethod(match, method, type)) {
                 FastArray list = new FastArray(2);
                 list.add(match);
                 list.add(method);
@@ -434,7 +435,7 @@ public class ClassNodeCache {
 
         if (o instanceof FastArray) {
             FastArray list = (FastArray) o;
-            int found = findMatchingMethod(list, method);
+            int found = findMatchingMethod(list, method, type);
 
             if (found == -1) {
                 list.add(method);
@@ -470,7 +471,7 @@ public class ClassNodeCache {
         return method instanceof DGM;
     }
 
-    private static boolean isMatchingMethod(MethodNode aMethod, MethodNode method) {
+    private static boolean isMatchingMethod(MethodNode aMethod, MethodNode method, ClassNode type) {
         if (aMethod.equals(method)) return true;
 
         Parameter[] params1 = aMethod.getParameters();
@@ -478,17 +479,21 @@ public class ClassNodeCache {
         if (params1.length != params2.length) return false;
 
         for (int i = 0; i < params1.length; i++) {
-            if (!params1[i].getType().equals(params2[i].getType())) return false;
+            ClassNode p1 = params1[i].getType();
+            p1 = TypeUtil.getSubstitutedType(p1, aMethod.getDeclaringClass(), type);
+            ClassNode p2 = params2[i].getType();
+            p2 = TypeUtil.getSubstitutedType(p2, aMethod.getDeclaringClass(), type);
+            if (!p1.equals(p2)) return false;
         }
         return true;
     }
 
-    private static int findMatchingMethod(FastArray list, MethodNode method) {
+    private static int findMatchingMethod(FastArray list, MethodNode method, ClassNode type) {
         int len = list.size();
         Object data[] = list.getArray();
         for (int j = 0; j != len; ++j) {
             MethodNode aMethod = (MethodNode) data[j];
-            if (isMatchingMethod(aMethod, method))
+            if (isMatchingMethod(aMethod, method, type))
                 return j;
         }
         return -1;

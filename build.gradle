@@ -13,6 +13,10 @@ subprojects { prj ->
 
     sourceSets {
         main {
+            java {
+                srcDir "src"
+                classesDir = file("../out/production/${prj.name}")
+            }
             groovy {
                 srcDir "src"
                 classesDir = file("../out/production/${prj.name}")
@@ -22,7 +26,6 @@ subprojects { prj ->
             groovy {
                 srcDir 'tests'
                 classesDir = file("../out/test/${prj.name}")
-
             }
         }
     }

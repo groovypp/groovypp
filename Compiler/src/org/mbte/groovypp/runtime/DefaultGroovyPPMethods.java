@@ -30,6 +30,7 @@ import org.mbte.groovypp.compiler.TypeUtil;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,6 +52,325 @@ public class DefaultGroovyPPMethods extends DefaultGroovyMethodsSupport {
 
     public static Number div(Number self, Number other) {
         return NumberMath.divide(self, other);
+    }
+
+    public static int intdiv(byte left, byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(byte left, short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(byte left, int right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(byte left, long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(byte left, Byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(byte left, Short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(byte left, Integer right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(byte left, Long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(short left, byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(short left, short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(short left, int right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(short left, long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(short left, Byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(short left, Short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(short left, Integer right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(short left, Long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(int left, byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(int left, short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(int left, int right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(int left, long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(int left, Byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(int left, Short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(int left, Integer right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(int left, Long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(long left, byte right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(long left, short right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(long left, int right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(long left, long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(long left, Byte right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(long left, Short right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(long left, Integer right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(long left, Long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(Byte left, byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Byte left, short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Byte left, int right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(Byte left, long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(Byte left, Byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Byte left, Short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Byte left, Integer right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(Byte left, Long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(Short left, byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Short left, short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Short left, int right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(Short left, long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(Short left, Byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Short left, Short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Short left, Integer right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(Short left, Long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(Integer left, byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Integer left, short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Integer left, int right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(Integer left, long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static int intdiv(Integer left, Byte right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Integer left, Short right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static int intdiv(Integer left, Integer right) {
+        return ((int)left) / ((int)right);
+    }
+
+
+    public static long intdiv(Integer left, Long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(Long left, byte right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(Long left, short right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(Long left, int right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(Long left, long right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(Long left, Byte right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(Long left, Short right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(Long left, Integer right) {
+        return ((long)left) / ((long)right);
+    }
+
+
+    public static long intdiv(Long left, Long right) {
+        return ((long)left) / ((long)right);
     }
 
     public static Boolean box(boolean value) {
@@ -303,5 +623,79 @@ public class DefaultGroovyPPMethods extends DefaultGroovyMethodsSupport {
     public static <T> T gppRecord(ValueRecorder recorder, T value, int column) {
         recorder.record(value, column);
         return value;
+    }
+
+    public static byte gppRecord(ValueRecorder recorder, byte value, int column) {
+        recorder.record(value, column);
+        return value;
+    }
+
+    public static short gppRecord(ValueRecorder recorder, short value, int column) {
+        recorder.record(value, column);
+        return value;
+    }
+
+    public static boolean gppRecord(ValueRecorder recorder, boolean value, int column) {
+        recorder.record(value, column);
+        return value;
+    }
+
+    public static char gppRecord(ValueRecorder recorder, char value, int column) {
+        recorder.record(value, column);
+        return value;
+    }
+
+    public static float gppRecord(ValueRecorder recorder, float value, int column) {
+        recorder.record(value, column);
+        return value;
+    }
+
+    public static double gppRecord(ValueRecorder recorder, double value, int column) {
+        recorder.record(value, column);
+        return value;
+    }
+
+    public static long gppRecord(ValueRecorder recorder, long value, int column) {
+        recorder.record(value, column);
+        return value;
+    }
+
+    public static int gppRecord(ValueRecorder recorder, int value, int column) {
+        recorder.record(value, column);
+        return value;
+    }
+
+    public static Number negate(Number value) {
+        if (value instanceof Integer) {
+            Integer number = (Integer) value;
+            return Integer.valueOf(-number.intValue());
+        }
+        if (value instanceof Long) {
+            Long number = (Long) value;
+            return -number;
+        }
+        if (value instanceof BigInteger) {
+            return ((BigInteger) value).negate();
+        }
+        if (value instanceof BigDecimal) {
+            return ((BigDecimal) value).negate();
+        }
+        if (value instanceof Double) {
+            Double number = (Double) value;
+            return -number;
+        }
+        if (value instanceof Float) {
+            Float number = (Float) value;
+            return -number;
+        }
+        if (value instanceof Short) {
+        	Short number = (Short) value;
+        	return Short.valueOf((short) -number.shortValue());
+        }
+        if (value instanceof Byte) {
+        	Byte number = (Byte) value;
+        	return Byte.valueOf((byte) -number.byteValue());
+        }
+        throw new UnsupportedOperationException(value.getClass().getName() + ".negate()");
     }
 }

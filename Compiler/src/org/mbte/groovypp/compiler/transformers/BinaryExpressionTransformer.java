@@ -253,10 +253,9 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             ClassNode mathType0 = TypeUtil.getMathType(l.getType(), r.getType());
 
             if (tokenType == Types.DIVIDE
-                    && (
-                    /*mathType0.equals(ClassHelper.int_TYPE) ||
-                            mathType0.equals(ClassHelper.long_TYPE) ||*/
-                            mathType0.equals(ClassHelper.BigInteger_TYPE)))
+                    && (mathType0.equals(ClassHelper.int_TYPE)  ||
+                        mathType0.equals(ClassHelper.long_TYPE) ||
+                        mathType0.equals(ClassHelper.BigInteger_TYPE)))
                 mathType0 = ClassHelper.BigDecimal_TYPE;
 
             final ClassNode mathType = mathType0;

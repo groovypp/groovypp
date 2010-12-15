@@ -16,15 +16,20 @@
 
 package org.mbte.groovypp.compiler.transformers;
 
+import groovy.lang.TypePolicy;
+import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.FieldNode;
-import org.codehaus.groovy.ast.expr.AttributeExpression;
-import org.codehaus.groovy.ast.expr.ClassExpression;
-import org.codehaus.groovy.ast.expr.Expression;
+import org.codehaus.groovy.ast.InnerClassNode;
+import org.codehaus.groovy.ast.MethodNode;
+import org.codehaus.groovy.ast.expr.*;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.PresentationUtil;
-import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
-import org.mbte.groovypp.compiler.bytecode.ResolvedFieldBytecodeExpr;
+import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.bytecode.*;
 import org.mbte.groovypp.compiler.transformers.ExprTransformer;
+import org.objectweb.asm.Opcodes;
+
+import java.text.MessageFormat;
 
 public class AttributeExpressionTransformer extends ExprTransformer<AttributeExpression> {
     @Override
@@ -33,20 +38,55 @@ public class AttributeExpressionTransformer extends ExprTransformer<AttributeExp
 
         BytecodeExpr obj;
         final FieldNode field;
+        String propName = exp.getPropertyAsString();
         if (objectExpr instanceof ClassExpression) {
             obj = null;
-            field = compiler.findField(objectExpr.getType(), exp.getPropertyAsString());
+            field = compiler.findField(objectExpr.getType(), propName);
             if (field == null) {
-              compiler.addError("Cannot find field " + exp.getPropertyAsString() + " of class " + PresentationUtil.getText(objectExpr.getType()), exp);
+              compiler.addError("Cannot find field " + propName + " of class " + PresentationUtil.getText(objectExpr.getType()), exp);
             }
         } else {
             obj = (BytecodeExpr) compiler.transform(objectExpr);
-            field = compiler.findField(obj.getType(), exp.getPropertyAsString());
-            if (field == null) {
-              compiler.addError("Cannot find field " + exp.getPropertyAsString() + " of class " + PresentationUtil.getText(obj.getType()), exp);
+            if(exp.getObjectExpression() instanceof VariableExpression &&
+                    ((VariableExpression) exp.getObjectExpression()).getName().equals("this") &&
+                    compiler.classNode instanceof InnerClassNode) {
+
+                BytecodeExpr object;
+
+                ClassNode thisType = compiler.classNode;
+                while (thisType != null) {
+                    FieldNode prop = compiler.findField(thisType, propName);
+                    if (prop != null) {
+                        boolean isStatic = PropertyUtil.isStatic(prop);
+                        if (!isStatic && exp.isStatic()) return null;
+                        object = isStatic ? null : new InnerThisBytecodeExpr(exp, thisType, compiler);
+
+                        return new ResolvedFieldBytecodeExpr(exp, prop, object, null, compiler, true);
+                    }
+
+                    thisType = thisType.getOuterClass();
+                }
+
+                if (compiler.policy == TypePolicy.STATIC) {
+                    compiler.addError(MessageFormat.format("Cannot find field {0}.{1}",
+                            PresentationUtil.getText(compiler.classNode),
+                            propName), exp);
+                    return null;
+                }
+                else {
+                    object = new InnerThisBytecodeExpr(exp, compiler.classNode, compiler);
+                    return new UnresolvedLeftExpr(exp, null, object, propName);
+                }
+
+            }
+            else {
+                field = compiler.findField(obj.getType(), propName);
+                if (field == null) {
+                  compiler.addError("Cannot find field " + propName + " of class " + PresentationUtil.getText(obj.getType()), exp);
+                }
             }
         }
 
-        return new ResolvedFieldBytecodeExpr(exp, field, obj, null, compiler);
+        return new ResolvedFieldBytecodeExpr(exp, field, obj, null, compiler, true);
     }
 }

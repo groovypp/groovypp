@@ -1,3 +1,8 @@
+dependencies {
+    testRuntime project(':StdLib')
+    testRuntime(group: 'ant', name: 'ant', version: '1.7.0')
+}
+
 compileGroovy.doFirst {
     copy {
         from 'src'
@@ -9,8 +14,8 @@ compileGroovy.doFirst {
 
 compileGroovy.doLast {
     copy {
-        from '../StsLib/src'
-        into '../out/production/Compiler'
+        from '../StdLib/src'
+        into '../out/production/StdLib'
         exclude '**/*.java'
         exclude '**/*.groovy'
     }
@@ -20,11 +25,4 @@ compileGroovy.doLast {
 //          <include name="**/*$GrUnitTest*.class"/>
 //        </fileset>
 //    </move>
-}
-
-task test (overwrite:true) {}
-
-task jar (overwrite:true) {}
-
-task build (overwrite:true, dependsOn:compileGroovy) {
 }
