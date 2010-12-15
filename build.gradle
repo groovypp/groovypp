@@ -1,5 +1,12 @@
+version = '0.4.99'
+
 subprojects { prj ->
     apply plugin: 'groovy'
+
+    test {
+      maxHeapSize = '512m'
+      workingDir = '..'
+    }
 
     dependencies {
         groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
@@ -30,3 +37,26 @@ subprojects { prj ->
         }
     }
 }
+
+task releaseInfo << {
+  copy {
+      from './Compiler/src'
+      into './out/production/Compiler'
+      exclude '**/*.java'
+      exclude '**/*.groovy'
+  }
+
+  def file = new File("./out/production/Compiler/META-INF/groovypp-release-info.properties")
+
+  def src = file.text
+  src = src.replaceAll("##ImplementationVersion##", version)
+
+  def dateTime = new Date()
+  src = src.replaceAll("##BuildDate##", dateTime.format("dd-MMM-yyyy"))
+  src = src.replaceAll("##BuildTime##", dateTime.format("hh:mm aa"))
+
+  file.text = src
+}
+
+
+

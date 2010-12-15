@@ -70,6 +70,9 @@ import java.util.concurrent.atomic.AtomicReference
             else {
                 // queue is guaranteed to be empty
                 if(state.compareAndSet(s, [FQueue.emptyQueue, s.second.tail])) {
+                    if(!isResourceAlive(s.second.head))
+                      continue
+
                     // schedule action
                     executor.execute {
                         scheduledAction(action,s.second.head)
@@ -104,18 +107,21 @@ import java.util.concurrent.atomic.AtomicReference
     private final <D> Object scheduledAction(Function1<R,D> action, R resource) {
         switch (action) {
             case SyncAction:
-                action.set(resource)
+              action.set(resource)
             break
 
             case Action:
-                try {
-                    action.set(action(resource))
-                }
-                catch(t) {
-                    action.setException(t)
-                }
+              try {
+                  action.set(action(resource))
+              }
+              catch(t) {
+                  action.setException(t)
+              }
             break
         }
+
+        if(!isResourceAlive(resource))
+          return
 
         for (;;) {
             def s = state
@@ -150,6 +156,9 @@ import java.util.concurrent.atomic.AtomicReference
             initPool ()
         }
 
+        if(!isResourceAlive(resource))
+          return
+
         for(;;) {
             def s = state
             if (!s.second.empty) {
@@ -174,6 +183,10 @@ import java.util.concurrent.atomic.AtomicReference
                 }
             }
         }
+    }
+
+    boolean isResourceAlive(R resource) {
+        true
     }
 
     public synchronized void initPool () {

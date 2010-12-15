@@ -160,4 +160,36 @@ public class TypeUnification {
         }
         return true;
     }
+
+    public static void inmproveBindings(ClassNode[] bindings) {
+        for(int i=0; i != bindings.length; ++i)
+            bindings[i] = inmproveBinding(bindings[i]);
+    }
+
+    public static ClassNode inmproveBinding(ClassNode binding) {
+        if(binding == null)
+            return binding;
+
+        if(binding.implementsInterface(TypeUtil.TLIST)) {
+            return TypeUtil.ARRAY_LIST_TYPE;
+        }
+
+        if(binding.implementsInterface(TypeUtil.TMAP)) {
+            return TypeUtil.LINKED_HASH_MAP_TYPE;
+        }
+
+        GenericsType[] gt = binding.getGenericsTypes();
+        if(gt == null || gt.length == 0)
+            return binding;
+
+        for(int i=0; i != gt.length; ++i) {
+            ClassNode type = gt[i].getType();
+            ClassNode improved = inmproveBinding(type);
+            if(improved != type) {
+                gt [i] = new GenericsType(improved);
+            }
+        }
+
+        return binding;
+    }
 }

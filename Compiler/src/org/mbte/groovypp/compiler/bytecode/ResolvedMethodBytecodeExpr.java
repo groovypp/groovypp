@@ -138,6 +138,7 @@ public class ResolvedMethodBytecodeExpr extends BytecodeExpr {
                 argTypes[i] = bargs.getExpression(i).getType();
             }
             ClassNode[] bindings = TypeUnification.inferTypeArguments(methodNode.getGenericsTypes(), paramTypes, argTypes);
+            TypeUnification.inmproveBindings(bindings);
             returnType = TypeUtil.getSubstitutedType(returnType, methodNode, bindings);
 
             for (int i = 0; i < length-delta; i++) {
