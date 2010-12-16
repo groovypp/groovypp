@@ -101,9 +101,18 @@ class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
         (V)internalData
     }
 
-    final BindLater<V> whenBound (Listener<V> listener) {
+    final BindLater<V> whenBound (Executor executor = null, Listener<V> listener) {
         if (!listener)
             return this
+
+        if(executor) {
+          def original = listener
+          listener = { data ->
+            executor.execute {
+              original.onBound data
+            }
+          }
+        }
         
         for (;;) {
             def l = bindListeners
@@ -119,12 +128,7 @@ class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
     }
 
     private void invokeListener (Listener<V> listener) {
-        try {
-            listener.onBound(this)
-        }
-        catch (Throwable t) {
-            t.printStackTrace(System.err)
-        }
+          listener.onBound(this)
     }
 
     protected final void done() {
