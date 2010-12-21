@@ -1,52 +1,84 @@
-version = '0.4.99'
+apply plugin: 'groovy'
+apply plugin: 'maven'
 
-subprojects { prj ->
-    apply plugin: 'groovy'
+group = 'org.mbte.groovypp'
+version = '0.4.112'
 
-    test {
-      maxHeapSize = '512m'
-      workingDir = '..'
-    }
+test {
+  maxHeapSize = '512m'
+  workingDir = '.'
+}
 
-    dependencies {
-        groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
-        compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
-        compile "junit:junit:4.8.1"
-    }
+configurations {
+  jarjar
+  minusAll
+}
 
-    repositories {
-        mavenCentral()
-    }
+dependencies {
+    groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
 
-    sourceSets {
-        main {
-            java {
-                srcDir "src"
-                classesDir = file("../out/production/${prj.name}")
-            }
-            groovy {
-                srcDir "src"
-                classesDir = file("../out/production/${prj.name}")
-            }
+    compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
+    minusAll(group: 'org.codehaus.groovy', name: 'groovy-all', version: '1.7.5')
+    compile "junit:junit:4.8.1"
+
+    jarjar group: 'com.google.code', name: 'jarjar', version: '1.0'
+
+    testRuntime(group: 'org.apache.ant', name: 'ant', version: '1.8.1')
+    testRuntime(group: 'commons-cli', name: 'commons-cli', version: '1.1')
+    testRuntime(group: 'org.apache.ivy', name: 'ivy', version: '2.2.0')
+    testRuntime(group: 'org.mortbay.jetty', name: 'servlet-api', version: '3.0.20100224')
+}
+
+repositories {
+    mavenCentral()
+    mavenRepo urls: 'http://repository.jboss.org/maven2'
+}
+
+sourceSets {
+    compiler {
+        java {
+            srcDir "Compiler/src"
         }
-        test {
-            groovy {
-                srcDir 'tests'
-                classesDir = file("../out/test/${prj.name}")
-            }
+        groovy {
+            srcDir "Compiler/src"
         }
+        classesDir = file("build/classes/main")
+    }
+    stdlib {
+        groovy {
+            srcDir "StdLib/src"
+        }
+        classesDir = file("build/classes/main")
+        compileClasspath = compileClasspath + sourceSets.compiler.classes
+    }
+    testCompiler {
+        groovy {
+            srcDir 'Compiler/tests'
+            classesDir = file("build/classes/test")
+        }
+        compileClasspath = compileClasspath + sourceSets.compiler.classes + sourceSets.stdlib.classes
+    }
+    testStdlib {
+        groovy {
+            srcDir 'StdLib/tests'
+            classesDir = file("build/classes/test")
+        }
+        compileClasspath = compileClasspath + sourceSets.compiler.classes + sourceSets.stdlib.classes
     }
 }
 
-task releaseInfo << {
+task prepareMetaInf << {
+  def file = new File("build/classes/main/META-INF/groovypp-release-info.properties")
+
   copy {
-      from './Compiler/src'
-      into './out/production/Compiler'
-      exclude '**/*.java'
-      exclude '**/*.groovy'
+    from 'Compiler/src/META-INF'
+    into 'build/classes/main/META-INF'
   }
 
-  def file = new File("./out/production/Compiler/META-INF/groovypp-release-info.properties")
+  copy {
+      from 'StdLib/src/META-INF'
+      into 'build/classes/main/META-INF'
+  }
 
   def src = file.text
   src = src.replaceAll("##ImplementationVersion##", version)
@@ -58,5 +90,67 @@ task releaseInfo << {
   file.text = src
 }
 
+task cleanTest(dependsOn: [clean, test])
+
+task allJar(type:Jar, dependsOn:jar) {
+    inputs.files jar.archivePath
+    appendix = 'all'
+
+    doLast {
+      ant.taskdef(name:'jarjar', classname: 'com.tonicsystems.jarjar.JarJarTask', classpath: configurations.jarjar.asPath)
+
+      ant.jarjar(jarfile: "build/libs/groovypp-all-${version}.jar") {
+          zipfileset(dir: 'build/classes/main')
+          rule(pattern:"org.objectweb.**", result:"groovyjarjarasm.@1")
+      }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn:jar) {
+     classifier = 'sources'
+     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
+}
+
+task allSourcesJar(type: Jar) {
+     classifier = 'sources'
+     appendix = 'all'
+     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
+}
+
+artifacts {
+    archives sourcesJar
+    archives allJar
+    archives allSourcesJar
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/") {
+//        repository(url: "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath) {
+            authentication(userName: USER, password: PASSWORD)
+        }
+        addFilter('groovypp') {artifact, file ->
+            !artifact.toString().contains('-all')
+        }
+        addFilter('groovypp-all') {artifact, file ->
+            artifact.toString().contains('-all')
+        }.whenConfigured { pom ->
+          pom.dependencies.each { dep ->
+            if(dep.artifactId == 'groovy') {
+              dep.artifactId = 'groovy-all'
+            }
+          }
+        }
+    }
+}
 
 
+compileStdlibGroovy.dependsOn << [compileCompilerGroovy, prepareMetaInf]
+
+compileGroovy.dependsOn << compileStdlibGroovy
+
+compileTestGroovy.dependsOn << [compileTestCompilerGroovy, compileTestStdlibGroovy]
+
+compileTestCompilerGroovy.dependsOn << compileStdlibGroovy
+
+compileTestStdlibGroovy.dependsOn   << compileStdlibGroovy

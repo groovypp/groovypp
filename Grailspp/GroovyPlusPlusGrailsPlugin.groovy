@@ -13,7 +13,7 @@ class GroovyPlusPlusGrailsPlugin {
     // TODO Fill in these fields
     def author = "Alex Tkachman"
     def authorEmail = "alex.tkachman@gmail.com"
-    def title = "Groovy++ Integration"
+    def title = "Groovy++ Grails Integration"
     def description = '''\\
 The plugin integrating Groovy++ in to Grails
 '''
