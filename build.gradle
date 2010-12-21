@@ -2,26 +2,18 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.112'
+version = '0.4.113'
 
 test {
   maxHeapSize = '512m'
   workingDir = '.'
 }
 
-configurations {
-  jarjar
-  minusAll
-}
-
 dependencies {
     groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
 
     compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
-    minusAll(group: 'org.codehaus.groovy', name: 'groovy-all', version: '1.7.5')
     compile "junit:junit:4.8.1"
-
-    jarjar group: 'com.google.code', name: 'jarjar', version: '1.0'
 
     testRuntime(group: 'org.apache.ant', name: 'ant', version: '1.8.1')
     testRuntime(group: 'commons-cli', name: 'commons-cli', version: '1.1')
@@ -31,7 +23,6 @@ dependencies {
 
 repositories {
     mavenCentral()
-    mavenRepo urls: 'http://repository.jboss.org/maven2'
 }
 
 sourceSets {
@@ -97,7 +88,7 @@ task allJar(type:Jar, dependsOn:jar) {
     appendix = 'all'
 
     doLast {
-      ant.taskdef(name:'jarjar', classname: 'com.tonicsystems.jarjar.JarJarTask', classpath: configurations.jarjar.asPath)
+      ant.taskdef(name:'jarjar', classname: 'com.tonicsystems.jarjar.JarJarTask', classpath: 'lib/jarjar-1.0.jar')
 
       ant.jarjar(jarfile: "build/libs/groovypp-all-${version}.jar") {
           zipfileset(dir: 'build/classes/main')
@@ -115,6 +106,27 @@ task allSourcesJar(type: Jar) {
      classifier = 'sources'
      appendix = 'all'
      from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
+}
+
+task installZip(dependsOn:[jar, allJar]) << {
+  ant.zip(destfile:"build/groovypp-${version}.zip",comment:"The Groovy++ binary distribution.") {
+    zipfileset dir:"install", prefix=""
+
+    zipfileset file:"build/libs/groovypp-${version}.jar", prefix:"lib"
+    zipfileset file:"build/libs/groovypp-all-${version}.jar", prefix:"embeddable"
+  }
+}
+
+task deployGoogle(dependsOn:[jar, allJar, sourcesJar, installZip]) << {
+  ant.taskdef(name:"gcupload", classname:"net.bluecow.googlecode.ant.GoogleCodeUploadTask", classpath:"lib/ant-googlecode-0.0.2.jar")
+
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/groovypp-${version}.zip", targetfilename:"groovypp-${version}.zip", summary:"Groovy 1.7.5 installation including Groovy++ ${version}", labels:"Featured", verbose:"true")
+
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}.jar", targetfilename:"groovypp-${version}.jar", summary:"Groovy++ Jar ${version} (use with groovy-1.7.5+.jar)", labels:"Featured", verbose:"true")
+
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-all-${version}.jar", targetfilename:"groovypp-all-${version}.jar", summary:"Groovy++ Embeddable Jar ${version} (use with groovy-all-1.7.5.jar)", labels:"Featured", verbose:"true")
+
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}-sources.jar", targetfilename:"groovypp-${version}-sources.jar", summary:"Groovy++ Sources Jar", labels:"Featured", verbose:"true")
 }
 
 artifacts {
