@@ -124,6 +124,13 @@ import groovypp.concurrent.FList
         child.fireShutdown afterShutdown
     }
 
+    final void restart(Function0 afterStartup = null) {
+        shutdown {
+            state = 0
+            startup afterStartup
+        }
+    }
+
     protected final void onMessage(Object message) {
         try {
             doOnMessage(message)

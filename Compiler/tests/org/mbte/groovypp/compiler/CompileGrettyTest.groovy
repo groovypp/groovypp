@@ -26,25 +26,30 @@ class CompileGrettyTest extends GroovyFileSystemCompilerTestCase {
     def ff = new File("../gretty/src")
     if(ff.exists() && ff.directory) {
         def file = new File("Gretty/lib")
-        additionalClasspath = ""
-        def files = file.listFiles()
-        for(f in files) {
-            if(f.name.endsWith(".jar"))
-                additionalClasspath = additionalClasspath  + f + ":"
+        if(file.exists() && file.directory) {
+          additionalClasspath = ""
+          def files = file.listFiles()
+          for(f in files) {
+              if(f.name.endsWith(".jar"))
+                  additionalClasspath = additionalClasspath  + f + ":"
+          }
         }
     }
   }
 
   void testCompile () {
-    def file = new File("../gretty/src")
-    if(file.exists() && file.directory) {
-      def finder = new FileNameFinder()
-      def srcDir = file.absolutePath
+    def ff = new File("../gretty/src")
+    if(ff.exists() && ff.directory) {
+        def file = new File("Gretty/lib")
+        if(file.exists() && file.directory) {
+          def finder = new FileNameFinder()
+          def srcDir = ff.absolutePath
 
-      def names = finder.getFileNames(srcDir, "**/*.groovy")
-      names.addAll(finder.getFileNames(srcDir, "**/*.java"))
+          def names = finder.getFileNames(srcDir, "**/*.groovy")
+          names.addAll(finder.getFileNames(srcDir, "**/*.java"))
 
-      compiler.compile (names as String[])
+          compiler.compile (names as String[])
+        }
     }
   }
 }

@@ -18,24 +18,29 @@ package groovypp.channels
 
 @Typed abstract class LoopChannel<O extends SupervisedChannel> extends SupervisedChannel<O> {
     protected volatile boolean stopped
+    protected volatile Thread  currentThread
 
     protected abstract boolean doLoopAction ()
 
-    void doStartup() {
+    protected void doStartup() {
         executor.execute {
+            currentThread = Thread.currentThread()
             try {
-                while (true) {
+                while (!stopped) {
                     if (!doLoopAction()) break
                 }
             }
             catch(Throwable t) {
-                stopped = true
-                crash(t)
+                if(!stopped) {
+                  stopped = true
+                  crash(t)
+                }
             }
         }
     }
 
-    void doShutdown() {
+    protected void doShutdown() {
         stopped = true
+        currentThread?.interrupt()
     }
 }

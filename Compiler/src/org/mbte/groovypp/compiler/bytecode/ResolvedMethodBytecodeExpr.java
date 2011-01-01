@@ -156,7 +156,12 @@ public class ResolvedMethodBytecodeExpr extends BytecodeExpr {
             bargs.getExpressions().remove(0);
         }
 
-        return objectCopy != null ? TypeUtil.getSubstitutedType(returnType, methodNode.getDeclaringClass(), objectCopy.getType()) : returnType;
+        ClassNode ret = objectCopy != null ? TypeUtil.getSubstitutedType(returnType, methodNode.getDeclaringClass(), objectCopy.getType()) : returnType;
+        // @todo this is hack. normally we should not degradate, but somehow we do
+        if(!returnType.equals(ret) && returnType.isDerivedFrom(ret) || returnType.implementsInterface(ret))
+            return returnType;
+        else
+            return ret;
     }
 
     private void tryImproveClosureType(MethodNode methodNode, TupleExpression bargs) {
