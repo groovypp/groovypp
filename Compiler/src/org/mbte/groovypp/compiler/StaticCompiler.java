@@ -519,6 +519,18 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
                 if (componentType == ClassHelper.double_TYPE)
                     mv.visitInsn(DALOAD);
                 else
+                if (componentType == ClassHelper.boolean_TYPE)
+                    mv.visitInsn(BALOAD);
+                else
+                if (componentType == ClassHelper.byte_TYPE)
+                    mv.visitInsn(BALOAD);
+                else
+                if (componentType == ClassHelper.char_TYPE)
+                    mv.visitInsn(CALOAD);
+                else
+                if (componentType == ClassHelper.short_TYPE)
+                    mv.visitInsn(SALOAD);
+                else
                     mv.visitInsn(IALOAD);
             }
             else
