@@ -4,3 +4,6 @@ junit*.properties
 .classpath
 .project
 tempbin
+.gradle
+bin
+Compiler/build
