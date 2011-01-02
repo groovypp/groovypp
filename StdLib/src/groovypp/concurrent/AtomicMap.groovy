@@ -75,7 +75,7 @@ abstract class AtomicMap<K,V extends AtomicMapEntry> implements Iterable<V> {
         }
     }
 
-    private static class MyIterator<V extends AtomicMapEntry> implements Iterator<V> {
+    private static class MyIterator<K,V extends AtomicMapEntry> implements Iterator<V> {
         final Object [] table
         int index = 0, innerIndex = 0
 

@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.116'
+version = '0.4.117'
 
 test {
   maxHeapSize = '512m'
@@ -10,9 +10,9 @@ test {
 }
 
 dependencies {
-    groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
+    groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.6')
 
-    compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5')
+    compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.6')
     compile "junit:junit:4.8.1"
 
     testRuntime(group: 'org.apache.ant', name: 'ant', version: '1.8.1')
