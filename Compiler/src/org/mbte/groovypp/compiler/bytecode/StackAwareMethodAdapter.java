@@ -67,7 +67,7 @@ public class StackAwareMethodAdapter extends MethodAdapter implements Opcodes, L
         }
     }
 
-    private void comeToLabel(Label label) {
+    public void comeToLabel(Label label) {
         final LocalVarInferenceTypes li = getLabelInfo(label);
         li.initFromStack(stack);
 

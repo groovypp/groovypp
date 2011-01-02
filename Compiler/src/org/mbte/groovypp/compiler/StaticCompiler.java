@@ -1075,6 +1075,10 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
             );
         }
 
+        // dummy label to record the local type inference info before try block starts
+        final Label dummyLabel = new Label();
+        mv.visitLabel(dummyLabel);
+
         // start try block, label needed for exception table
         final Label tryStart = new Label();
         mv.visitLabel(tryStart);
@@ -1092,6 +1096,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         mv.visitLabel(tryEnd);
 
         for (CatchStatement catchStatement : statement.getCatchStatements()) {
+        	mv.comeToLabel(dummyLabel);// restore the type inference info for use in catch blocks
             ClassNode exceptionType = catchStatement.getExceptionType();
             // start catch block, label needed for exception table
             final Label catchStart = new Label();
