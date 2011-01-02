@@ -320,6 +320,11 @@ public class ClosureUtil {
                     superCallArgs.addExpression(new VariableExpression(constrParams[0]));
                     superCallArgs.addExpression(new VariableExpression(constrParams[0]));
                 }
+                else if(compiler.methodNode.isStatic() && !compiler.classNode.getName().endsWith("$TraitImpl")) {
+                	ClassNode cn = compiler.classNode;
+                    superCallArgs.addExpression(new ClassExpression(cn));
+                    superCallArgs.addExpression(new ClassExpression(getOutermostClass(cn)));
+                }
                 else {
                     superCallArgs.addExpression(ConstantExpression.NULL);
                     superCallArgs.addExpression(ConstantExpression.NULL);
@@ -375,6 +380,9 @@ public class ClosureUtil {
         StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, cn, compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, newType.getName());
 
         if (newType.getOuterClass() != null && newType.getMethods("methodMissing").isEmpty()) {
+        	final ClassNode this0Type = 
+        		(!compiler.methodNode.isStatic() || compiler.classNode.getName().endsWith("$TraitImpl")) ? 
+        			newType.getOuterClass() : ClassHelper.CLASS_Type;
             newType.addMethod("methodMissing",
                     Opcodes.ACC_PUBLIC,
                     ClassHelper.OBJECT_TYPE,
@@ -385,7 +393,7 @@ public class ClosureUtil {
                     new BytecodeSequence(new BytecodeInstruction(){
                         public void visit(MethodVisitor mv) {
                                 mv.visitVarInsn(Opcodes.ALOAD, 0);
-                                mv.visitFieldInsn(Opcodes.GETFIELD, BytecodeHelper.getClassInternalName(newType), "this$0", BytecodeHelper.getTypeDescription(newType.getOuterClass()));
+                                mv.visitFieldInsn(Opcodes.GETFIELD, BytecodeHelper.getClassInternalName(newType), "this$0", BytecodeHelper.getTypeDescription(this0Type));
                                 mv.visitVarInsn(Opcodes.ALOAD, 1);
                                 mv.visitVarInsn(Opcodes.ALOAD, 2);
                                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, "org/codehaus/groovy/runtime/InvokerHelper", "invokeMethod", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;");
@@ -427,7 +435,8 @@ public class ClosureUtil {
         final List<Parameter> constrParams = new ArrayList<Parameter>(fields.size());
 
         FieldNode ownerField = newType.getField("this$0");
-        if (ownerField != null)
+        if (ownerField != null && 
+        	(!compiler.methodNode.isStatic() || compiler.classNode.getName().endsWith("$TraitImpl")))
             constrParams.add(new Parameter(ownerField.getType(), "this$0"));
         for (int i = 0; i != fields.size(); ++i) {
             final FieldNode fieldNode = fields.get(i);
@@ -479,5 +488,15 @@ public class ClosureUtil {
         }
 
         mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInternalName, "<init>", BytecodeHelper.getMethodDescriptor(ClassHelper.VOID_TYPE, constructorNode.getParameters()));
+    }
+    
+    private static ClassNode getOutermostClass(ClassNode classNode) {
+        ClassNode outermostClass = classNode;
+        
+        while (outermostClass instanceof InnerClassNode) {
+            outermostClass = outermostClass.getOuterClass();
+        }
+        
+        return outermostClass;
     }
 }

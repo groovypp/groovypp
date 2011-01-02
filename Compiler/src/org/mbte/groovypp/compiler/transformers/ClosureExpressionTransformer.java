@@ -50,6 +50,8 @@ public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpress
 
         if (!compiler.methodNode.isStatic() || compiler.classNode.getName().endsWith("$TraitImpl"))
             newType.addField("this$0", Opcodes.ACC_PUBLIC, !compiler.methodNode.isStatic() ? compiler.classNode : compiler.methodNode.getParameters()[0].getType(), null);
+        else if(compiler.methodNode.isStatic())
+            newType.addField("this$0", Opcodes.ACC_PUBLIC, ClassHelper.CLASS_Type, new ClassExpression(newType.getOuterClass()));
 
         _doCallMethod.createDependentMethods(newType);
 
