@@ -55,12 +55,18 @@ public class ResolvedFieldBytecodeExpr extends ResolvedLeftExpr {
         this.value = value != null ? compiler.cast(value, fieldNode.getType() ): null;
     }
 
-    private void checkAssignment() {
+    public boolean checkAssignment(boolean addError) {
         if (fieldNode.isFinal() && !compiler.methodNode.getName().equals(fieldNode.isStatic() ? "<clinit>" : "<init>")) {
-            compiler.addError("Cannot modify final field " + formatFieldName(), parent);
+            if(addError) compiler.addError("Cannot modify final field " + formatFieldName(), parent);
+            return false;
         }
+        return true;
     }
-
+    
+    private void checkAssignment() {
+    	checkAssignment(true);
+    }
+    
     public BytecodeExpr getObject() {
         return object;
     }

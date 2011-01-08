@@ -32,4 +32,8 @@ public abstract class ResolvedLeftExpr extends BytecodeExpr {
     public abstract BytecodeExpr createAssign(ASTNode parent, BytecodeExpr right, CompilerTransformer compiler);
 
     public abstract BytecodeExpr createBinopAssign(ASTNode parent, Token method, BytecodeExpr right, CompilerTransformer compiler);
+
+    public boolean checkAssignment(boolean addError) {
+    	return true;
+    }
 }

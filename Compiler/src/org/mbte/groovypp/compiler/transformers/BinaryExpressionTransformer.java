@@ -335,8 +335,16 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
         MethodNode boxing = TypeUtil.getReferenceBoxingMethod(left.getType(), right.getType());
         if (boxing != null && !TypeUtil.isDirectlyAssignableFrom(left.getType(), right.getType())) {
             return ResolvedMethodBytecodeExpr.create(be, boxing, left, new ArgumentListExpression(right), compiler);
+        } else {
+        	ResolvedLeftExpr leftExpr = (ResolvedLeftExpr) left;
+        	if(leftExpr.checkAssignment(false)) {
+                return leftExpr.createAssign(be, right, compiler);
+        	} else {
+        		compiler.addError("Invalid assignment: " + left.getType() + " is not assignable from " +
+        			right.getType(), be);
+        		return null;
+        	}
         }
-        return ((ResolvedLeftExpr) left).createAssign(be, right, compiler);
     }
 
     private Expression evaluateMathOperationAssign(BinaryExpression be, Token op, CompilerTransformer compiler) {
