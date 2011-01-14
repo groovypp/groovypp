@@ -21,7 +21,7 @@ import org.objectweb.asm.MethodVisitor;
 
 public class VisitLineNumber extends AsmInstr {
     public final int line;
-    public final Label label;
+    public Label label;
 
     public VisitLineNumber(int line, Label label) {
         this.line = line;

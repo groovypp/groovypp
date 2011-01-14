@@ -23,7 +23,6 @@ import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.syntax.Types;
-import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.AccessibilityCheck;
 import org.mbte.groovypp.compiler.ClassNodeCache;
 import org.mbte.groovypp.compiler.ClosureClassNode;
@@ -35,8 +34,6 @@ import org.mbte.groovypp.compiler.TypeUnification;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
-import org.mbte.groovypp.compiler.transformers.VariableExpressionTransformer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -438,7 +435,7 @@ public class ConstructorCallExpressionTransformer extends ExprTransformer<Constr
                             ClassNode argType = p[i].getType();
                             if (argType.equals(ClassHelper.CLOSURE_TYPE)) {
                                 ClosureUtil.improveClosureType(oarg, ClassHelper.CLOSURE_TYPE);
-                                StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, ((ClosureClassNode)oarg).getDoCallMethod(), compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, oarg.getName());
+                                compiler.replaceMethodCode(oarg, ((ClosureClassNode)oarg).getDoCallMethod());
                             }
                             else {
                                 List<MethodNode> one = ClosureUtil.isOneMethodAbstract(argType);

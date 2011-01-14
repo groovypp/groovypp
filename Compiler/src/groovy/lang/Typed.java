@@ -29,5 +29,7 @@ import java.lang.annotation.Target;
 public @interface Typed {
     boolean debug() default false;
 
+    boolean fastArrays() default true;
+
     TypePolicy value() default TypePolicy.STATIC;
 }

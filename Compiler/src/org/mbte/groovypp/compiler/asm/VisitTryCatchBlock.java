@@ -20,7 +20,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 public class VisitTryCatchBlock extends AsmInstr {
-    public final Label start, end, handler;
+    public Label start, end, handler;
     public final String type;
 
     public VisitTryCatchBlock(Label start, Label end, Label handler, String type) {

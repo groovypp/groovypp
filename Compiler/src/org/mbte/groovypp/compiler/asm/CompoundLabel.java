@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,26 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.mbte.groovypp.compiler.asm;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 
-public class VisitLocalVariable extends AsmInstr {
-    public final String name, desc;
-    public Label start, end;
-    public final int index;
+import java.util.LinkedList;
+import java.util.List;
 
-    public VisitLocalVariable(String name, String desc, Label start, Label end, int index) {
-        this.name = name;
-        this.desc = desc;
-        this.start = start;
-        this.end = end;
-        this.index = index;
+class CompoundLabel extends Label {
+    List<Label> labels;
+
+    CompoundLabel(List<Label> labels) {
+        this.labels = new LinkedList<Label>(labels);
     }
 
-    public void visit(MethodVisitor mv) {
-        mv.visitLocalVariable(name, desc, null, start, end, index);
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for(Label l : labels)
+            stringBuilder.append(' ').append(l);
+        return stringBuilder.toString();
     }
 }

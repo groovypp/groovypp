@@ -92,7 +92,7 @@ class SubscriptTest extends GroovyShellTestCase {
   void testStringArrayRange() {
     shell.evaluate """
 
-       @Typed
+       @Typed(debug=true)
        def u() {
           String[] list = ['a', 'b', 'c', 'd', 'e']
 

@@ -35,6 +35,19 @@ public class CompareTest extends GroovyShellTestCase {
         assertTrue res
     }
 
+  void testEqualZero() {
+    def res = shell.evaluate("""
+      @Typed
+      def u () {
+        def v = 0
+        v == 0 && (v+1) != 0
+      }
+      u ()
+    """)
+
+      assertTrue res
+  }
+
   void testMath() {
     shell.evaluate("""
       @Typed

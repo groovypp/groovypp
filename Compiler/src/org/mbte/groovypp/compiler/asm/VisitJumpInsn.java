@@ -21,7 +21,7 @@ import org.objectweb.asm.MethodVisitor;
 
 public class VisitJumpInsn extends AsmInstr {
     public final int opcode;
-    public final Label label;
+    public Label label;
 
     public VisitJumpInsn(int opcode, Label label) {
         this.opcode = opcode;

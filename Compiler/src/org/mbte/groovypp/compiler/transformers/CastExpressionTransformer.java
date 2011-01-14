@@ -21,27 +21,17 @@ import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.util.FastArray;
 import org.codehaus.groovy.classgen.BytecodeHelper;
-import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.ClassNodeCache;
 import org.mbte.groovypp.compiler.ClosureClassNode;
 import org.mbte.groovypp.compiler.ClosureMethodNode;
 import org.mbte.groovypp.compiler.ClosureUtil;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.PresentationUtil;
-import org.mbte.groovypp.compiler.StaticMethodBytecode;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.*;
-import org.mbte.groovypp.compiler.transformers.ClassExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.ConstantExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.ConstructorCallExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
-import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.MapExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.TernaryExpressionTransformer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -64,12 +54,19 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
                 String s = (String) constantExpression.getValue();
                 if(s.length() == 1) {
                     if(cast.getType().equals(ClassHelper.int_TYPE) || cast.getType().equals(ClassHelper.Integer_TYPE)) {
-                        return new ConstantExpressionTransformer.MyBytecodeExpr(constantExpression, ClassHelper.int_TYPE, (int)s.charAt(0));
+                        return new ConstantExpressionTransformer.Constant(constantExpression, ClassHelper.int_TYPE, (int)s.charAt(0));
                     }
                     if(cast.getType().equals(ClassHelper.char_TYPE)) {
-                        return new ConstantExpressionTransformer.MyBytecodeExpr(constantExpression, ClassHelper.char_TYPE, (int)s.charAt(0));
+                        return new ConstantExpressionTransformer.Constant(constantExpression, ClassHelper.char_TYPE, (int)s.charAt(0));
                     }
                 }
+            }
+        }
+
+        if(cast.getExpression() instanceof ConstantExpressionTransformer.Constant) {
+            ConstantExpressionTransformer.Constant constant = (ConstantExpressionTransformer.Constant) cast.getExpression();
+            if(cast.getType().equals(constant.getType())) {
+                return constant;
             }
         }
 
@@ -480,7 +477,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
         }
 
         ClassNodeCache.clearCache (_doCallMethod.getDeclaringClass());
-        StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, _doCallMethod, compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, _doCallMethod.getDeclaringClass().getName());
+        compiler.replaceMethodCode(_doCallMethod.getDeclaringClass(), _doCallMethod);
     }
 
     private ClassNode createNewType(ClassNode type, Expression exp, CompilerTransformer compiler) {

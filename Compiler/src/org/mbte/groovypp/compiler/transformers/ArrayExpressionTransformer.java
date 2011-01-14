@@ -57,7 +57,6 @@ public class ArrayExpressionTransformer extends ExprTransformer<ArrayExpression>
                 }
 
                 int storeIns = AASTORE;
-                String arrayTypeName = BytecodeHelper.getTypeDescription(exp.getType().getComponentType());
                 if (sizeExpression != null) {
                     mv.visitMultiANewArrayInsn(BytecodeHelper.getTypeDescription(exp.getType()), dimensions);
                 } else if (ClassHelper.isPrimitiveType(elementType)) {

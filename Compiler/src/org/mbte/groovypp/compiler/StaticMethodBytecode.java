@@ -34,6 +34,7 @@ import org.mbte.groovypp.compiler.StaticCompiler;
 import org.mbte.groovypp.compiler.StoredBytecodeInstruction;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.asm.I2LL2IRemoverMethodAdapter;
+import org.mbte.groovypp.compiler.asm.StoringMethodVisitor;
 import org.mbte.groovypp.compiler.asm.UneededLoadPopRemoverMethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 
@@ -45,17 +46,19 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
     Statement code;
     final StaticCompiler compiler;
 
-    public StaticMethodBytecode(MethodNode methodNode, SourceUnitContext context, SourceUnit su, Statement code, CompilerStack compileStack, int debug, TypePolicy policy, String baseClosureName) {
+    public StaticMethodBytecode(MethodNode methodNode, SourceUnitContext context, SourceUnit su, Statement code, CompilerStack compileStack, int debug, boolean fastArrays, TypePolicy policy, String baseClosureName) {
         this.methodNode = methodNode;
         this.su = su;
         this.code = code;
 
-        MethodVisitor mv = createStorage();
+        StoringMethodVisitor storage = (StoringMethodVisitor) createStorage();
+        MethodVisitor mv = storage;
         if (debug != -1) {
             try {
                 mv = DebugMethodAdapter.create(mv, debug);
             }
             catch (Throwable t) {
+                t.printStackTrace();
                 throw new RuntimeException(t);
             }
         }
@@ -66,6 +69,7 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
                 new UneededLoadPopRemoverMethodAdapter(mv),
                 compileStack,
                 debug,
+                fastArrays,
                 policy, baseClosureName);
 //
         if (debug != -1)
@@ -73,6 +77,7 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
 
         try {
             compiler.execute();
+            storage.redirect();
         }
         catch (MultipleCompilationErrorsException me) {
             clear ();
@@ -88,14 +93,14 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
             DebugContext.outputStream.println("------------");
     }
 
-    public static void replaceMethodCode(SourceUnit source, SourceUnitContext context, MethodNode methodNode, CompilerStack compileStack, int debug, TypePolicy policy, String baseClosureName) {
+    public static void replaceMethodCode(SourceUnit source, SourceUnitContext context, MethodNode methodNode, CompilerStack compileStack, int debug, boolean fastArrays, TypePolicy policy, String baseClosureName) {
         if (methodNode instanceof ClosureMethodNode.Dependent)
             methodNode = ((ClosureMethodNode.Dependent)methodNode).getMaster();
         
         final Statement code = methodNode.getCode();
         if (!(code instanceof BytecodeSequence)) {
             try {
-                final StaticMethodBytecode methodBytecode = new StaticMethodBytecode(methodNode, context, source, code, compileStack, debug, policy, baseClosureName);
+                final StaticMethodBytecode methodBytecode = new StaticMethodBytecode(methodNode, context, source, code, compileStack, debug, fastArrays, policy, baseClosureName);
                 methodNode.setCode(new MyBytecodeSequence(methodBytecode));
                 if (methodBytecode.compiler.shouldImproveReturnType && !TypeUtil.NULL_TYPE.equals(methodBytecode.compiler.calculatedReturnType))
                     methodNode.setReturnType(methodBytecode.compiler.calculatedReturnType);
@@ -114,7 +119,7 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
                     final Statement mCode = dependent.getCode();
                     if (!(mCode instanceof BytecodeSequence)) {
                         try {
-                            final StaticMethodBytecode methodBytecode = new StaticMethodBytecode(dependent, context, source, mCode, compileStack, debug, policy, baseClosureName);
+                            final StaticMethodBytecode methodBytecode = new StaticMethodBytecode(dependent, context, source, mCode, compileStack, debug, fastArrays, policy, baseClosureName);
                             dependent.setCode(new MyBytecodeSequence(methodBytecode));
                         }
                         catch (MultipleCompilationErrorsException ce) {

@@ -28,9 +28,6 @@ import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.syntax.SyntaxException;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
-import org.mbte.groovypp.compiler.CompilerStack;
-import org.mbte.groovypp.compiler.SourceUnitContext;
-import org.mbte.groovypp.compiler.StaticMethodBytecode;
 import org.objectweb.asm.Opcodes;
 
 import java.util.*;
@@ -80,8 +77,11 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
             return;
         }
 
-        final Expression member = ((AnnotationNode) nodes[0]).getMember("debug");
-        boolean debug = member != null && member instanceof ConstantExpression && ((ConstantExpression) member).getValue().equals(Boolean.TRUE);
+        final Expression debugMember = ((AnnotationNode) nodes[0]).getMember("debug");
+        boolean debug = debugMember != null && debugMember instanceof ConstantExpression && ((ConstantExpression) debugMember).getValue().equals(Boolean.TRUE);
+
+        final Expression fastArraysMember = ((AnnotationNode) nodes[0]).getMember("fastArrays");
+        boolean fastArrays = fastArraysMember == null || fastArraysMember instanceof ConstantExpression && !((ConstantExpression) fastArraysMember).getValue().equals(Boolean.FALSE);
 
         SourceUnitContext context = new SourceUnitContext();
         for (Map.Entry<MethodNode, TypePolicy> entry : toProcess.entrySet()) {
@@ -90,11 +90,14 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
             final List<AnnotationNode> anns = mn.getAnnotations(COMPILE_TYPE);
             boolean localDebug = debug;
+            boolean localFastArrays = fastArrays;
             if (!anns.isEmpty()) {
                 final AnnotationNode ann = anns.get(0);
-                final Expression localMember = ann.getMember("debug");
-                if (localMember != null)
-                    localDebug = localMember instanceof ConstantExpression && ((ConstantExpression) localMember).getValue().equals(Boolean.TRUE);
+                final Expression localDebugMember = ann.getMember("debug");
+                if (localDebugMember != null)
+                    localDebug = localDebugMember instanceof ConstantExpression && ((ConstantExpression) localDebugMember).getValue().equals(Boolean.TRUE);
+                final Expression localFastArraysMember = ann.getMember("fastArrays");
+                localFastArrays = localFastArraysMember == null || localFastArraysMember instanceof ConstantExpression && !((ConstantExpression) localFastArraysMember).getValue().equals(Boolean.FALSE);
             }
 
             if ((mn.getModifiers() & Opcodes.ACC_BRIDGE) != 0 || mn.isAbstract())
@@ -105,19 +108,19 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
                 if (!mn.getName().equals("$doCall")) {
                     String name = mn.getName().equals("<init>") ? "_init_" :
                             mn.getName().equals("<clinit>") ? "_clinit_" : mn.getName();
-                    StaticMethodBytecode.replaceMethodCode(source, context, mn, new CompilerStack(null), localDebug ? 0 : -1, policy, mn.getDeclaringClass().getName() + "$" + name);
+                    StaticMethodBytecode.replaceMethodCode(source, context, mn, new CompilerStack(null), localDebug ? 0 : -1, localFastArrays, policy, mn.getDeclaringClass().getName() + "$" + name);
                 }
             }
         }
 
         for (MethodNode node : context.generatedFieldGetters.values()) {
-            StaticMethodBytecode.replaceMethodCode(source, context, node, new CompilerStack(null), -1, TypePolicy.STATIC, "Neverused");
+            StaticMethodBytecode.replaceMethodCode(source, context, node, new CompilerStack(null), -1, true, TypePolicy.STATIC, "Neverused");
         }
         for (MethodNode node : context.generatedFieldSetters.values()) {
-            StaticMethodBytecode.replaceMethodCode(source, context, node, new CompilerStack(null), -1, TypePolicy.STATIC, "Neverused");
+            StaticMethodBytecode.replaceMethodCode(source, context, node, new CompilerStack(null), -1, true, TypePolicy.STATIC, "Neverused");
         }
         for (MethodNode node : context.generatedMethodDelegates.values()) {
-            StaticMethodBytecode.replaceMethodCode(source, context, node, new CompilerStack(null), -1, TypePolicy.STATIC, "Neverused");
+            StaticMethodBytecode.replaceMethodCode(source, context, node, new CompilerStack(null), -1, true, TypePolicy.STATIC, "Neverused");
         }
     }
 

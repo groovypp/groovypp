@@ -21,7 +21,6 @@ import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.stmt.ReturnStatement;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
-import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.AccessibilityCheck;
 import org.mbte.groovypp.compiler.ClosureClassNode;
 import org.mbte.groovypp.compiler.ClosureUtil;
@@ -31,15 +30,12 @@ import org.mbte.groovypp.compiler.PresentationUtil;
 import org.mbte.groovypp.compiler.StaticMethodBytecode;
 import org.mbte.groovypp.compiler.TypeUnification;
 import org.mbte.groovypp.compiler.TypeUtil;
-import org.mbte.groovypp.compiler.bytecode.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
 import org.mbte.groovypp.compiler.bytecode.ResolvedFieldBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedGetterBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
-import org.mbte.groovypp.compiler.transformers.VariableExpressionTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -706,7 +702,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
             else {
                 if (paramType.equals(ClassHelper.CLOSURE_TYPE)) {
                     ClosureUtil.improveClosureType(change.original, ClassHelper.CLOSURE_TYPE);
-                    StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, ((ClosureClassNode)change.original).getDoCallMethod(), compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, change.original.getName());
+                    compiler.replaceMethodCode(change.original, ((ClosureClassNode)change.original).getDoCallMethod());
                     argTypes [change.index] = change.original;
                     it.remove();
                 }

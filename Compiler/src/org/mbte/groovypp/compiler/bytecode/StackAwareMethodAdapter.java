@@ -16,6 +16,7 @@
 
 package org.mbte.groovypp.compiler.bytecode;
 
+import org.mbte.groovypp.compiler.asm.LineNumberLabelSwitcherMethodAdapter;
 import org.mbte.groovypp.compiler.bytecode.LocalVarInferenceTypes;
 import org.mbte.groovypp.compiler.bytecode.LocalVarTypeInferenceState;
 import org.mbte.groovypp.compiler.bytecode.BytecodeStack;
@@ -27,7 +28,7 @@ import org.objectweb.asm.Opcodes;
 import java.util.IdentityHashMap;
 import java.util.Stack;
 
-public class StackAwareMethodAdapter extends MethodAdapter implements Opcodes, LocalVarTypeInferenceState {
+public class StackAwareMethodAdapter extends LineNumberLabelSwitcherMethodAdapter implements Opcodes, LocalVarTypeInferenceState {
 
 // TODO: Unimplemented bytecodes
 //    int IINC = 132;

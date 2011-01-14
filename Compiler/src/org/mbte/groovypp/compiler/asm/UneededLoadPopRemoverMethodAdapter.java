@@ -20,7 +20,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.mbte.groovypp.compiler.CompilerStack;
 
-public class UneededLoadPopRemoverMethodAdapter extends UneededDupStoreRemoverMethodAdapter {
+public class UneededLoadPopRemoverMethodAdapter extends UneededDupXStoreRemoverMethodAdapter {
     private Load load;
 
     static abstract class Load {
@@ -53,15 +53,32 @@ public class UneededLoadPopRemoverMethodAdapter extends UneededDupStoreRemoverMe
         }
     }
 
-    class Ldc extends Load {
-        private Object cst;
+    class LoadIIncVar extends Load {
+        private int opcode;
+        private int var;
+        private int increment;
 
-        public Ldc(Object cst) {
-            this.cst = cst;
+        public LoadIIncVar(int opcode, int var, int increment) {
+            this.opcode = opcode;
+            this.var = var;
+            this.increment = increment;
         }
 
         public void execute() {
-            UneededLoadPopRemoverMethodAdapter.super.visitLdcInsn(cst);
+            UneededLoadPopRemoverMethodAdapter.super.visitVarInsn(opcode, var);
+            UneededLoadPopRemoverMethodAdapter.super.visitIincInsn(var, increment);
+        }
+    }
+
+    class Ldc extends Load {
+        private Object constant;
+
+        public Ldc(Object cst) {
+            this.constant = cst;
+        }
+
+        public void execute() {
+            UneededLoadPopRemoverMethodAdapter.super.visitLdcInsn(constant);
         }
     }
 
@@ -98,7 +115,18 @@ public class UneededLoadPopRemoverMethodAdapter extends UneededDupStoreRemoverMe
                 if (load instanceof Checkcast) {
                     super.visitInsn(opcode);
                 }
+                else {
+                    if(load instanceof LoadIIncVar) {
+                        super.visitIincInsn(((LoadIIncVar) load).var, ((LoadIIncVar) load).increment);
+                    }
+                }
             load = null;
+            return;
+        }
+
+        if(opcode == RETURN) {
+            load = null;
+            super.visitInsn(opcode);
             return;
         }
 
@@ -178,6 +206,16 @@ public class UneededLoadPopRemoverMethodAdapter extends UneededDupStoreRemoverMe
     }
 
     public void visitJumpInsn(int opcode, Label label) {
+        if(opcode == IF_ICMPEQ || opcode == IF_ICMPNE) {
+            if(load instanceof Ldc) {
+                Ldc ldc = (Ldc) load;
+                if(ldc.constant instanceof Integer && ((Integer)ldc.constant) == 0) {
+                    super.visitJumpInsn(opcode == IF_ICMPEQ ? IFEQ : IFNE, label);
+                    return;
+                }
+            }
+        }
+
         dropLoad();
         super.visitJumpInsn(opcode, label);
     }
@@ -199,8 +237,13 @@ public class UneededLoadPopRemoverMethodAdapter extends UneededDupStoreRemoverMe
     }
 
     public void visitIincInsn(int var, int increment) {
-        dropLoad();
-        super.visitIincInsn(var, increment);
+        if(load instanceof LoadVar && ((LoadVar)load).var == var) {
+            load = new LoadIIncVar(((LoadVar)load).opcode, var, increment);
+        }
+        else {
+            dropLoad();
+            super.visitIincInsn(var, increment);
+        }
     }
 
     public void visitTableSwitchInsn(int min, int max, Label dflt, Label labels[]) {

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,116 +17,114 @@
 package org.mbte.groovypp.compiler.asm;
 
 import org.mbte.groovypp.compiler.CompilerStack;
-import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 
-public class I2LL2IRemoverMethodAdapter extends IcmpZeroImproverMethodAdapter {
-    private boolean load;
+public class LineNumberLabelSwitcherMethodAdapter extends MethodAdapter {
 
-    public I2LL2IRemoverMethodAdapter(MethodVisitor mv) {
+    private int lineNumber = -239;
+    private Label lineNumberLabel;
+
+    public LineNumberLabelSwitcherMethodAdapter(MethodVisitor mv) {
         super(mv);
     }
 
-    private void dropLoad() {
-        if (load) {
-            super.visitInsn(ICONST_0);
-            load = false;
+    private void dropLineNumber() {
+        if(lineNumber != -239) {
+            super.visitLineNumber(lineNumber, lineNumberLabel);
+            lineNumberLabel = null;
+            lineNumber = -239;
         }
     }
 
-    public void visitInsn(int opcode) {
-        if(opcode == ICONST_0) {
-            if(load) {
-                super.visitInsn(ICONST_0);
-            }
-            else {
-                load = true;
-            }
-        }
-        else {
-            dropLoad();
-            super.visitInsn(opcode);
-        }
-    }
-
-    public void visitIntInsn(int opcode, int operand) {
-        dropLoad();
-        super.visitIntInsn(opcode, operand);
-    }
-
-    public void visitVarInsn(int opcode, int var) {
-        dropLoad();
-        super.visitVarInsn(opcode, var);
-    }
-
-    public void visitTypeInsn(int opcode, String desc) {
-        dropLoad();
-        super.visitTypeInsn(opcode, desc);
-    }
-
-    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-        dropLoad();
-        super.visitFieldInsn(opcode, owner, name, desc);
-    }
-
-    public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-        dropLoad();
-        super.visitMethodInsn(opcode, owner, name, desc);
-    }
-
-    public void visitJumpInsn(int opcode, Label label) {
-        if(load) {
-            if(opcode == IF_ICMPEQ) {
-                super.visitJumpInsn(IFEQ, label);
-                load = false;
-                return;
-            }
-
-            if(opcode == IF_ICMPNE) {
-                super.visitJumpInsn(IFNE, label);
-                load = false;
-                return;
-            }
-
-            dropLoad();
-        }
-
-        super.visitJumpInsn(opcode, label);
-    }
-
+    @Override
     public void visitLabel(Label label) {
-        dropLoad();
         super.visitLabel(label);
     }
 
+    @Override
+    public void visitLineNumber(int i, Label label) {
+        dropLineNumber ();
+        lineNumber = i;
+        lineNumberLabel = label;
+    }
+
+    @Override
+    public void visitInsn(int opcode) {
+        dropLineNumber ();
+        super.visitInsn(opcode);
+    }
+
+    @Override
+    public void visitIntInsn(int opcode, int operand) {
+        dropLineNumber ();
+        super.visitIntInsn(opcode, operand);
+    }
+
+    @Override
+    public void visitVarInsn(int opcode, int var) {
+        dropLineNumber ();
+        super.visitVarInsn(opcode, var);
+    }
+
+    @Override
+    public void visitTypeInsn(int opcode, String desc) {
+        dropLineNumber ();
+        super.visitTypeInsn(opcode, desc);
+    }
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+        dropLineNumber ();
+        super.visitFieldInsn(opcode, owner, name, desc);
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+        dropLineNumber ();
+        super.visitMethodInsn(opcode, owner, name, desc);
+    }
+
+    @Override
+    public void visitJumpInsn(int opcode, Label label) {
+        dropLineNumber ();
+        super.visitJumpInsn(opcode, label);
+    }
+
+    @Override
     public void visitLdcInsn(Object cst) {
-        dropLoad();
+        dropLineNumber ();
         super.visitLdcInsn(cst);
     }
 
+    @Override
     public void visitIincInsn(int var, int increment) {
-        dropLoad();
+        dropLineNumber ();
         super.visitIincInsn(var, increment);
     }
 
-    public void visitTableSwitchInsn(int min, int max, Label dflt, Label labels[]) {
-        dropLoad();
+    @Override
+    public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels) {
+        dropLineNumber ();
         super.visitTableSwitchInsn(min, max, dflt, labels);
     }
 
-    public void visitLookupSwitchInsn(Label dflt, int keys[], Label labels[]) {
-        dropLoad();
+    @Override
+    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+        dropLineNumber ();
         super.visitLookupSwitchInsn(dflt, keys, labels);
     }
 
+    @Override
     public void visitMultiANewArrayInsn(String desc, int dims) {
-        dropLoad();
+        dropLineNumber ();
         super.visitMultiANewArrayInsn(desc, dims);
     }
 
+    @Override
     public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
-        dropLoad();
+        dropLineNumber ();
         super.visitTryCatchBlock(start, end, handler, type);
     }
 }

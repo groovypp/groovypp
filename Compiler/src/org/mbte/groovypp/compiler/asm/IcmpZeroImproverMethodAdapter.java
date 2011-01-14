@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,37 +16,46 @@
 
 package org.mbte.groovypp.compiler.asm;
 
-import org.mbte.groovypp.compiler.CompilerStack;
 import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-public class I2LL2IRemoverMethodAdapter extends IcmpZeroImproverMethodAdapter {
+public class IcmpZeroImproverMethodAdapter extends StackAwareMethodAdapter {
     private boolean load;
 
-    public I2LL2IRemoverMethodAdapter(MethodVisitor mv) {
+    public IcmpZeroImproverMethodAdapter(MethodVisitor mv) {
         super(mv);
     }
 
     private void dropLoad() {
         if (load) {
-            super.visitInsn(ICONST_0);
+            super.visitInsn(I2L);
             load = false;
         }
     }
 
     public void visitInsn(int opcode) {
-        if(opcode == ICONST_0) {
+        if(opcode == I2L) {
             if(load) {
-                super.visitInsn(ICONST_0);
+                super.visitInsn(I2L);
             }
             else {
                 load = true;
             }
         }
         else {
-            dropLoad();
-            super.visitInsn(opcode);
+            if(opcode == L2I) {
+                if(load) {
+                    load = false;
+                }
+                else {
+                    super.visitInsn(L2I);
+                }
+            }
+            else {
+                dropLoad();
+                super.visitInsn(opcode);
+            }
         }
     }
 
@@ -76,22 +85,7 @@ public class I2LL2IRemoverMethodAdapter extends IcmpZeroImproverMethodAdapter {
     }
 
     public void visitJumpInsn(int opcode, Label label) {
-        if(load) {
-            if(opcode == IF_ICMPEQ) {
-                super.visitJumpInsn(IFEQ, label);
-                load = false;
-                return;
-            }
-
-            if(opcode == IF_ICMPNE) {
-                super.visitJumpInsn(IFNE, label);
-                load = false;
-                return;
-            }
-
-            dropLoad();
-        }
-
+        dropLoad();
         super.visitJumpInsn(opcode, label);
     }
 

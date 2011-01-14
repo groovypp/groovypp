@@ -28,20 +28,7 @@ import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.control.messages.WarningMessage;
 import org.codehaus.groovy.syntax.*;
-import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.util.FastArray;
-import org.mbte.groovypp.compiler.*;
-import org.mbte.groovypp.compiler.ClassNodeCache;
-import org.mbte.groovypp.compiler.ClosureClassNode;
-import org.mbte.groovypp.compiler.ClosureMethodNode;
-import org.mbte.groovypp.compiler.ClosureUtil;
-import org.mbte.groovypp.compiler.CompiledClosureBytecodeExpr;
-import org.mbte.groovypp.compiler.CompilerStack;
-import org.mbte.groovypp.compiler.MethodSelection;
-import org.mbte.groovypp.compiler.ReturnsAdder;
-import org.mbte.groovypp.compiler.SourceUnitContext;
-import org.mbte.groovypp.compiler.StaticMethodBytecode;
-import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.LocalVarTypeInferenceState;
 import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
@@ -64,6 +51,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     public final ClassNode classNode;
     protected final StackAwareMethodAdapter mv;
     public final int debug;
+    public final boolean fastArrays;
     public final TypePolicy policy;
     private static final ClassNode USE = ClassHelper.make(Use.class);
     private int nestedLevel;
@@ -73,7 +61,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     public SourceUnitContext context;
 
     public CompilerTransformer(SourceUnit source, ClassNode classNode, MethodNode methodNode,
-                               StackAwareMethodAdapter mv, CompilerStack compileStack, int debug,
+                               StackAwareMethodAdapter mv, CompilerStack compileStack, int debug, boolean fastArrays,
                                TypePolicy policy, String baseClosureName, SourceUnitContext context) {
         super(source, methodNode);
         this.classNode = classNode;
@@ -83,6 +71,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         this.baseClosureName = baseClosureName;
         this.compileStack = new CompilerStack(compileStack);
         this.context = context;
+        this.fastArrays = fastArrays;
     }
 
     public void addError(String msg, ASTNode expr) {
@@ -178,8 +167,12 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         Statement code = doCallMethod.getCode();
         if (!(code instanceof BytecodeSequence)) {
             ClosureUtil.improveClosureType(type, ClassHelper.CLOSURE_TYPE);
-            StaticMethodBytecode.replaceMethodCode(su, context, doCallMethod, compileStack, debug == -1 ? -1 : debug+1, policy, type.getName());
+            replaceMethodCode(type, doCallMethod);
         }
+    }
+
+    public void replaceMethodCode(ClassNode type, MethodNode method) {
+        StaticMethodBytecode.replaceMethodCode(su, context, method, compileStack, debug == -1 ? -1 : debug + 1, fastArrays, policy, type.getName());
     }
 
     public BytecodeExpr transformLogical(Expression exp, Label label, boolean onTrue) {
