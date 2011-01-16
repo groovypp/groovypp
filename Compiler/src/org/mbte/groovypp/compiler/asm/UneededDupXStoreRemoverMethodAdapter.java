@@ -72,17 +72,19 @@ public class UneededDupXStoreRemoverMethodAdapter extends UneededDupStoreRemover
     }
 
     public void visitInsn(int opcode) {
-        if (store != null && (opcode == POP || opcode == POP2)) {
+        if (store != null && (opcode == POP || opcode == POP2 || opcode == RETURN)) {
             dupCode = 0;
             store.execute(mv);
             store = null;
+            if(opcode == RETURN)
+                super.visitInsn(RETURN);
         }
         else {
-            if (dupCode == 0 && (opcode == DUP_X2 || opcode == DUP2_X2)) {
+            if (dupCode == 0 && (opcode == DUP_X2 || opcode == DUP2_X2 || opcode == DUP_X1 || opcode == DUP2_X1)) {
                 dupCode = opcode;
             }
             else {
-                if(dupCode != 0) {
+                if((dupCode == DUP_X2 || dupCode == DUP2_X2) && store == null) {
                     switch (opcode) {
                         case BASTORE:
                         case IASTORE:
@@ -100,6 +102,7 @@ public class UneededDupXStoreRemoverMethodAdapter extends UneededDupStoreRemover
                     }
                 }
                 else {
+                    dropDupStore();
                     super.visitInsn(opcode);
                 }
             }
@@ -122,7 +125,7 @@ public class UneededDupXStoreRemoverMethodAdapter extends UneededDupStoreRemover
     }
 
     public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-        if (dupCode != 0 && store == null) {
+        if ((dupCode == DUP_X1 || dupCode == DUP2_X1) && store == null) {
             switch (opcode) {
                 case PUTFIELD:
                     store = new StoreField(opcode, owner, name, desc);
@@ -135,6 +138,10 @@ public class UneededDupXStoreRemoverMethodAdapter extends UneededDupStoreRemover
             }
         }
         else {
+            if(dupCode != 0) {
+                super.visitInsn(dupCode);
+                dupCode = 0;
+            }
             super.visitFieldInsn(opcode, owner, name, desc);
         }
     }

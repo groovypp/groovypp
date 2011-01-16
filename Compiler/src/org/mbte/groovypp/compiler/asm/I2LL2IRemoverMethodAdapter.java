@@ -77,16 +77,36 @@ public class I2LL2IRemoverMethodAdapter extends IcmpZeroImproverMethodAdapter {
 
     public void visitJumpInsn(int opcode, Label label) {
         if(load) {
-            if(opcode == IF_ICMPEQ) {
-                super.visitJumpInsn(IFEQ, label);
-                load = false;
-                return;
-            }
+            switch (opcode) {
+                case IF_ICMPEQ:
+                    super.visitJumpInsn(IFEQ, label);
+                    load = false;
+                    return;
 
-            if(opcode == IF_ICMPNE) {
-                super.visitJumpInsn(IFNE, label);
-                load = false;
-                return;
+                case IF_ICMPNE:
+                    super.visitJumpInsn(IFNE, label);
+                    load = false;
+                    return;
+
+                case IF_ICMPGE:
+                    super.visitJumpInsn(IFGE, label);
+                    load = false;
+                    return;
+
+                case IF_ICMPGT:
+                    super.visitJumpInsn(IFGT, label);
+                    load = false;
+                    return;
+
+                case IF_ICMPLE:
+                    super.visitJumpInsn(IFLE, label);
+                    load = false;
+                    return;
+
+                case IF_ICMPLT:
+                    super.visitJumpInsn(IFLT, label);
+                    load = false;
+                    return;
             }
 
             dropLoad();
