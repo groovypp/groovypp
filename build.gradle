@@ -137,8 +137,8 @@ artifacts {
 
 uploadArchives {
     repositories.mavenDeployer {
-//        repository(url: "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/") {
-        repository(url: "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath) {
+        repository(url: "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/") {
+//        repository(url: "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath) {
             authentication(userName: ARTIFACTORY_USER, password: ARTIFACTORY_PASSWORD)
         }
         addFilter('groovypp') {artifact, file ->

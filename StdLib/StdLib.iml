@@ -10,7 +10,7 @@
     </content>
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="Groovypp" />
+    <orderEntry type="module" module-name="Groovypp" exported="" />
   </component>
 </module>
 
