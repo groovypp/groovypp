@@ -23,7 +23,7 @@ package groovypp.channels
  * For example, some selector may choose lazily create and cache actual recipients of the message.
  * Such strategy is implemented in CachingSelectorChannel
  */
-abstract class SelectorChannel<M> extends MessageChannel<M> {
+@Typed abstract class SelectorChannel<M> extends MessageChannel<M> {
 
   final void post(M message) {
     for (c in selectInterested(message))

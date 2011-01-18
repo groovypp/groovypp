@@ -57,7 +57,7 @@ public class VariableExpressionTransformer extends ExprTransformer<VariableExpre
                     return new Self(exp, compiler);
                 } else {
 //                 compiler.addError("Cannot use 'this' in static method", exp);
-                    return ClassExpressionTransformer.newExpr(exp, compiler.classNode);
+                    return ClassExpressionTransformer.newExpr(exp, compiler.classNode.redirect().getSuperClass());
                 }
             }
         }

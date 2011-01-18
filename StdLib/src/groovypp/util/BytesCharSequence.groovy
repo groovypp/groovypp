@@ -26,9 +26,6 @@ package groovypp.util
         this(b, 0, b.length)
     }
 
-    MetaClass getMetaClass () {}
-    void setMetaClass (MetaClass mc) {}
-
     BytesCharSequence(byte [] b, int start, int end) {
         this.b = b
         this.start = start

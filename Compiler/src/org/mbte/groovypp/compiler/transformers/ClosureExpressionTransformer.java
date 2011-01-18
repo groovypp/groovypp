@@ -16,6 +16,7 @@
 
 package org.mbte.groovypp.compiler.transformers;
 
+import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.*;
 import org.mbte.groovypp.compiler.*;
@@ -37,6 +38,9 @@ public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpress
         }
 
         final ClosureClassNode newType = new ClosureClassNode(ce, compiler.methodNode, compiler.getNextClosureName());
+
+        if(compiler.policy == TypePolicy.STATIC)
+            CleaningVerifier.improveVerifier(newType);
 
         final ClosureMethodNode _doCallMethod = new ClosureMethodNode(
                 "doCall",

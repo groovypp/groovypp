@@ -21,13 +21,7 @@ import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.util.FastArray;
 import org.codehaus.groovy.classgen.BytecodeHelper;
-import org.mbte.groovypp.compiler.ClassNodeCache;
-import org.mbte.groovypp.compiler.ClosureClassNode;
-import org.mbte.groovypp.compiler.ClosureMethodNode;
-import org.mbte.groovypp.compiler.ClosureUtil;
-import org.mbte.groovypp.compiler.CompilerTransformer;
-import org.mbte.groovypp.compiler.PresentationUtil;
-import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
@@ -498,6 +492,9 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
 
         if (!compiler.methodNode.isStatic() || compiler.classNode.getName().endsWith("$TraitImpl"))
             objType.addField("this$0", ACC_PUBLIC|ACC_FINAL|ACC_SYNTHETIC, !compiler.methodNode.isStatic() ? compiler.classNode : compiler.methodNode.getParameters()[0].getType(), null);
+
+        if(compiler.policy == TypePolicy.STATIC)
+            CleaningVerifier.improveVerifier(objType);
 
         return objType;
     }

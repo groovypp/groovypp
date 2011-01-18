@@ -120,11 +120,11 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
 
             classNode.getModule().addClass(innerClassNode);
 
-            innerClassNode.addMethod("getMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.METACLASS_TYPE, Parameter.EMPTY_ARRAY, ClassNode.EMPTY_ARRAY, null);
-            innerClassNode.addMethod("setMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.METACLASS_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
-            innerClassNode.addMethod("getProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name")}, ClassNode.EMPTY_ARRAY, null);
-            innerClassNode.addMethod("setProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
-            innerClassNode.addMethod("invokeMethod", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "args")}, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("getMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.METACLASS_TYPE, Parameter.EMPTY_ARRAY, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("setMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.METACLASS_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("getProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name")}, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("setProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("invokeMethod", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "args")}, ClassNode.EMPTY_ARRAY, null);
 
             for (FieldNode fieldNode : classNode.getFields()) {
                 if (fieldNode.isStatic()) {

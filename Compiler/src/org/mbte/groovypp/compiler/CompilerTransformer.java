@@ -29,6 +29,7 @@ import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.control.messages.WarningMessage;
 import org.codehaus.groovy.syntax.*;
 import org.codehaus.groovy.util.FastArray;
+import org.junit.rules.Verifier;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.LocalVarTypeInferenceState;
 import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;

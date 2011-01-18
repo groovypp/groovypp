@@ -31,7 +31,7 @@ class StaticThisTest extends GroovyShellTestCase {
           class A {
           }
 
-          Typed
+          @Typed
           class B extends A {
               static def staticMethod() {
                 def foo = this

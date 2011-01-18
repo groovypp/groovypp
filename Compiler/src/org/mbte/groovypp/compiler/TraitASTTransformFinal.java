@@ -60,7 +60,7 @@ public class TraitASTTransformFinal implements ASTTransformation, Opcodes {
 
             VolatileFieldUpdaterTransform.addUpdaterForVolatileFields(classNode);
             try {
-                new OpenVerifier().visitClass(classNode);
+                CleaningVerifier.getCleaningVerifier().visitClassCarefully(classNode);
              }
              catch (MultipleCompilationErrorsException err) {
                  throw err;
@@ -190,7 +190,7 @@ public class TraitASTTransformFinal implements ASTTransformation, Opcodes {
         }
 
         if (addInit && !classNode.getDeclaredConstructors().isEmpty()) {
-            new OpenVerifier().addInitialization(classNode);
+            CleaningVerifier.getCleaningVerifier().addInitialization(classNode);
             classNode.getObjectInitializerStatements().clear();
         }
     }

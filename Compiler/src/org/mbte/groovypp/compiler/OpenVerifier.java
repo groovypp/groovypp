@@ -49,28 +49,6 @@ public class OpenVerifier extends Verifier {
             super.addGroovyObjectInterfaceAndMethods(node, classInternalName);
     }
 
-    protected void addPropertyMethod(MethodNode method) {
-    	super.addPropertyMethod(method);
-        ClassNodeCache.clearCache(method.getDeclaringClass());
-    }
-
-    public void visitProperty(PropertyNode node) {
-        super.visitProperty(node);
-        node.setGetterBlock(null);
-        node.setSetterBlock(null);
-    }
-
-    public void addInitialization(ClassNode node) {
-        super.addInitialization(node);
-    }
-
-    public void addInitialization(ClassNode node, ConstructorNode constructorNode) {
-        if (constructorNode.getCode() instanceof BytecodeSequence)
-            return;
-
-        super.addInitialization(node, constructorNode);
-    }
-
     private void addMetaClassFieldIfNeeded(ClassNode node) {
         if (node.isInterface() || (node.getModifiers() & ACC_ABSTRACT) != 0)
             return;

@@ -159,6 +159,9 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
             }
         }
 
+        if(classPolicy == TypePolicy.STATIC)
+            CleaningVerifier.improveVerifier(classNode);
+
         Iterator<InnerClassNode> inners = classNode.getInnerClasses();
         while (inners.hasNext()) {
             InnerClassNode node = inners.next();

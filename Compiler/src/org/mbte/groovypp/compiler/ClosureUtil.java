@@ -374,7 +374,7 @@ public class ClosureUtil {
 
         code.addStatement(fieldInit);
 
-        new OpenVerifier().visitClass(newType);
+        CleaningVerifier.getCleaningVerifier().visitClass(newType);
 
         compiler.replaceMethodCode(newType, cn);
 

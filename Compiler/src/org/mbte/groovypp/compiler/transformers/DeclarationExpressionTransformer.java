@@ -66,7 +66,7 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
             if(compiler.classNode instanceof ClosureClassNode)
                 fieldNode.addAnnotation(new AnnotationNode(TypeUtil.NO_EXTERNAL_INITIALIZATION));
             else {
-                new OpenVerifier().addInitialization(compiler.classNode);
+                CleaningVerifier.getCleaningVerifier().addInitialization(compiler.classNode);
             }
             ve.setAccessedVariable(fieldNode);
             return new BytecodeExpr(exp, TypeUtil.NULL_TYPE) {
