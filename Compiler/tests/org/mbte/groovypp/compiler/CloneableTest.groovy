@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.mbte.groovypp.compiler
 
+class CloneableTest extends GroovyShellTestCase {
+  void testMe () {
+    shell.evaluate """
+      @Typed package p
 
+      import java.util.concurrent.Callable
 
-
-
-package org.mbte.groovypp.compiler.Issues
-
-public class Issue58Test extends GroovyShellTestCase {
-    void testMe () {
-        shell.evaluate """
-        @Typed package p
-        def x = { int i -> if (i > 0) call(i -1) }
-        x(1000000)
-        """
+    public def task(final Closure code) {
+        return task(code.clone() as Callable)
     }
+
+    public def task(final Callable callable) {
+    }
+
+    public def task(final Runnable code) {
+    }
+    """
+  }
 }
