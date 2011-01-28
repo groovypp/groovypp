@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicReference
 
     abstract static class Action<R,D> extends BindLater<D> implements Function1<R,D> {}
 
-    abstract static class SyncAction<R,D> extends BindLater<R> implements Function1<R,D> {}
+    abstract static class Allocate<R> implements Function1<R,Object> {}
 
     final <D> BindLater<D> execute (Action<R,D> action, BindLater.Listener<D> whenDone = null) {
         action.whenBound(whenDone)
@@ -70,6 +70,9 @@ import java.util.concurrent.atomic.AtomicReference
             else {
                 // queue is guaranteed to be empty
                 if(state.compareAndSet(s, [FQueue.emptyQueue, s.second.tail])) {
+                    if(!isResourceAlive(s.second.head))
+                      continue
+
                     // schedule action
                     executor.execute {
                         scheduledAction(action,s.second.head)
@@ -80,7 +83,7 @@ import java.util.concurrent.atomic.AtomicReference
         }
     }
 
-    final <D> D executeSync (SyncAction<R,D> action) {
+    final void allocateResource (Allocate<R> action) {
         if (state.second == null) {
             initPool ()
         }
@@ -88,34 +91,68 @@ import java.util.concurrent.atomic.AtomicReference
             def s = state
             if (s.second.empty) {
                 // no resource available, so put action in to the queue
-                if(state.compareAndSet(s, [s.first.addLast(action), FList.emptyList])) {
-                    return action(action.get())
-                }
+                if(state.compareAndSet(s, [s.first.addLast(action), FList.emptyList]))
+                    return
             }
             else {
                 // queue is guaranteed to be empty
                 if(state.compareAndSet(s, [FQueue.emptyQueue, s.second.tail])) {
-                    return action(s.second.head)
+                    if(!isResourceAlive(s.second.head))
+                      continue
+
+                    // schedule action
+                    executor.execute {
+                        scheduledAction(action,s.second.head)
+                    }
+                    return
+                }
+            }
+        }
+    }
+
+    void releaseResource (R resource) {
+        if(!isResourceAlive(resource))
+          return
+
+        for (;;) {
+            def s = state
+            if (s.first.empty) {
+                // no more actions => we return resource to the pool
+                if(state.compareAndSet(s, [FQueue.emptyQueue, s.second + resource])) {
+                    break
+                }
+            }
+            else {
+                def removed = s.first.removeFirst()
+                if(state.compareAndSet(s, [removed.second, s.second])) {
+                    executor.execute {
+                        scheduledAction(removed.first,resource)
+                    }
+                    return
                 }
             }
         }
     }
 
     private final <D> Object scheduledAction(Function1<R,D> action, R resource) {
-        switch (action) {
-            case SyncAction:
-                action.set(resource)
+        switch(action) {
+            case Action:
+              try {
+                  action.set(action(resource))
+              }
+              catch(t) {
+                  action.setException(t)
+              }
             break
 
-            case Action:
-                try {
-                    action.set(action(resource))
-                }
-                catch(t) {
-                    action.setException(t)
-                }
+            case Allocate:
+              action(resource)
+              return
             break
         }
+
+        if(!isResourceAlive(resource))
+          return
 
         for (;;) {
             def s = state
@@ -150,6 +187,9 @@ import java.util.concurrent.atomic.AtomicReference
             initPool ()
         }
 
+        if(!isResourceAlive(resource))
+          return
+
         for(;;) {
             def s = state
             if (!s.second.empty) {
@@ -174,6 +214,10 @@ import java.util.concurrent.atomic.AtomicReference
                 }
             }
         }
+    }
+
+    boolean isResourceAlive(R resource) {
+        true
     }
 
     public synchronized void initPool () {

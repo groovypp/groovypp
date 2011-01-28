@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright 2009-2010 MBTE Sweden AB.
+=======
+ * Copyright 2009-2011 MBTE Sweden AB.
+>>>>>>> 9bfc35d585187c1f4f7d53629b184e7104822dea
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

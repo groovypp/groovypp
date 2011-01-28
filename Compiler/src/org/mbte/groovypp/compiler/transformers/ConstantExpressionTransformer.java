@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,6 @@ import org.codehaus.groovy.classgen.ClassGeneratorException;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 import org.objectweb.asm.MethodVisitor;
 
 import java.math.BigDecimal;
@@ -31,7 +30,7 @@ import java.math.BigInteger;
 
 public class ConstantExpressionTransformer extends ExprTransformer<ConstantExpression> {
     public BytecodeExpr transform(final ConstantExpression exp, CompilerTransformer compiler) {
-        return new MyBytecodeExpr(exp);
+        return new Constant(exp);
     }
 
     protected static ClassNode getConstantType(Object value) {
@@ -81,14 +80,14 @@ public class ConstantExpressionTransformer extends ExprTransformer<ConstantExpre
                     "Cannot generate bytecode for constant: " + value + " of type: " + value.getClass().getName());
     }
 
-    public static final class MyBytecodeExpr extends BytecodeExpr {
-        private final Object value;
+    public static final class Constant extends BytecodeExpr {
+        public final Object value;
 
-        public MyBytecodeExpr(ConstantExpression exp) {
+        public Constant(ConstantExpression exp) {
             this(exp, getConstantType(exp.getValue()), exp.getValue());
         }
 
-        public MyBytecodeExpr(ConstantExpression exp, ClassNode type, Object value) {
+        public Constant(ConstantExpression exp, ClassNode type, Object value) {
             super(exp, type);
             this.value = value;
         }

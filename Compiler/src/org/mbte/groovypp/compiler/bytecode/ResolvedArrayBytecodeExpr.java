@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,30 +31,67 @@ import org.mbte.groovypp.compiler.PresentationUtil;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedLeftExpr;
+import org.mbte.groovypp.compiler.transformers.ConstantExpressionTransformer;
 import org.objectweb.asm.MethodVisitor;
 
 public class ResolvedArrayBytecodeExpr extends ResolvedLeftExpr {
     private final BytecodeExpr array;
     private final BytecodeExpr index;
 
+    private final CompilerTransformer compiler;
+
     public ResolvedArrayBytecodeExpr(ASTNode parent, BytecodeExpr array, BytecodeExpr index, CompilerTransformer compiler) {
         super(parent, array.getType().getComponentType());
         this.array = array;
         this.index = compiler.cast(index, ClassHelper.int_TYPE);
+        this.compiler = compiler;
     }
 
     protected void compile(MethodVisitor mv) {
         array.visit(mv);
         index.visit(mv);
-        if (ClassHelper.isPrimitiveType(getType()))
-            mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "getAt", "("+BytecodeHelper.getTypeDescription(array.getType()) + "I)" + BytecodeHelper.getTypeDescription(getType()));
+        if(compiler.fastArrays && !(index instanceof ConstantExpressionTransformer.Constant && ((ConstantExpressionTransformer.Constant)index).value instanceof Integer && ((Integer)((ConstantExpressionTransformer.Constant)index).value) < 0)) {
+            int op = AALOAD;
+            if (ClassHelper.isPrimitiveType(getType())) {
+                if(getType().equals(ClassHelper.byte_TYPE) || getType().equals(ClassHelper.boolean_TYPE))
+                    op = BALOAD;
+                else {
+                    if(getType().equals(ClassHelper.short_TYPE))
+                        op = SALOAD;
+                    else {
+                        if(getType().equals(ClassHelper.int_TYPE))
+                            op = IALOAD;
+                        else {
+                            if(getType().equals(ClassHelper.long_TYPE))
+                                op = LALOAD;
+                            else {
+                                if(getType().equals(ClassHelper.float_TYPE))
+                                    op = FALOAD;
+                                else {
+                                    if(getType().equals(ClassHelper.double_TYPE))
+                                        op = DALOAD;
+                                    else {
+                                        op = CALOAD;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            mv.visitInsn(op);
+        }
         else {
-            mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "getAt", "([Ljava/lang/Object;I)Ljava/lang/Object;");
-            checkCast(getType(), mv);
+            if (ClassHelper.isPrimitiveType(getType()))
+                mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "getAt", "("+BytecodeHelper.getTypeDescription(array.getType()) + "I)" + BytecodeHelper.getTypeDescription(getType()));
+            else {
+                mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "getAt", "([Ljava/lang/Object;I)Ljava/lang/Object;");
+                checkCast(getType(), mv);
+            }
         }
     }
 
-    public BytecodeExpr createAssign(ASTNode parent, BytecodeExpr right0, CompilerTransformer compiler) {
+    public BytecodeExpr createAssign(ASTNode parent, BytecodeExpr right0, final CompilerTransformer compiler) {
         final BytecodeExpr right = compiler.cast(right0, getType());
         return new BytecodeExpr(parent, getType()) {
             protected void compile(MethodVisitor mv) {
@@ -62,10 +99,43 @@ public class ResolvedArrayBytecodeExpr extends ResolvedLeftExpr {
                 index.visit(mv);
                 right.visit(mv);
                 dup_x2(getType(), mv);
-                if (ClassHelper.isPrimitiveType(getType()))
-                    mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "putAt", "("+BytecodeHelper.getTypeDescription(array.getType()) + "I" + BytecodeHelper.getTypeDescription(getType())+ ")V");
-                else
-                    mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "putAt", "([Ljava/lang/Object;ILjava/lang/Object;)V");
+                if(compiler.fastArrays && !(index instanceof ConstantExpressionTransformer.Constant && ((ConstantExpressionTransformer.Constant)index).value instanceof Integer && ((Integer)((ConstantExpressionTransformer.Constant)index).value) < 0)) {
+                    int op = AASTORE;
+                    if (ClassHelper.isPrimitiveType(getType())) {
+                        if(getType().equals(ClassHelper.byte_TYPE) || getType().equals(ClassHelper.boolean_TYPE))
+                            op = BASTORE;
+                        else {
+                            if(getType().equals(ClassHelper.short_TYPE))
+                                op = SASTORE;
+                            else {
+                                if(getType().equals(ClassHelper.int_TYPE))
+                                    op = IASTORE;
+                                else {
+                                    if(getType().equals(ClassHelper.long_TYPE))
+                                        op = LASTORE;
+                                    else {
+                                        if(getType().equals(ClassHelper.float_TYPE))
+                                            op = FASTORE;
+                                        else {
+                                            if(getType().equals(ClassHelper.double_TYPE))
+                                                op = DASTORE;
+                                            else {
+                                                op = CASTORE;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    mv.visitInsn(op);
+                }
+                else {
+                    if (ClassHelper.isPrimitiveType(getType()))
+                        mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "putAt", "("+BytecodeHelper.getTypeDescription(array.getType()) + "I" + BytecodeHelper.getTypeDescription(getType())+ ")V");
+                    else
+                        mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "putAt", "([Ljava/lang/Object;ILjava/lang/Object;)V");
+                }
             }
         };
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,24 +18,29 @@ package groovypp.channels
 
 @Typed abstract class LoopChannel<O extends SupervisedChannel> extends SupervisedChannel<O> {
     protected volatile boolean stopped
+    protected volatile Thread  currentThread
 
     protected abstract boolean doLoopAction ()
 
-    void doStartup() {
+    protected void doStartup() {
         executor.execute {
+            currentThread = Thread.currentThread()
             try {
-                while (true) {
+                while (!stopped) {
                     if (!doLoopAction()) break
                 }
             }
             catch(Throwable t) {
-                stopped = true
-                crash(t)
+                if(!stopped) {
+                  stopped = true
+                  crash(t)
+                }
             }
         }
     }
 
-    void doShutdown() {
+    protected void doShutdown() {
         stopped = true
+        currentThread?.interrupt()
     }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -120,11 +120,11 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
 
             classNode.getModule().addClass(innerClassNode);
 
-            innerClassNode.addMethod("getMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.METACLASS_TYPE, Parameter.EMPTY_ARRAY, ClassNode.EMPTY_ARRAY, null);
-            innerClassNode.addMethod("setMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.METACLASS_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
-            innerClassNode.addMethod("getProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name")}, ClassNode.EMPTY_ARRAY, null);
-            innerClassNode.addMethod("setProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
-            innerClassNode.addMethod("invokeMethod", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "args")}, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("getMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.METACLASS_TYPE, Parameter.EMPTY_ARRAY, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("setMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.METACLASS_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("getProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name")}, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("setProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
+//            innerClassNode.addMethod("invokeMethod", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "args")}, ClassNode.EMPTY_ARRAY, null);
 
             for (FieldNode fieldNode : classNode.getFields()) {
                 if (fieldNode.isStatic()) {

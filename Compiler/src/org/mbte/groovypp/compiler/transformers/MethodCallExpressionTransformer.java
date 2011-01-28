@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,6 @@ import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.stmt.ReturnStatement;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
-import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.AccessibilityCheck;
 import org.mbte.groovypp.compiler.ClosureClassNode;
 import org.mbte.groovypp.compiler.ClosureUtil;
@@ -31,15 +30,12 @@ import org.mbte.groovypp.compiler.PresentationUtil;
 import org.mbte.groovypp.compiler.StaticMethodBytecode;
 import org.mbte.groovypp.compiler.TypeUnification;
 import org.mbte.groovypp.compiler.TypeUtil;
-import org.mbte.groovypp.compiler.bytecode.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
 import org.mbte.groovypp.compiler.bytecode.ResolvedFieldBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedGetterBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
-import org.mbte.groovypp.compiler.transformers.VariableExpressionTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -128,7 +124,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
         if (foundMethod == null) {
             // Try some property with 'call' method.
             Object prop = resolveCallableProperty(compiler, methodName, type, false);
-            if (prop != null) {
+            if (prop != null && prop != PropertyUtil.GET_UNRESOLVED) {
                 final MethodNode callMethod = resolveCallMethod(compiler, argTypes, prop);
                 if (callMethod != null) {
                     return createCallMethodCall(exp, compiler, methodName, args, object, prop, callMethod, type);
@@ -246,7 +242,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
                 if (exp.isImplicitThis() || !(thisType instanceof ClosureClassNode) || isSuper) {
                     // Try some property with 'call' method.
                     final Object prop = resolveCallableProperty(compiler, methodName, declaringType, staticOnly);
-                    if (prop != null) {
+                    if (prop != null && prop != PropertyUtil.GET_UNRESOLVED) {
                         final MethodNode callMethod = resolveCallMethod(compiler, argTypes, prop);
                         if (callMethod != null) {
                             return createCallMethodCall(exp, compiler, methodName, args, createThisFetchingObject(exp, compiler, thisType), prop, callMethod, declaringType);
@@ -383,7 +379,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
         }
         else {
             final Object prop = resolveCallableProperty(compiler, methodName, thisType, false);
-            if (prop != null) {
+            if (prop != null && prop != PropertyUtil.GET_UNRESOLVED) {
                 final MethodNode callMethod = resolveCallMethod(compiler, argTypes, prop);
                 if (callMethod != null) {
                     return createCallMethodCall(exp, compiler, methodName, args, createThisFetchingObject(exp, compiler, thisType), prop, callMethod, thisType);
@@ -413,7 +409,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
             if (foundMethod == null) {
                 // Try some property with 'call' method.
                 final Object prop = resolveCallableProperty(compiler, methodName, type, true);
-                if (prop != null) {
+                if (prop != null && prop != PropertyUtil.GET_UNRESOLVED) {
                     final MethodNode callMethod = resolveCallMethod(compiler, argTypes, prop);
                     if (callMethod != null) {
                         return createCallMethodCall(exp, compiler, methodName, args, null, prop, callMethod, type);
@@ -706,7 +702,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
             else {
                 if (paramType.equals(ClassHelper.CLOSURE_TYPE)) {
                     ClosureUtil.improveClosureType(change.original, ClassHelper.CLOSURE_TYPE);
-                    StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, ((ClosureClassNode)change.original).getDoCallMethod(), compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, change.original.getName());
+                    compiler.replaceMethodCode(change.original, ((ClosureClassNode)change.original).getDoCallMethod());
                     argTypes [change.index] = change.original;
                     it.remove();
                 }

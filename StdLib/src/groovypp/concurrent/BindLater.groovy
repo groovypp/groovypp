@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -101,9 +101,18 @@ class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
         (V)internalData
     }
 
-    final BindLater<V> whenBound (Listener<V> listener) {
+    final BindLater<V> whenBound (Executor executor = null, Listener<V> listener) {
         if (!listener)
             return this
+
+        if(executor) {
+          def original = listener
+          listener = { data ->
+            executor.execute {
+              original.onBound data
+            }
+          }
+        }
         
         for (;;) {
             def l = bindListeners
@@ -119,12 +128,7 @@ class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
     }
 
     private void invokeListener (Listener<V> listener) {
-        try {
-            listener.onBound(this)
-        }
-        catch (Throwable t) {
-            t.printStackTrace(System.err)
-        }
+          listener.onBound(this)
     }
 
     protected final void done() {

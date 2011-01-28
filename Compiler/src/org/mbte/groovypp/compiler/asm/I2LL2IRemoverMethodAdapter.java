@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,7 @@ import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-public class I2LL2IRemoverMethodAdapter extends StackAwareMethodAdapter {
+public class I2LL2IRemoverMethodAdapter extends IcmpZeroImproverMethodAdapter {
     private boolean load;
 
     public I2LL2IRemoverMethodAdapter(MethodVisitor mv) {
@@ -30,33 +30,23 @@ public class I2LL2IRemoverMethodAdapter extends StackAwareMethodAdapter {
 
     private void dropLoad() {
         if (load) {
-            super.visitInsn(I2L);
+            super.visitInsn(ICONST_0);
             load = false;
         }
     }
 
     public void visitInsn(int opcode) {
-        if(opcode == I2L) {
+        if(opcode == ICONST_0) {
             if(load) {
-                super.visitInsn(I2L);
+                super.visitInsn(ICONST_0);
             }
             else {
                 load = true;
             }
         }
         else {
-            if(opcode == L2I) {
-                if(load) {
-                    load = false;
-                }
-                else {
-                    super.visitInsn(L2I);
-                }
-            }
-            else {
-                dropLoad();
-                super.visitInsn(opcode);
-            }
+            dropLoad();
+            super.visitInsn(opcode);
         }
     }
 
@@ -86,7 +76,42 @@ public class I2LL2IRemoverMethodAdapter extends StackAwareMethodAdapter {
     }
 
     public void visitJumpInsn(int opcode, Label label) {
-        dropLoad();
+        if(load) {
+            switch (opcode) {
+                case IF_ICMPEQ:
+                    super.visitJumpInsn(IFEQ, label);
+                    load = false;
+                    return;
+
+                case IF_ICMPNE:
+                    super.visitJumpInsn(IFNE, label);
+                    load = false;
+                    return;
+
+                case IF_ICMPGE:
+                    super.visitJumpInsn(IFGE, label);
+                    load = false;
+                    return;
+
+                case IF_ICMPGT:
+                    super.visitJumpInsn(IFGT, label);
+                    load = false;
+                    return;
+
+                case IF_ICMPLE:
+                    super.visitJumpInsn(IFLE, label);
+                    load = false;
+                    return;
+
+                case IF_ICMPLT:
+                    super.visitJumpInsn(IFLT, label);
+                    load = false;
+                    return;
+            }
+
+            dropLoad();
+        }
+
         super.visitJumpInsn(opcode, label);
     }
 

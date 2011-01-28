@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,7 +60,7 @@ public class TraitASTTransformFinal implements ASTTransformation, Opcodes {
 
             VolatileFieldUpdaterTransform.addUpdaterForVolatileFields(classNode);
             try {
-                new OpenVerifier().visitClass(classNode);
+                CleaningVerifier.getCleaningVerifier().visitClassCarefully(classNode);
              }
              catch (MultipleCompilationErrorsException err) {
                  throw err;
@@ -190,7 +190,7 @@ public class TraitASTTransformFinal implements ASTTransformation, Opcodes {
         }
 
         if (addInit && !classNode.getDeclaredConstructors().isEmpty()) {
-            new OpenVerifier().addInitialization(classNode);
+            CleaningVerifier.getCleaningVerifier().addInitialization(classNode);
             classNode.getObjectInitializerStatements().clear();
         }
     }

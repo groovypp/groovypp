@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -159,5 +159,37 @@ public class TypeUnification {
             if (nodes[i] == null) return false;
         }
         return true;
+    }
+
+    public static void inmproveBindings(ClassNode[] bindings) {
+        for(int i=0; i != bindings.length; ++i)
+            bindings[i] = inmproveBinding(bindings[i]);
+    }
+
+    public static ClassNode inmproveBinding(ClassNode binding) {
+        if(binding == null)
+            return binding;
+
+        if(binding.implementsInterface(TypeUtil.TLIST)) {
+            return TypeUtil.ARRAY_LIST_TYPE;
+        }
+
+        if(binding.implementsInterface(TypeUtil.TMAP)) {
+            return TypeUtil.LINKED_HASH_MAP_TYPE;
+        }
+
+        GenericsType[] gt = binding.getGenericsTypes();
+        if(gt == null || gt.length == 0)
+            return binding;
+
+        for(int i=0; i != gt.length; ++i) {
+            ClassNode type = gt[i].getType();
+            ClassNode improved = inmproveBinding(type);
+            if(improved != type) {
+                gt [i] = new GenericsType(improved);
+            }
+        }
+
+        return binding;
     }
 }

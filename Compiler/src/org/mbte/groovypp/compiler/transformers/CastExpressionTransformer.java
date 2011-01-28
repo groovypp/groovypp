@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,26 +22,10 @@ import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.util.FastArray;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.mbte.groovypp.compiler.*;
-import org.mbte.groovypp.compiler.ClassNodeCache;
-import org.mbte.groovypp.compiler.ClosureClassNode;
-import org.mbte.groovypp.compiler.ClosureMethodNode;
-import org.mbte.groovypp.compiler.ClosureUtil;
-import org.mbte.groovypp.compiler.CompilerTransformer;
-import org.mbte.groovypp.compiler.PresentationUtil;
-import org.mbte.groovypp.compiler.StaticMethodBytecode;
-import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.*;
-import org.mbte.groovypp.compiler.transformers.ClassExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.ConstantExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.ConstructorCallExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
-import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.MapExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.TernaryExpressionTransformer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -64,12 +48,19 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
                 String s = (String) constantExpression.getValue();
                 if(s.length() == 1) {
                     if(cast.getType().equals(ClassHelper.int_TYPE) || cast.getType().equals(ClassHelper.Integer_TYPE)) {
-                        return new ConstantExpressionTransformer.MyBytecodeExpr(constantExpression, ClassHelper.int_TYPE, (int)s.charAt(0));
+                        return new ConstantExpressionTransformer.Constant(constantExpression, ClassHelper.int_TYPE, (int)s.charAt(0));
                     }
                     if(cast.getType().equals(ClassHelper.char_TYPE)) {
-                        return new ConstantExpressionTransformer.MyBytecodeExpr(constantExpression, ClassHelper.char_TYPE, (int)s.charAt(0));
+                        return new ConstantExpressionTransformer.Constant(constantExpression, ClassHelper.char_TYPE, (int)s.charAt(0));
                     }
                 }
+            }
+        }
+
+        if(cast.getExpression() instanceof ConstantExpressionTransformer.Constant) {
+            ConstantExpressionTransformer.Constant constant = (ConstantExpressionTransformer.Constant) cast.getExpression();
+            if(cast.getType().equals(constant.getType())) {
+                return constant;
             }
         }
 
@@ -480,7 +471,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
         }
 
         ClassNodeCache.clearCache (_doCallMethod.getDeclaringClass());
-        StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, _doCallMethod, compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, _doCallMethod.getDeclaringClass().getName());
+        compiler.replaceMethodCode(_doCallMethod.getDeclaringClass(), _doCallMethod);
     }
 
     private ClassNode createNewType(ClassNode type, Expression exp, CompilerTransformer compiler) {
@@ -501,6 +492,9 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
 
         if (!compiler.methodNode.isStatic() || compiler.classNode.getName().endsWith("$TraitImpl"))
             objType.addField("this$0", ACC_PUBLIC|ACC_FINAL|ACC_SYNTHETIC, !compiler.methodNode.isStatic() ? compiler.classNode : compiler.methodNode.getParameters()[0].getType(), null);
+
+        if(compiler.policy == TypePolicy.STATIC)
+            CleaningVerifier.improveVerifier(objType);
 
         return objType;
     }

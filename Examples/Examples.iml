@@ -16,7 +16,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="Gretty" exported="" />
+    <orderEntry type="module" module-name="StdLib" />
   </component>
   <component name="copyright">
     <Base>

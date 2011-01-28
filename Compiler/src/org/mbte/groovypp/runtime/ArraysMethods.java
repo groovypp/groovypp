@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,55 +35,120 @@ public class ArraysMethods {
     }
 
     public static <T> T getAt (T [] self, int i) {
-        return self[normaliseIndex(i, self.length)];
+        try {
+            return self[i];
+        }
+        catch (Throwable t) {
+            return self[self.length+i];
+        }
     }
 
     public static <T> void putAt (T [] self, int i, T v) {
-        self[normaliseIndex(i, self.length)] = v;
+        try {
+            self[i] = v;
+        }
+        catch (Throwable t) {
+            self[self.length + i] = v;
+        }
     }
 
     public static byte getAt(byte [] self, int i) {
-        return self[normaliseIndex(i, self.length)];
+        try {
+            return self[i];
+        }
+        catch (Throwable t) {
+            return self[self.length+i];
+        }
     }
 
     public static  void putAt (byte [] self, int i, byte v) {
-        self[normaliseIndex(i, self.length)] = v;
+        try {
+            self[i] = v;
+        }
+        catch (Throwable t) {
+            self[self.length + i] = v;
+        }
     }
 
     public static short getAt(short [] self, int i) {
-        return self[normaliseIndex(i, self.length)];
+        try {
+            return self[i];
+        }
+        catch (Throwable t) {
+            return self[self.length+i];
+        }
     }
 
     public static  void putAt (short [] self, int i, short v) {
-        self[normaliseIndex(i, self.length)] = v;
+        try {
+            self[i] = v;
+        }
+        catch (Throwable t) {
+            self[self.length + i] = v;
+        }
     }
 
     public static int getAt(int [] self, int i) {
-        return self[normaliseIndex(i, self.length)];
+        try {
+            return self[i];
+        }
+        catch (Throwable t) {
+            return self[self.length+i];
+        }
     }
 
     public static  void putAt (int [] self, int i, int v) {
-        self[normaliseIndex(i, self.length)] = v;
+        try {
+            self[i] = v;
+        }
+        catch (Throwable t) {
+            self[self.length + i] = v;
+        }
     }
 
     public static char getAt(char [] self, int i) {
-        return self[normaliseIndex(i, self.length)];
+        try {
+            return self[i];
+        }
+        catch (Throwable t) {
+            return self[self.length+i];
+        }
     }
 
     public static  void putAt (char [] self, int i, char v) {
-        self[normaliseIndex(i, self.length)] = v;
+        try {
+            self[i] = v;
+        }
+        catch (Throwable t) {
+            self[self.length + i] = v;
+        }
     }
 
     public static float getAt(float [] self, int i) {
-        return self[normaliseIndex(i, self.length)];
+        try {
+            return self[i];
+        }
+        catch (Throwable t) {
+            return self[self.length+i];
+        }
     }
 
     public static  void putAt (float [] self, int i, float v) {
-        self[normaliseIndex(i, self.length)] = v;
+        try {
+            self[i] = v;
+        }
+        catch (Throwable t) {
+            self[self.length + i] = v;
+        }
     }
 
     public static double getAt(double [] self, int i) {
-        return self[normaliseIndex(i, self.length)];
+        try {
+            return self[i];
+        }
+        catch (Throwable t) {
+            return self[self.length+i];
+        }
     }
 
     public static  void putAt (double [] self, int i, double v) {
@@ -91,19 +156,39 @@ public class ArraysMethods {
     }
 
     public static boolean getAt(boolean [] self, int i) {
-        return self[normaliseIndex(i, self.length)];
+        try {
+            return self[i];
+        }
+        catch (Throwable t) {
+            return self[self.length+i];
+        }
     }
 
     public static  void putAt (boolean [] self, int i, boolean v) {
-        self[normaliseIndex(i, self.length)] = v;
+        try {
+            self[i] = v;
+        }
+        catch (Throwable t) {
+            self[self.length + i] = v;
+        }
     }
 
     public static long getAt(long [] self, int i) {
-        return self[normaliseIndex(i, self.length)];
+        try {
+            return self[i];
+        }
+        catch (Throwable t) {
+            return self[self.length+i];
+        }
     }
 
     public static  void putAt (long [] self, int i, long v) {
-        self[normaliseIndex(i, self.length)] = v;
+        try {
+            self[i] = v;
+        }
+        catch (Throwable t) {
+            self[self.length + i] = v;
+        }
     }
 
     public static Iterator<Character> iterator (final char self []) {

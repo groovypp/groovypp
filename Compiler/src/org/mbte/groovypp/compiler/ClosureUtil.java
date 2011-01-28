@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,6 @@ import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeInstruction;
 import org.codehaus.groovy.classgen.BytecodeSequence;
-import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -160,7 +159,7 @@ public class ClosureUtil {
                     else
                         method.setReturnType(TypeUtil.wrapSafely(missing.getReturnType()));
                 }
-                StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, method, compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, closureType.getName());
+                compiler.replaceMethodCode(closureType, method);
                 makeOneMethodClass(one, closureType, baseType, compiler, method);
                 return method;
             }
@@ -375,9 +374,9 @@ public class ClosureUtil {
 
         code.addStatement(fieldInit);
 
-        new OpenVerifier().visitClass(newType);
+        CleaningVerifier.getCleaningVerifier().visitClass(newType);
 
-        StaticMethodBytecode.replaceMethodCode(compiler.su, compiler.context, cn, compiler.compileStack, compiler.debug == -1 ? -1 : compiler.debug+1, compiler.policy, newType.getName());
+        compiler.replaceMethodCode(newType, cn);
 
         if (newType.getOuterClass() != null && newType.getMethods("methodMissing").isEmpty()) {
         	final ClassNode this0Type = 

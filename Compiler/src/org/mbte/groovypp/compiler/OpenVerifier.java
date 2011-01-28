@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,28 +47,6 @@ public class OpenVerifier extends Verifier {
         final List<AnnotationNode> list = node.getAnnotations(TypeUtil.TYPED);
         if (list == null || list.size() == 0 || list.get(0).getMember("value") != null)
             super.addGroovyObjectInterfaceAndMethods(node, classInternalName);
-    }
-
-    protected void addPropertyMethod(MethodNode method) {
-    	super.addPropertyMethod(method);
-        ClassNodeCache.clearCache(method.getDeclaringClass());
-    }
-
-    public void visitProperty(PropertyNode node) {
-        super.visitProperty(node);
-        node.setGetterBlock(null);
-        node.setSetterBlock(null);
-    }
-
-    public void addInitialization(ClassNode node) {
-        super.addInitialization(node);
-    }
-
-    public void addInitialization(ClassNode node, ConstructorNode constructorNode) {
-        if (constructorNode.getCode() instanceof BytecodeSequence)
-            return;
-
-        super.addInitialization(node, constructorNode);
     }
 
     private void addMetaClassFieldIfNeeded(ClassNode node) {

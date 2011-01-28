@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,8 +65,8 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
     ClassNode calculatedReturnType = TypeUtil.NULL_TYPE;
     private Label startLabel = new Label ();
 
-    public StaticCompiler(SourceUnit su, SourceUnitContext context, StaticMethodBytecode methodBytecode, StackAwareMethodAdapter mv, org.mbte.groovypp.compiler.CompilerStack compileStack, int debug, TypePolicy policy, String baseClosureName) {
-        super(su, methodBytecode.methodNode.getDeclaringClass(), methodBytecode.methodNode, mv, compileStack, debug, policy, baseClosureName, context);
+    public StaticCompiler(SourceUnit su, SourceUnitContext context, StaticMethodBytecode methodBytecode, StackAwareMethodAdapter mv, org.mbte.groovypp.compiler.CompilerStack compileStack, int debug, boolean fastArrays, TypePolicy policy, String baseClosureName) {
+        super(su, methodBytecode.methodNode.getDeclaringClass(), methodBytecode.methodNode, mv, compileStack, debug, fastArrays, policy, baseClosureName, context);
         this.methodBytecode = methodBytecode;
         shouldImproveReturnType = methodNode.getName().equals("doCall");
 
