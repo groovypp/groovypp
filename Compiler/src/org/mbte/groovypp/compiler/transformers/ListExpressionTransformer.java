@@ -77,7 +77,7 @@ public class ListExpressionTransformer extends ExprTransformer<ListExpression> {
                     genericArg = TypeUtil.wrapSafely(genericArg);
                     setType(TypeUtil.withGenericTypes(collType, genericArg));
                 } else {
-                    setType(TypeUtil.eraseTypeArguments(collType));
+                    setType(TypeUtil.withGenericTypes(collType,ClassHelper.OBJECT_TYPE) );
                 }
             }
         }
