@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.152'
+version = '0.4.155'
 
 test {
   maxHeapSize = '512m'
@@ -83,8 +83,38 @@ task prepareMetaInf << {
 
 task cleanTest(dependsOn: [clean, test])
 
-task allJar(type:Jar, dependsOn:jar) {
-    inputs.files jar.archivePath
+task nodepJar(type:Jar, dependsOn:jar) {
+  appendix = 'nodep'
+}
+
+task nodepAllJar(type:Jar, dependsOn:nodepJar) {
+  appendix = 'all-nodep'
+}
+
+task sourcesJar(type: Jar) {
+     classifier = 'sources'
+     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
+}
+
+task allSourcesJar(type: Jar) {
+     classifier = 'sources'
+     appendix = 'all'
+     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
+}
+
+task nodepSourcesJar(type: Jar) {
+     classifier = 'sources'
+     appendix = 'nodep'
+     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
+}
+
+task allNodepSourcesJar(type: Jar) {
+     classifier = 'sources'
+     appendix = 'all-nodep'
+     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
+}
+
+task allJar(type:Jar, dependsOn:nodepAllJar) {
     appendix = 'all'
 
     doLast {
@@ -94,18 +124,10 @@ task allJar(type:Jar, dependsOn:jar) {
           zipfileset(dir: 'build/classes/main')
           rule(pattern:"org.objectweb.**", result:"groovyjarjarasm.@1")
       }
+
+      ant.copy(file: "build/libs/groovypp-${version}.jar", tofile:"build/libs/groovypp-nodep-${version}.jar")
+      ant.copy(file: "build/libs/groovypp-all-${version}.jar", tofile:"build/libs/groovypp-all-nodep-${version}.jar")
     }
-}
-
-task sourcesJar(type: Jar, dependsOn:jar) {
-     classifier = 'sources'
-     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
-}
-
-task allSourcesJar(type: Jar) {
-     classifier = 'sources'
-     appendix = 'all'
-     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
 }
 
 task installZip(dependsOn:[jar, allJar]) << {
@@ -129,10 +151,16 @@ task deployGoogle(dependsOn:[jar, allJar, sourcesJar, installZip]) << {
   ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}-sources.jar", targetfilename:"groovypp-${version}-sources.jar", summary:"Groovy++ Sources Jar", labels:"Featured", verbose:"true")
 }
 
+
 artifacts {
     archives sourcesJar
-    archives allJar
+    archives nodepSourcesJar
+    archives allNodepSourcesJar
     archives allSourcesJar
+    archives jar
+    archives allJar
+    archives nodepJar
+    archives nodepAllJar
 }
 
 uploadArchives {
@@ -142,10 +170,20 @@ uploadArchives {
             authentication(userName: ARTIFACTORY_USER, password: ARTIFACTORY_PASSWORD)
         }
         addFilter('groovypp') {artifact, file ->
-            !artifact.toString().contains('-all')
+            !artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
+        }
+        addFilter('groovypp-nodep') {artifact, file ->
+            !artifact.toString().contains('-all')  && artifact.toString().contains('-nodep')
+        }.whenConfigured { pom ->
+          pom.dependencies = []
+        }
+        addFilter('groovypp-all-nodep') {artifact, file ->
+            artifact.toString().contains('-all')  && artifact.toString().contains('-nodep')
+        }.whenConfigured { pom ->
+          pom.dependencies = []
         }
         addFilter('groovypp-all') {artifact, file ->
-            artifact.toString().contains('-all')
+            artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
         }.whenConfigured { pom ->
           pom.dependencies.each { dep ->
             if(dep.artifactId == 'groovy') {
