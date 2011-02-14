@@ -27,11 +27,13 @@ package groovypp.concurrent
     }
 
     void testSeveralEl() {
-        def res = FHashMap.emptyMap.put("1", "2").put("3","4").toSerialBytes().fromSerialBytes()
+        def map = FHashMap.emptyMap.put(1, "2").put(3, "4").put(33, "33")
+        def res = map.toSerialBytes().fromSerialBytes()
         assert res instanceof FHashMap
         FHashMap r = res
-        assert r.size() == 2
-        assert r["1"] == "2"
-        assert r["3"] == "4"
+        assert r[1] == "2"
+        assert r[3] == "4"
+        assert r[33] == "33"
+        assert r.size() == 3
     }
 }
