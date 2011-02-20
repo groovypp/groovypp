@@ -84,8 +84,11 @@ public class ResolvedVarBytecodeExpr extends ResolvedLeftExpr {
             right = compiler.transformSynthetic(right);
             
             vtype = right.getType();
+            if (ClassHelper.isPrimitiveType(right.getType())) {
+                compiler.addError("Illegal inference - value of primitive type assigned to untyped variable. Consider making the variable's type explicit(or initialize varible with primitive type).", ve);
+            }
             if (!compiler.getLocalVarInferenceTypes().add(ve, vtype)) {
-                compiler.addError("Illegal inference inside the loop. Consider making the variable's type explicit.", ve);
+                compiler.addError("Illegal inference inside the loop. Consider making the variable's type explicit(or initialize varible with primitive type).", ve);
             }
         } else {
             vtype = ve.getType();

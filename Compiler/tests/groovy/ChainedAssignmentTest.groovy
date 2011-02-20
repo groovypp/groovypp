@@ -33,7 +33,7 @@ class ChainedAssignmentTest extends GroovyShellTestCase {
             def i = 123
             def s = "hello"
 
-            def i2
+            def i2 = 0
             def i1 = i2 = i;
             assert i1 == 123
             assert i2 == 123

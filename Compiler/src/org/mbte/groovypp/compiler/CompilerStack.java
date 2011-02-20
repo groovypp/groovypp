@@ -370,7 +370,7 @@ public class CompilerStack implements Opcodes {
     }
 
     private Register defineTypeInferenceVar(String name) {
-        makeNextVariableID(ClassHelper.OBJECT_TYPE); // we want to allocate 2 slots
+        makeNextVariableID(ClassHelper.long_TYPE); // we want to allocate 2 slots
         int index = currentVariableIndex;
         Register answer = new Register(index, inferenced_TYPE, name);
         usedVariables.add(answer);

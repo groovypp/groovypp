@@ -88,15 +88,10 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
                 right = compiler.transformSynthetic(right);
 
                 if(ClassHelper.isPrimitiveType(right.getType())) {
-                    for(VariableExpression v = ve; v != null;) {
-                        v.setType(right.getType());
-                        Variable accessedVariable = v.getAccessedVariable();
-                        if(accessedVariable != v && accessedVariable instanceof VariableExpression) {
-                            v = (VariableExpression) accessedVariable;
-                        }
-                        else {
-                            break;
-                        }
+                    ve.setType(right.getType());
+                    Variable accessedVariable = ve.getAccessedVariable();
+                    if(accessedVariable != ve && accessedVariable instanceof VariableExpression) {
+                        ((VariableExpression) accessedVariable).setType(right.getType());
                     }
                     return new Static(exp, ve, right, compiler);
                 }

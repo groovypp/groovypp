@@ -313,4 +313,19 @@ m ()
       assert g.class == String
      """
   }
+
+  void testLongStringVar () {
+     shell.evaluate """
+      @Typed package p
+
+     def o = null
+     if(o){
+        o = 'lala'
+     }
+     else {
+        o = new Long(10L)
+     }
+     println o
+     """
+  }
 }
