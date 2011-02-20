@@ -20,7 +20,7 @@ class PowerAssertTest extends GroovyShellTestCase {
     @Typed void testMe () {
         def code = """
        try {
-           def i = 9
+           def i = '9'
            println i.class
            def list = []
            assert (list[0] = 'aaaa') && !((i += 2.toString()  + [3].class.simpleName) != 10)

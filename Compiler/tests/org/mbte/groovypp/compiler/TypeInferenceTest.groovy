@@ -300,4 +300,17 @@ m ()
           u ()
         """
     }
+
+  void testPrimitiveVar () {
+     shell.evaluate """
+      @Typed package p
+
+      def a = 0, b = false, c = 0.0d, d = 10L, e = (byte)12, g = '1234'
+      assert a.class == int.class
+      assert b.class == boolean.class
+      assert c.class == double.class
+      assert e.class == byte.class
+      assert g.class == String
+     """
+  }
 }

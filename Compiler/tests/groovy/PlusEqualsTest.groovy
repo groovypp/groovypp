@@ -74,7 +74,7 @@ class PlusEqualsTest extends GroovyShellTestCase {
 
             y += 10.1
 
-            assert y == 12.1
+            assert y == 12
           }
 
           u()

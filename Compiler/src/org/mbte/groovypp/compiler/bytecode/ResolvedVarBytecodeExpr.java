@@ -80,7 +80,7 @@ public class ResolvedVarBytecodeExpr extends ResolvedLeftExpr {
 
     public BytecodeExpr createAssign(ASTNode parent, BytecodeExpr right, CompilerTransformer compiler) {
         final ClassNode vtype;
-        if (ve.isDynamicTyped()) {
+        if (ve.getType() == ClassHelper.DYNAMIC_TYPE) {
             right = compiler.transformSynthetic(right);
             
             vtype = right.getType();

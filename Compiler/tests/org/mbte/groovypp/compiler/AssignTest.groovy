@@ -40,13 +40,13 @@ def u () {
   x -= 10
 
   def y = x
-  y += "30"
+  y += 30
 
   [x, y]
 }
 u ()
 """)
-    assertEquals([10, "1030"], res)
+    assertEquals([10, 40], res)
   }
 
   void testArrayAssign() {

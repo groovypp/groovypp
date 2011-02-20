@@ -379,7 +379,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
                 etype = generics[0].getType();
             }
         }
-        if (forLoop.getVariable().isDynamicTyped())
+        if (forLoop.getVariable().getType() == ClassHelper.DYNAMIC_TYPE)
             forLoop.getVariable().setType(etype);
         else
             etype = forLoop.getVariable().getType();
@@ -476,7 +476,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
                 visitForLoopWithArray(forLoop, collectionExpression.getType().getComponentType());
             } else if (forLoop.getCollectionExpression() instanceof RangeExpression &&
                     TypeUtil.equal(TypeUtil.RANGE_OF_INTEGERS_TYPE, collectionExpression.getType())
-                    && (forLoop.getVariable().isDynamicTyped() ||
+                    && (forLoop.getVariable().getType() == ClassHelper.DYNAMIC_TYPE ||
                         forLoop.getVariable().getType().equals(ClassHelper.int_TYPE))) {
                 // This is the IntRange (or EmptyRange). Iterate with index.
                 visitForLoopWithIntRange(forLoop);

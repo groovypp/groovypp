@@ -75,7 +75,7 @@ class MinusEqualsTest extends GroovyShellTestCase {
 
             y -= 0.1
 
-            assert y == 1.9
+            assert y == 1
 
           }
 
