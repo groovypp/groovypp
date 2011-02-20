@@ -131,7 +131,7 @@ public class ClosureMethodNode extends MethodNode {
                 Parameter missingMethodParameter = baseMethodParameters[i];
 
                 ClassNode parameterType = missingMethodParameter.getType();
-                if (!parameterType.redirect().equals(closureParameter.getType().redirect())) {
+                if (!parameterType.redirect().equals(closureParameter.getType().redirect()) || closureParameter.getType() == ClassHelper.DYNAMIC_TYPE) {
                     parameterType = TypeUtil.getSubstitutedType(parameterType, baseType.redirect(), baseType);
                     if (parameterType.redirect().equals(closureParameter.getType().redirect()) ||
                         closureParameter.isDynamicTyped()) {
