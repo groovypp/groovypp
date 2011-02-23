@@ -22,16 +22,15 @@ import java.util.concurrent.Future
 /**
  * Specially optimized version of FutureTask from JDK
  */
-@Typed
-abstract class CallLater<V> extends BindLater<V> implements Runnable, Future<V>, Callable<V> {
-    public final void run() {
-        if (setRunningThread()) {
-            try {
-                set(call())
-            }
-            catch (Throwable ex) {
-                setException(ex)
-            }
-        }
+@Typed abstract class CallLater<V> extends BindLater<V> implements Runnable, Callable<V> {
+    final void run() {
+      if (setRunningThread()) {
+          try {
+              set(call())
+          }
+          catch (Throwable ex) {
+              setException(ex)
+          }
+      }
     }
 }

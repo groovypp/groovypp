@@ -16,8 +16,10 @@
 
 package groovypp.concurrent
 
+import java.util.Map.Entry
+
 /**
- * A clean-room port of Rich Hickey's persistent hash trie implementation from
+ * A clean-room port of Rich Hickey's persistent hashCode trie implementation from
  * Clojure (http://clojure.org).  Originally presented as a mutable structure in
  * a paper by Phil Bagwell.
  *
@@ -25,317 +27,449 @@ package groovypp.concurrent
  * @author Rich Hickey
  * @author Alex Tkachman
  */
+@Typed abstract class FHashMap<K, V> implements Iterable<Map.Entry<K, V>>, Serializable {
+  abstract int size()
 
-@Typed
-abstract class FHashMap<K, V> implements Iterable<Map.Entry<K,V>>, Serializable {
-    final int size() {
-      if (size < 0) size = size_()
-      size
+  final V getAt(K key) { getAt(0, key, key.hashCode()) }
+
+  final FHashMap<K, V> put(K key, V value) {
+    update(0, key, key.hashCode(), value)
+  }
+
+  final FHashMap<K, V> remove(K key) {
+    remove(0, key, key.hashCode())
+  }
+
+  protected abstract V getAt(int shift, K key, int hash)
+
+  protected abstract FHashMap<K, V> update(int shift, K key, int hash, V value)
+
+  protected abstract FHashMap<K, V> remove(int shift, K key, int hash)
+
+  static final FHashMap emptyMap = new EmptyNode()
+
+  private static class EmptyNode<K, V> extends FHashMap<K, V> {
+    private EmptyNode() {}
+
+    int size() { 0 }
+
+    V getAt(int shift, K key, int hash) { null }
+
+    FHashMap<K, V> update(int shift, K key, int hash, V value) {
+      def bits = 1 << ((hash >>> shift) & 0x1f)
+      new BitmappedNode(bits, bits, 1, key, value)
     }
 
-    final V getAt(K key) { getAt(key, hash(key)) }
+    FHashMap<K, V> remove(K key, int hash) { this }
 
-    private static int hash(K key) {
-        def h = key.hashCode()
-        h += ~(h << 9)
-        h ^=  (h >>> 14)
-        h +=  (h << 4)
-        h ^=  (h >>> 10)
-        h
+    Iterator<Map.Entry<K,V>> iterator() {
+      [
+          hasNext: {false},
+          next: {throw new NoSuchElementException()},
+          remove: {throw new UnsupportedOperationException()}
+      ]
     }
 
-    final FHashMap<K, V> put(K key, V value) {
-        update(0, key, hash(key), value)
+    protected FHashMap<K, V> remove(int shift, K key, int hash) {
+      this
     }
-
-    final FHashMap<K, V> remove(K key) {
-        remove(key, hash(key))
-    }
-
-    private int size = -1
-
-    protected abstract int size_()
-
-    protected abstract V getAt(K key, int hash)
-
-    protected abstract FHashMap<K,V> update(int shift, K key, int hash, V value)
-
-    protected abstract FHashMap<K,V> remove(K key, int hash)
-
-    static final FHashMap emptyMap = new EmptyNode()
 
     protected final Object writeReplace() {
-        new Serial(fmap:this)
+      Serial.instance
     }
 
-    static class Serial implements Externalizable {
-        FHashMap fmap
+    static class Serial implements Serializable{
+      static final Serial instance = []
+      protected final Object readResolve() {
+        FHashMap.emptyMap
+      }
+    }
+  }
 
-        protected final Object readResolve() {
-            fmap
-        }
+  protected static int bitIndex(int bit, int mask) {
+    Integer.bitCount(mask & (bit - 1))
+  }
 
-        void writeExternal(ObjectOutput out) {
-            out.writeInt fmap.size()
-            for(e in fmap) {
-                out.writeObject e.key
-                out.writeObject e.value
-            }
-        }
+  static BitmappedNode bitmap(int shift, int hash, K key, V value, K key2, V value2) {
+    int bits1 = 1 << (hash >>> shift) & 0x1f
+    int bits2 = 1 << (key2.hashCode() >>> shift) & 0x1f
 
-        void readExternal(ObjectInput input) {
-            def sz = input.readInt()
-            def res = FHashMap.emptyMap
-            while(sz--) {
-                res = res.put(input.readObject(), input.readObject())
-            }
-            fmap = res
-        }
+    int mask = bits1 | bits2
+
+    int shift1 = bitIndex(bits1, mask) << 1
+    int shift2 = bitIndex(bits2, mask) << 1
+
+    if (shift1 == shift2) {
+      new BitmappedNode(bits2, bits2, 1, key2, value2).update(shift, key, hash, value)
+    } else {
+      def newTable = new Object[4]
+      newTable[shift1] = key
+      newTable[shift1 + 1] = value
+      newTable[shift2] = key2
+      newTable[shift2 + 1] = value2
+      new BitmappedNode(mask, mask, 2, newTable)
+    }
+  }
+
+  protected static Map.Entry<K,V> mapEntry(int index, Object[] table) {
+    if (index < table.length) {
+      Entry res = [
+              getKey: { table[index] },
+              getValue: { table[index + 1] },
+              setKey: { throw new UnsupportedOperationException() },
+              setValue: { throw new UnsupportedOperationException() }
+      ]
+      index += 2
+      res
+    }
+    else {
+      throw new NoSuchElementException()
+    }
+  }
+
+  private static class CollisionNode<K, V> extends FHashMap<K, V> implements Externalizable {
+    int hash
+    Object[] table
+
+    CollisionNode() {
     }
 
-    private static class EmptyNode<K,V> extends FHashMap<K,V> {
-        private EmptyNode() {}
-
-        int size_() { 0 }
-
-        V getAt(K key, int hash) { null }
-
-        FHashMap<K,V> update(int shift, K key, int hash, V value) { new LeafNode(hash, key, value) }
-
-        FHashMap<K,V> remove(K key, int hash) { this }
-
-        Iterator iterator () {
-            [
-                hasNext:{false},
-                next:{throw new NoSuchElementException()},
-                remove:{throw new UnsupportedOperationException()}
-            ]
-        }
+    CollisionNode(int hash, Object[] table) {
+      this.table = table
+      this.hash = hash
     }
 
-    protected static int bitIndex(int bit, int mask) {
-       Integer.bitCount(mask & (bit - 1))
+    int size() {
+      table.length >> 1
     }
 
-    private static abstract class SingleNode<K,V> extends FHashMap<K,V> {
-        final int hash
-
-        SingleNode(int hash) {
-          this.hash = hash
-        }
-
-        BitmappedNode bitmap(int shift, int hash, K key, V value) {
-            def shift1 = (getHash() >>> shift) & 0x1f
-            def shift2 = (hash >>> shift) & 0x1f
-
-            def bits1 = 1 << shift1
-            def bits2 = 1 << shift2
-
-            def mask = bits1 | bits2
-
-            shift1 = bitIndex(bits1, mask)
-            shift2 = bitIndex(bits2, mask)
-
-            def table = new FHashMap<K,V>[shift1 == shift2 ? 1 : 2]
-            table[shift1] = this
-            if (shift1 == shift2) {
-                table[shift2] = table[shift2].update(shift + 5, key, hash, value)
-            } else {
-                table[shift2] = new LeafNode(hash, key, value)
-            }
-            return new BitmappedNode(shift, mask, table)
-        }
+    V getAt(int shift, K key, int hash) {
+      for (int i = 0; i != table.length; i += 2) {
+        if (key.equals(table[i]))
+          return table[i + 1]
+      }
     }
 
-    private static class LeafNode<K,V> extends SingleNode<K,V> implements Map.Entry<K,V> {
-        final K key
-        final V value
-
-        LeafNode(int hash, K key, V value) {
-            super(hash)
-            this.@key = key  // todo remove '@'
-            this.@value = value
-        }
-
-        int size_() { 1 }
-
-        V getAt(K key, int hash) {
-            if (this.key == key) return value else return null
-        }
-
-        FHashMap<K,V> update(int shift, K key, int hash, V value) {
-            if (this.key == key) {
-                if (this.value == value) return this else return new LeafNode(hash, key, value)
-            } else if (this.hash == hash) {
-                return new CollisionNode(hash, FList.emptyList + new BucketElement(this.key, this.value) + new BucketElement(key, value))
-            } else {
-                return bitmap(shift, hash, key, value)
-            }
-        }
-
-        FHashMap<K,V> remove(K key, int hash) {
-            if (this.key == key) return emptyMap else return this
-        }
-
-        Iterator iterator () {
-            [
-                _hasNext:true,
-                hasNext:{_hasNext},
-                next:{if(_hasNext) {_hasNext = false; LeafNode.this } else {throw new NoSuchElementException()} },
-                remove:{throw new UnsupportedOperationException()}
-            ]
-        }
-
-        public Object setValue(Object value) {
-            throw new UnsupportedOperationException()
-        }
+    public Iterator<Map.Entry<K, V>> iterator() {
+      [
+          index:0,
+          hasNext: { index < table.length },
+          next: {
+            index += 2
+            mapEntry(index-2, table)
+          },
+          remove: { throw new UnsupportedOperationException() }
+      ]
     }
 
-    private static class BucketElement<K,V> implements Map.Entry<K,V> {
-        final K key
-        final V value
-
-        BucketElement(K key, V value) {
-            this.key = key
-            this.value = value
+    FHashMap<K, V> update(int shift, K key, int hash, V value) {
+      if (this.hash == hash) {
+        for (int i = 0; i != table.length; i += 2) {
+          if (key.equals(table[i])) {
+            if (table[i + 1].equals(value))
+              return this
+            else {
+              Object[] newTable = table.clone()
+              newTable[i + 1] = value
+              return new CollisionNode(hash, newTable);
+            }
+          }
         }
 
-        public V setValue(V value) {
-            throw new UnsupportedOperationException()
+        def newTable = new Object[table.length + 2]
+        System.arraycopy table, 0, newTable, 2, table.length
+        newTable[0] = key
+        newTable[1] = value
+        new CollisionNode(hash, newTable)
+      }
+      else {
+        int bit = 1 << ((hash >>> shift) & 0x1f)
+        FHashMap bitmap = new BitmappedNode(bit, bit, 1, key, value)
+        for (int i = 0; i != table.length; i += 2) {
+          bitmap = bitmap.update(shift, table[i], this.hash, table[i + 1])
         }
+        bitmap
+      }
     }
 
-    private static class CollisionNode<K,V> extends SingleNode<K,V> {
-        FList<BucketElement<K, V>> bucket
-
-        CollisionNode(int hash, FList<BucketElement<K, V>> bucket) {
-            super(hash)
-            this.bucket = bucket
-        }
-
-        int size_() { bucket.size }
-
-        V getAt(K key, int hash) {
-            if (hash == this.hash) {
-                def p = bucket.find { it.key.equals(key) }
-                return p?.value
-            }
-        }
-
-        public Iterator<Map.Entry<K, V>> iterator() {
-            bucket.iterator()
-        }
-
-        private FList<BucketElement<K, V>> removeBinding(K key, FList<BucketElement<K, V>> bucket) {
-            if (bucket.isEmpty()) return bucket
-            if (bucket.head.key == key) return bucket.tail
-            def t = removeBinding(key, bucket.tail)
-            t === bucket.tail ? bucket : t + bucket.head
-        }
-
-        FHashMap<K,V> update(int shift, K key, int hash, V value) {
-            if (this.hash == hash) {
-                return new CollisionNode(hash, removeBinding(key, bucket) + [key, value]);
-            } else {
-                return bitmap(shift, hash, key, value)
-            }
-        }
-
-        FHashMap<K,V> remove(K key, int hash) {
-            if (hash != this.hash) return this
-            def b = removeBinding(key, bucket)
-            if (b === this) return this
-            if (b.size == 1) {
-                return new LeafNode(hash, b.head.key, b.head.value)
-            }
-            new CollisionNode(hash, b)
-        }
-    }
-
-    private static class BitmappedNode<K,V> extends FHashMap<K,V> {
-        int shift
-        int bits
-        FHashMap<K,V> [] table
-
-        BitmappedNode(int shift, int bits, FHashMap<K,V>[] table) {
-            this.shift = shift;
-            this.bits = bits;
-            this.table = table;
-        }
-
-        int size_() {
-            table.filter {it != null}.foldLeft(0) {e, sum -> sum + e.size()}
-        }
-
-        public Iterator<Map.Entry<K, V>> iterator() {
-            table.iterator().filter {it != null}.map{it.iterator()}.flatten()
-        }
-
-        V getAt(K key, int hash) {
-            def i = (hash >>> shift) & 0x1f
-            def bit = 1 << i
-            bits & bit ? table[bitIndex(bit, bits)].getAt(key, hash) : null
-        }
-
-        FHashMap<K,V> update(int shift, K key, int hash, V value) {
-            int i = (hash >>> shift) & 0x1f
-            int bit = 1 << i
-            if (bits & bit) {
-                i = bitIndex(bit, bits)
-                def node = table[i].update(shift + 5, key, hash, value)
-                if (node === table[i])
-                    return this
-                else {
-                    FHashMap<K,V>[] newTable = table.clone()
-                    newTable[i] = node
-                    return new BitmappedNode(shift, bits, newTable)
-                }
-            } else {
-                def newBits = bits | bit
-                i = bitIndex(bit, newBits)
-
-                def newTable = new FHashMap<K,V>[table.length+1]
-                if(i > 0)
-                    System.arraycopy table, 0, newTable, 0, i
-                newTable[i] = new LeafNode(hash, key, value)
-                if(i < table.length)
-                    System.arraycopy table, i, newTable, i+1, table.length-i
-
-                return new BitmappedNode(shift, newBits, newTable)
-            }
-        }
-
-        FHashMap<K,V> remove(K key, int hash) {
-            int i = (hash >>> shift) & 0x1f
-            int bit = 1 << i
-            if (bits & bit) {
-                i = bitIndex(bit, bits)
-                def node = table[i].remove(key, hash)
-                if (node === table[i]) {
-                    return this
-                } else if (node === emptyMap) {
-                    int adjustedBits = bits & ~bit
-                    if (!adjustedBits)
-                        return emptyMap
-                    if (!(adjustedBits & (adjustedBits - 1))) {
-                        // Last one.
-                        return table[bitIndex(adjustedBits,bits)]
-                    }
-                    def newTable = new FHashMap<K,V>[table.length-1]
-                    if(i>0)
-                        System.arraycopy table, 0, newTable, 0, i
-                    if(i<table.length-1)
-                        System.arraycopy table, i+1, newTable, i, table.length-1-i
-                    return new BitmappedNode(shift, adjustedBits, newTable)
-                } else {
-                    FHashMap<K,V>[] newTable = table.clone()
-                    newTable[i] = node
-                    return new BitmappedNode(shift, bits, newTable)
-                }
+    FHashMap<K, V> remove(int shift, K key, int hash) {
+      for (int i = 0; i != table.length; i += 2) {
+        if (key.equals(table[i])) {
+          if (table.length == 4) {
+            // no collision any more
+            if (i == 0) {
+              int bit = 1 << ((table[2].hashCode() >>> shift) & 0x1f)
+              return new BitmappedNode(bit, bit, 1, table[2], table[3])
             }
             else {
-                return this
+              int bit = 1 << ((table[0].hashCode() >>> shift) & 0x1f)
+              return new BitmappedNode(bit, bit, 1, table[0], table[1])
             }
+          }
+          else {
+            return new CollisionNode(hash, table.remove(i, 2))
+          }
         }
+      }
+
+      this
     }
+
+    void writeExternal(ObjectOutput out) {
+      out.writeInt  hash
+      out.writeByte table.length
+      for(t in table)
+        out.writeObject t
+    }
+
+    void readExternal(ObjectInput input) {
+      hash = input.readInt()
+      int len = input.readByte()
+      table = new Object[len]
+      for(int i = 0; i != table.length; ++i)
+        table [i] = input.readObject()
+    }
+  }
+
+  private static class BitmappedNode<K, V> extends FHashMap<K, V> implements Externalizable {
+    int bits, leafBits, size
+    Object[] table // either (key,value) or (node)
+
+    BitmappedNode() {}
+
+    BitmappedNode(int bits, int leafBits, int size, Object[] table) {
+      this.bits = bits
+      this.leafBits = leafBits
+      this.table = table
+      this.size = size
+    }
+
+    V getAt(int shift, K key, int hash) {
+      int i = (hash >>> shift) & 0x1f
+      int bit = 1 << i
+      if (bits & bit) {
+        int index = bitIndex(bit, bits) + bitIndex(bit, leafBits)
+        if (bit & leafBits) {
+          // leaf - t[index] - key, t [index+1] - value
+          key.equals(table[index]) ? table[index + 1] : null
+        }
+        else {
+          // node - t[index]
+          ((FHashMap) table[index]).getAt(shift + 5, key, hash)
+        }
+      }
+    }
+
+    FHashMap<K, V> update(int shift, K key, int hash, V value) {
+      int i = (hash >>> shift) & 0x1f
+      int bit = 1 << i
+      if (bits & bit) {
+        i = bitIndex(bit, bits) + bitIndex(bit, leafBits)
+        if (leafBits & bit) {
+          // table [i] - key, table [i+1] - value
+          if (table[i].equals(key)) {
+            if (table[i + 1].equals(value))
+              return this
+            else {
+              replaceLeafValue(value, i)
+            }
+          }
+          else {
+            leafToNode(i, hash, key, value, shift, bit)
+          }
+        }
+        else {
+          // table [i] is node
+          def node = ((FHashMap) table[i]).update(shift + 5, key, hash, value)
+          if (node === table[i])
+            return this
+          else {
+            Object[] newTable = table.clone()
+            newTable[i] = node
+            return new BitmappedNode(bits, leafBits, size - ((FHashMap)table[i]).size() + node.size(), newTable)
+          }
+        }
+      } else {
+        insertLeaf(bit, key, value)
+      }
+    }
+
+    private def insertLeaf(int bit, K key, V value) {
+      int newBits = bits | bit
+      int newLeafBits = leafBits | bit
+      int i = bitIndex(bit, newBits) + bitIndex(bit, newLeafBits)
+
+      def newTable = new Object[table.length + 2]
+      if (i < table.length) {
+        if (i > 0)
+          System.arraycopy table, 0, newTable, 0, i
+        if (i < table.length)
+          System.arraycopy table, i, newTable, i + 2, table.length - i
+      }
+      else {
+        System.arraycopy table, 0, newTable, 0, table.length
+      }
+
+      newTable[i] = key
+      newTable[i + 1] = value
+
+      return new BitmappedNode(newBits, newLeafBits, size + 1, newTable)
+    }
+
+    private FHashMap leafToNode(int i, int hash, K key, V value, int shift, int bit) {
+      if (hash == table[i].hashCode()) {
+        def collisionNode = new CollisionNode(hash, table[i], table[i + 1], key, value)
+
+        if (table.length == 2)
+          collisionNode
+        else {
+          def newTable = table.remove(i+1)
+          newTable[i] = collisionNode
+          return new BitmappedNode(bits, leafBits & (~bit), size+1, newTable)
+        }
+      }
+      else {
+        def newTable = table.remove(i+1)
+        newTable[i] = bitmap(shift + 5, hash, key, value, table[i], table[i + 1])
+        return new BitmappedNode(bits, leafBits & (~bit), size+1, newTable)
+      }
+    }
+
+    private FHashMap replaceLeafValue(V value, int i) {
+      Object[] newTable = table.clone()
+      newTable[i + 1] = value
+      new BitmappedNode(bits, leafBits, size, newTable)
+    }
+
+    FHashMap<K, V> remove(int shift, K key, int hash) {
+      int i = (hash >>> shift) & 0x1f
+      int bit = 1 << i
+      if (bits & bit) {
+        i = bitIndex(bit, bits) + bitIndex(bit, leafBits)
+        if (leafBits & bit) {
+          if (table[i].equals(key)) {
+            def newBits = bits & ~bit
+            if (newBits) {
+              new BitmappedNode(newBits, leafBits & (~bit), size-1, table.remove(i, 2))
+            }
+            else {
+              // it was only one
+              emptyMap
+            }
+          }
+          else {
+            this
+          }
+        }
+        else {
+          def node = ((FHashMap) table[i]).remove(shift + 5, key, hash)
+          if (node === table[i]) {
+            return this
+          } else if (node === emptyMap) {
+            int adjustedBits = bits & ~bit
+            if (!adjustedBits)
+              return emptyMap
+            return new BitmappedNode(adjustedBits, leafBits, size-1, table.remove(i))
+          } else {
+            Object[] newTable = table.clone()
+            newTable[i] = node
+            return new BitmappedNode(bits, leafBits, size - ((FHashMap)table[i]).size() + node.size(), newTable)
+          }
+        }
+      }
+      else {
+        this
+      }
+    }
+
+    Iterator<Map.Entry<K, V>> iterator() {
+      [
+        curBit: 0,
+        curIterator: (Iterator<Map.Entry<K,V>>)null,
+        hasNext: {
+          if(curIterator != null) {
+            if(curIterator.hasNext())
+              return true
+            curIterator = null
+            curBit++
+          }
+
+          int bit = 1 << curBit
+          while(curBit != 32 && !(bits & bit)) {
+            curBit++
+          }
+
+          if(curBit == 32) {
+            return false
+          }
+
+          if(leafBits & bit) {
+            return true
+          }
+          else {
+            int index = bitIndex(bit,bits) + bitIndex(bit,leafBits)
+            curIterator = ((FHashMap<K,V>)table[index]).iterator()
+            return curIterator.hasNext()
+          }
+        },
+        next: {
+          if(curIterator != null) {
+            return curIterator.next()
+          }
+
+          def bit = 1 << curBit
+          if(leafBits & bit) {
+            curBit++
+            return mapEntry(bitIndex(bit,bits) + bitIndex(bit,leafBits), table)
+          }
+          else {
+            return curIterator.next()
+          }
+        },
+        remove: { throw new UnsupportedOperationException() }
+      ]
+    }
+
+    void writeExternal(ObjectOutput out) {
+      out.writeInt  bits
+      out.writeInt  leafBits
+      out.writeInt  size
+      out.writeByte table.length
+      for(t in table)
+        out.writeObject t
+    }
+
+    void readExternal(ObjectInput input) {
+      bits = input.readInt()
+      leafBits = input.readInt()
+      size = input.readInt()
+      int len = input.readByte()
+      table = new Object[len]
+      for(int i = 0; i != table.length; ++i)
+        table [i] = input.readObject()
+    }
+
+    @Override
+    int size() {
+      return size
+    }
+  }
+
+  static <T> T[] remove(T[] array, int index) {
+    def newArray = new Object[array.length - 1]
+    if (index > 0)
+      System.arraycopy array, 0, newArray, 0, index
+    if (index < array.length - 1)
+      System.arraycopy array, index + 1, newArray, index, array.length - 1 - index
+    newArray
+  }
+
+  static <T> T[] remove(T[] array, int index, int count) {
+    def newArray = new Object[array.length - count]
+    if (index > 0)
+      System.arraycopy array, 0, newArray, 0, index
+    if (index < array.length - 1)
+      System.arraycopy array, index + count, newArray, index, array.length - count - index
+    newArray
+  }
 }

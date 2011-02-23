@@ -41,9 +41,9 @@ class A
 
 }
 
-class B
+@Typed class B
 {
-    def Map<String, Long> map = new HashMap<String, Long>();
+    Map<String, Long> map = new HashMap<String, Long>();
 
 
     static Map<String, Long> top ( int n, Map<String, Long> map )

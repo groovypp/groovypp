@@ -37,7 +37,7 @@ public class Issue132Test extends GroovyShellTestCase {
       }
   }
   """,
-  "Illegal inference inside the loop. Consider making the variable's type explicit.")
+  "Illegal inference inside the loop. Consider making the variable's type explicit(or initialize varible with primitive type).")
     }
 
   void testWeirdShouldNotHappen() {

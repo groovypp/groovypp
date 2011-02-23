@@ -19,7 +19,6 @@ package org.mbte.groovypp.compiler;
 import groovy.lang.EmptyRange;
 import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.*;
-import static org.codehaus.groovy.ast.ClassHelper.*;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
@@ -28,24 +27,15 @@ import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.Janitor;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
-import org.codehaus.groovy.syntax.Types;
 import org.codehaus.groovy.syntax.Token;
+import org.codehaus.groovy.syntax.Types;
 import org.codehaus.groovy.transform.powerassert.SourceText;
 import org.codehaus.groovy.transform.powerassert.SourceTextNotAvailableException;
-import org.mbte.groovypp.compiler.*;
-import org.mbte.groovypp.compiler.CompilerTransformer;
-import org.mbte.groovypp.compiler.PresentationUtil;
-import org.mbte.groovypp.compiler.RecordingVariableExpression;
-import org.mbte.groovypp.compiler.Register;
-import org.mbte.groovypp.compiler.SourceUnitContext;
-import org.mbte.groovypp.compiler.StaticMethodBytecode;
-import org.mbte.groovypp.compiler.TypeUtil;
-import org.mbte.groovypp.compiler.bytecode.*;
+import org.codehaus.groovy.util.FastArray;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.LocalVarInferenceTypes;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
-import org.mbte.groovypp.compiler.transformers.MethodCallExpressionTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -53,6 +43,8 @@ import org.objectweb.asm.Opcodes;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.codehaus.groovy.ast.ClassHelper.*;
 
 public class StaticCompiler extends CompilerTransformer implements Opcodes {
     private StaticMethodBytecode methodBytecode;
@@ -68,7 +60,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
     public StaticCompiler(SourceUnit su, SourceUnitContext context, StaticMethodBytecode methodBytecode, StackAwareMethodAdapter mv, org.mbte.groovypp.compiler.CompilerStack compileStack, int debug, boolean fastArrays, TypePolicy policy, String baseClosureName) {
         super(su, methodBytecode.methodNode.getDeclaringClass(), methodBytecode.methodNode, mv, compileStack, debug, fastArrays, policy, baseClosureName, context);
         this.methodBytecode = methodBytecode;
-        shouldImproveReturnType = methodNode.getName().equals("doCall");
+        shouldImproveReturnType = methodNode.getName().equals("doCall") || methodNode.getReturnType() == TypeUtil.IMPROVE_TYPE;
 
         mv.visitLabel(startLabel);
         if (methodNode instanceof ConstructorNode && !((ConstructorNode) methodNode).firstStatementIsSpecialConstructorCall()) {
@@ -76,6 +68,49 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESPECIAL, BytecodeHelper.getClassInternalName(classNode.getSuperClass()), "<init>", "()V");
         }
+    }
+
+    public static void closureToMethod(ClassNode type, CompilerTransformer compiler, ClassNode objType, String keyName, ClosureExpression ce) {
+        if (ce.getParameters() != null && ce.getParameters().length == 0) {
+            final VariableScope scope = ce.getVariableScope();
+            ce = new ClosureExpression(new Parameter[1], ce.getCode());
+            ce.setVariableScope(scope);
+            ce.getParameters()[0] = new Parameter(OBJECT_TYPE, "it", new ConstantExpression(null));
+        }
+
+        final ClosureMethodNode _doCallMethod = new ClosureMethodNode(
+                keyName,
+                Opcodes.ACC_PUBLIC|Opcodes.ACC_FINAL,
+                OBJECT_TYPE,
+                ce.getParameters() == null ? Parameter.EMPTY_ARRAY : ce.getParameters(),
+                ce.getCode());
+
+        if(objType != type)
+            objType.addMethod(_doCallMethod);
+
+        _doCallMethod.createDependentMethods(objType);
+
+        Object methods = ClassNodeCache.getMethods(type, keyName);
+        if (methods != null) {
+            if (methods instanceof MethodNode) {
+                MethodNode baseMethod = (MethodNode) methods;
+                _doCallMethod.checkOverride(baseMethod, type);
+            }
+            else {
+                FastArray methodsArr = (FastArray) methods;
+                int methodCount = methodsArr.size();
+                for (int j = 0; j != methodCount; ++j) {
+                    MethodNode baseMethod = (MethodNode) methodsArr.get(j);
+                    _doCallMethod.checkOverride(baseMethod, type);
+                }
+            }
+        }
+
+        if(objType == type)
+            objType.addMethod(_doCallMethod);
+
+        ClassNodeCache.clearCache (_doCallMethod.getDeclaringClass());
+        compiler.replaceMethodCode(_doCallMethod.getDeclaringClass(), _doCallMethod);
     }
 
     protected Statement getCode() {
@@ -315,7 +350,6 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         mv.visitJumpInsn(op, label);
     }
 
-    @Override
     public void visitBlockStatement(BlockStatement block) {
         compileStack.pushVariableScope(block.getVariableScope());
         for (Statement statement : block.getStatements() ) {
@@ -327,7 +361,6 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         compileStack.pop();
     }
 
-    @Override
     public void visitBreakStatement(BreakStatement statement) {
         visitStatement(statement);
 
@@ -342,8 +375,14 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         mv.visitJumpInsn(GOTO, breakLabel);
     }
 
-    @Override
     public void visitExpressionStatement(ExpressionStatement statement) {
+//        if(statement.getStatementLabel() != null) {
+//            if(statement.getExpression() instanceof ClosureExpression) {
+//                closureToMethod(classNode, this, classNode, statement.getStatementLabel(), (ClosureExpression)statement.getExpression());
+//                return;
+//            }
+//        }
+//
         visitStatement(statement);
 
         super.visitExpressionStatement(statement);
@@ -379,7 +418,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
                 etype = generics[0].getType();
             }
         }
-        if (forLoop.getVariable().isDynamicTyped())
+        if (forLoop.getVariable().getType() == ClassHelper.DYNAMIC_TYPE)
             forLoop.getVariable().setType(etype);
         else
             etype = forLoop.getVariable().getType();
@@ -476,7 +515,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
                 visitForLoopWithArray(forLoop, collectionExpression.getType().getComponentType());
             } else if (forLoop.getCollectionExpression() instanceof RangeExpression &&
                     TypeUtil.equal(TypeUtil.RANGE_OF_INTEGERS_TYPE, collectionExpression.getType())
-                    && (forLoop.getVariable().isDynamicTyped() ||
+                    && (forLoop.getVariable().getType() == ClassHelper.DYNAMIC_TYPE ||
                         forLoop.getVariable().getType().equals(ClassHelper.int_TYPE))) {
                 // This is the IntRange (or EmptyRange). Iterate with index.
                 visitForLoopWithIntRange(forLoop);

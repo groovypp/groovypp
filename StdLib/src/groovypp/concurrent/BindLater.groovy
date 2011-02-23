@@ -22,8 +22,7 @@ import java.util.concurrent.*
 
 /**
  */
-@Typed
-class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
+@Typed class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
     // any of this bits mean that calculation either completed or (with S_RUNNING) about to complete
     protected static final int S_SET           = 1
     protected static final int S_EXCEPTION     = 2
@@ -36,7 +35,11 @@ class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
     // contains either null or running thread or result or exception
     private volatile def internalData
 
-    private volatile FList bindListeners = FList.emptyList
+    private volatile FList boundListeners = FList.emptyList
+
+    final boolean isRunning() {
+        getState() & S_RUNNING
+    }
 
     final boolean isCancelled() {
         def s = getState()
@@ -66,7 +69,7 @@ class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
             if (compareAndSetState(s, S_CANCELLED|S_RUNNING)) {
                 if (mayInterruptIfRunning) {
                     Thread r = internalData
-                    if (r != null)
+                    if (r)
                         r.interrupt()
                 }
                 releaseShared(S_CANCELLED)
@@ -115,46 +118,76 @@ class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
         }
         
         for (;;) {
-            def l = bindListeners
+            def l = boundListeners
             if (l == null) {
-                // it mean done worked already
-                invokeListener(listener)
+                // it means done() worked already
+                listener.onBound(this)
                 return this
             }
 
-            if(bindListeners.compareAndSet(l,l + listener))
+            if(boundListeners.compareAndSet(l,l + listener))
                 return this
         }
     }
 
-    private void invokeListener (Listener<V> listener) {
-          listener.onBound(this)
-    }
-
-    protected final void done() {
+    protected void done() {
         for (;;) {
-            def l = bindListeners
-            if (bindListeners.compareAndSet(l, null)) {
+            def l = boundListeners
+            if (boundListeners.compareAndSet(l, null)) {
                 for (el in l.reverse()) {
-                    if (el instanceof BlockingQueue) {
-                        ((BlockingQueue)el).put(this)
-                        continue
-                    }
+                  switch(el) {
+                    case BlockingQueue:
+                      el.put(this)
+                    break
 
-                    if (el instanceof Listener) {
-                        invokeListener((Listener)el)
-                    }
+                    case Listener:
+                        el.onBound(this)
+                    break
+                  }
                 }
                 return
             }
         }
     }
 
-    public boolean set(V v) {
+    /**
+     * Validates new value before it set
+     *
+     * IllegalStateException will be thrown if this method return false or thrown exception other than RuntimeException
+     *
+     * Default implementation of this method always returns true and should be overriden by subclasses
+     *
+     * @param value data to validate
+     * @return
+     */
+    protected boolean doValidate(V value) { true }
+
+    protected final void validate(V value) {
+      try {
+        if(!doValidate(value))
+          throw new IllegalStateException("Illegal reference state")
+      }
+      catch(RuntimeException re) {
+        throw re
+      }
+      catch(Throwable t) {
+        throw new IllegalStateException("Illegal reference state", t)
+      }
+    }
+
+    final boolean set(V v) {
         for (;;) {
             def s = getState()
             if (s & S_DONE)
                 return false
+
+            try {
+              validate(v)
+            }
+            catch(e) {
+              return setException(e)
+            }
+
             if (compareAndSetState(s, S_SET|S_RUNNING)) {
                 internalData = v
                 releaseShared(S_SET)
@@ -164,7 +197,7 @@ class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
         }
     }
 
-    public boolean setException(Throwable t) {
+    final boolean setException(Throwable t) {
         for (;;) {
             def s = getState()
             if (s & S_DONE)
@@ -204,7 +237,7 @@ class BindLater<V> extends AbstractQueuedSynchronizer implements Future<V> {
         }
     }
 
-    abstract static class Listener<V> {
+    abstract static interface Listener<V> {
         abstract void onBound (BindLater<V> data)
     }
 

@@ -5,5 +5,4 @@ junit*.properties
 .project
 tempbin
 .gradle
-bin
 Compiler/build

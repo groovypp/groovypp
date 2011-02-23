@@ -49,6 +49,12 @@ public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpress
                 ce.getParameters() == null ? Parameter.EMPTY_ARRAY : ce.getParameters(),
                 ce.getCode());
 
+
+        _doCallMethod.getCode().visit(new LabeledClosureExtractor(compiler.su, newType) {
+            protected void onExtractedMethod(MethodNode methodNode) {
+            }
+        });
+
         newType.addMethod(_doCallMethod);
         newType.setDoCallMethod(_doCallMethod);
 

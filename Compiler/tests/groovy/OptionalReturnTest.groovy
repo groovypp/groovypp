@@ -119,17 +119,16 @@ class OptionalReturnTest extends GroovyShellTestCase {
     void testLastExpressionIsMethodCall() {
        shell.evaluate  """
 
-          @Typed
+          @Typed package p
+
           def bar() {
             foo()
           }
 
-          @Typed
           def foo() {
             "fooReturn"
           }
 
-          @Typed
           def u() {
             def value = bar()
             assert value == 'fooReturn'

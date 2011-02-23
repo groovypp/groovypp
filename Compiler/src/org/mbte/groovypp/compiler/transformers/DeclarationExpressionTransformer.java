@@ -34,7 +34,7 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
         if (ve.getOriginType() != ve.getType())
             ve.setType(ve.getOriginType());
 
-        if (!ve.isDynamicTyped()) {
+        if (ve.getType() != ClassHelper.DYNAMIC_TYPE) {
             if (ClassHelper.isPrimitiveType(ve.getType()) && (exp.getRightExpression() instanceof ConstantExpression)) {
                 ConstantExpression constantExpression = (ConstantExpression) exp.getRightExpression();
                 if (constantExpression.getValue() == null) {
@@ -55,7 +55,7 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
 
         if (hasFieldAnnotation(ve)) {
             ClassNode type;
-            if (!ve.isDynamicTyped()) {
+            if (ve.getType() != ClassHelper.DYNAMIC_TYPE) {
                 type = ve.getType();
             } else {
                 type = right.getType();
@@ -76,7 +76,7 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
             };
         }
         else {
-            if (!ve.isDynamicTyped()) {
+            if (ve.getType() != ClassHelper.DYNAMIC_TYPE) {
                 if (ve.getType().equals(right.getType().redirect()) &&
                         ve.getType().getGenericsTypes() == null) {
                     ve.setType(right.getType());   //this is safe as long as generics are variant in type parameter.
@@ -86,6 +86,15 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
                 return new Static(exp, ve, right, compiler);
             } else {
                 right = compiler.transformSynthetic(right);
+
+                if(ClassHelper.isPrimitiveType(right.getType())) {
+                    ve.setType(right.getType());
+                    Variable accessedVariable = ve.getAccessedVariable();
+                    if(accessedVariable != ve && accessedVariable instanceof VariableExpression) {
+                        ((VariableExpression) accessedVariable).setType(right.getType());
+                    }
+                    return new Static(exp, ve, right, compiler);
+                }
 
                 // let's try local type inference
                 compiler.getLocalVarInferenceTypes().add(ve, right.getType());

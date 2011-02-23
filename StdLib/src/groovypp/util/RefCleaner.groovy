@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package groovypp.util
+@Typed package groovypp.util
 
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
 import java.lang.ref.SoftReference
 import java.util.concurrent.ConcurrentHashMap
 
-@Typed abstract class RefCleaner {
+abstract class RefCleaner {
     static final protected ReferenceQueue queue = []
 
     static {
@@ -84,7 +84,7 @@ abstract class RefValueMap<K,V,W extends MapValueRef<K,V>> extends ConcurrentHas
         while(true) {
             def prevRef = putIfAbsent(key, newRef)
             if (prevRef) {
-                def prev = prevRef.get()
+                def prev // @todo = prevRef.get()
                 if (prev)
                     return prev
 

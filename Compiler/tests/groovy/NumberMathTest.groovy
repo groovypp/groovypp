@@ -211,7 +211,7 @@ class NumberMathTest extends GroovyShellTestCase {
           def u() {
             def d = 100L
             d /= 33L
-            assert d.class == BigDecimal.class
+            assert d.class == long.class
           }
 
           u()
@@ -223,7 +223,7 @@ class NumberMathTest extends GroovyShellTestCase {
 
           @Typed
           def u() {
-              def i = 12
+              def i = 12.toString()
               i += " angry men"
               assert ['1','2','n','g'] == i.chars[[0,1,-1,5]];
           }

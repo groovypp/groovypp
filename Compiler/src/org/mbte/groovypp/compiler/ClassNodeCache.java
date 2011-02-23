@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,6 +58,7 @@ public class ClassNodeCache {
     }
 
     public static class ClassNodeInfo {
+        Map<String, Object> superMethods;
         Map<String, Object> methods;
         Map<String, Object> fields;
         Map<String, Object> staticMethods;
@@ -241,6 +242,16 @@ public class ClassNodeCache {
         return info.methods.get(methodName);
     }
 
+    public static synchronized Object getSuperMethods(ClassNode type, String methodName) {
+
+        final ClassNodeInfo info = getClassNodeInfo(type.redirect());
+
+        if (info.superMethods == null) {
+            fillMethodsMaps(type, info);
+        }
+        return info.superMethods.get(methodName);
+    }
+
     public static synchronized Object getStaticMethods(ClassNode type, String methodName) {
 
         final ClassNodeInfo info = getClassNodeInfo(type.redirect());
@@ -254,35 +265,37 @@ public class ClassNodeCache {
     private static void fillMethodsMaps(ClassNode type, ClassNodeInfo info) {
         Map<String, Object> methodsMap = new HashMap<String, Object>();
         Map<String, Object> staticMethodsMap = new HashMap<String, Object>();
+        Map<String, Object> superMethodsMap = new HashMap<String, Object>();
 
         final Set<ClassNode> ifaces = getAllInterfaces(type);
         for (ClassNode node : ifaces) {
-            addMethods(methodsMap, staticMethodsMap, node.getMethods(), true, type);
+            addMethods(methodsMap, staticMethodsMap, superMethodsMap, node.getMethods(), true, type);
         }
 
         for (ClassNode cn : getSuperClassesAndSelf(type)) {
-            addMethods(methodsMap, staticMethodsMap, cn.getMethods(), cn == type, type);
+            addMethods(methodsMap, staticMethodsMap, superMethodsMap, cn.getMethods(), cn == type, type);
 
             final List<MethodNode> list = dgmMethods.get(cn);
             if (list != null) {
-                addMethods(methodsMap, staticMethodsMap, list, true, type);
+                addMethods(methodsMap, staticMethodsMap, superMethodsMap, list, true, type);
             }
         }
 
         for (ClassNode node : ifaces) {
             final List<MethodNode> list = dgmMethods.get(node);
             if (list != null) {
-                addMethods(methodsMap, staticMethodsMap, list, true, type);
+                addMethods(methodsMap, staticMethodsMap, superMethodsMap, list, true, type);
             }
         }
 
         if (type.isArray()) {
             final MethodNode cloneNode = new MethodNode("clone", Opcodes.ACC_PUBLIC, ClassHelper.OBJECT_TYPE, Parameter.EMPTY_ARRAY, ClassNode.EMPTY_ARRAY, null);
             cloneNode.setDeclaringClass(type);
-            addMethods(methodsMap, staticMethodsMap, Collections.singletonList(cloneNode), true, type);
+            addMethods(methodsMap, staticMethodsMap, superMethodsMap, Collections.singletonList(cloneNode), true, type);
         }
         info.methods = methodsMap;
         info.staticMethods = staticMethodsMap;
+        info.superMethods = superMethodsMap;
     }
 
     private static List<ClassNode> getSuperClassesAndSelf(ClassNode classNode) {
@@ -355,6 +368,7 @@ public class ClassNodeCache {
 
     static void addMethods(Map<String, Object> nameMap,
                            Map<String, Object> staticMethodsMap,
+                           Map<String, Object> superMethodsMap,
                            List<MethodNode> methods,
                            boolean usePrivate,
                            ClassNode type) {
@@ -372,6 +386,20 @@ public class ClassNodeCache {
                     }
                 }
             }
+
+            if(m.isPrivate())
+                continue;
+
+            if(m instanceof DGM)
+                continue;
+
+            if(m.getDeclaringClass() == type)
+                continue;
+
+            if(m.isStatic())
+                continue;
+
+            superMethodsMap.put(m.getName(), addMethodToList(superMethodsMap.get(m.getName()), m, type));
         }
     }
 
