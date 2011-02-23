@@ -20,6 +20,7 @@ import groovy.lang.MetaClass;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.ConstantExpression;
 import org.codehaus.groovy.ast.expr.ConstructorCallExpression;
+import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.VariableExpression;
 import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
@@ -229,7 +230,15 @@ public class CleaningVerifier extends Verifier {
                 field.setInitialValueExpression(null);
             }
         }
-        super.addInitialization(node);
+
+        if(carefully) {
+            addTimeStamp(node);
+            for (Iterator iter = node.getDeclaredConstructors().iterator(); iter.hasNext();) {
+                addInitialization(node, (ConstructorNode) iter.next());
+            }
+        }
+        else
+            super.addInitialization(node);
     }
 
     public void visitClass(ClassNode node) {

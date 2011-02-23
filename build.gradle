@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.158'
+version = '0.4.170'
 
 test {
   maxHeapSize = '512m'
@@ -10,9 +10,9 @@ test {
 }
 
 dependencies {
-    groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.6')
+    groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.8')
 
-    compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.6')
+    compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.8')
     compile "junit:junit:4.8.1"
 
     testRuntime(group: 'org.apache.ant', name: 'ant', version: '1.8.1')
@@ -83,14 +83,6 @@ task prepareMetaInf << {
 
 task cleanTest(dependsOn: [clean, test])
 
-task nodepJar(type:Jar, dependsOn:jar) {
-  appendix = 'nodep'
-}
-
-task nodepAllJar(type:Jar, dependsOn:nodepJar) {
-  appendix = 'all-nodep'
-}
-
 task sourcesJar(type: Jar) {
      classifier = 'sources'
      from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
@@ -114,7 +106,7 @@ task allNodepSourcesJar(type: Jar) {
      from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
 }
 
-task allJar(type:Jar, dependsOn:nodepAllJar) {
+task allJar(type:Jar, dependsOn:[jar]) {
     appendix = 'all'
 
     doLast {
@@ -124,10 +116,30 @@ task allJar(type:Jar, dependsOn:nodepAllJar) {
           zipfileset(dir: 'build/classes/main')
           rule(pattern:"org.objectweb.**", result:"groovyjarjarasm.@1")
       }
-
-      ant.copy(file: "build/libs/groovypp-${version}.jar", tofile:"build/libs/groovypp-nodep-${version}.jar")
-      ant.copy(file: "build/libs/groovypp-all-${version}.jar", tofile:"build/libs/groovypp-all-nodep-${version}.jar")
     }
+}
+
+task nodepAllJar(type:Jar, dependsOn:[jar]) {
+    appendix = 'all-nodep'
+
+    doLast {
+      ant.taskdef(name:'jarjar', classname: 'com.tonicsystems.jarjar.JarJarTask', classpath: 'lib/jarjar-1.0.jar')
+
+      ant.jarjar(jarfile: "build/libs/groovypp-all-nodep-${version}.jar") {
+          zipfileset(dir: 'build/classes/main')
+          rule(pattern:"org.objectweb.**", result:"groovyjarjarasm.@1")
+      }
+    }
+}
+
+task nodepJar(type:Jar, dependsOn:jar) {
+  appendix = 'nodep'
+
+  doLast {
+    ant.jar(jarfile: "build/libs/groovypp-nodep-${version}.jar") {
+        zipfileset(dir: 'build/classes/main')
+    }
+  }
 }
 
 task installZip(dependsOn:[jar, allJar]) << {
@@ -163,12 +175,18 @@ artifacts {
     archives nodepAllJar
 }
 
+uploadArchives.doFirst {
+  println 'copying archives'
+  ant.copy(file: "build/libs/groovypp-${version}.jar", tofile:"build/libs/groovypp-nodep-${version}.jar")
+}
+
 uploadArchives {
     repositories.mavenDeployer {
-//        repository(url: "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/") {
-        repository(url: "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath) {
+        repository(url: "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/") {
+//        repository(url: "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath) {
             authentication(userName: ARTIFACTORY_USER, password: ARTIFACTORY_PASSWORD)
         }
+
         addFilter('groovypp') {artifact, file ->
             !artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
         }
@@ -194,6 +212,14 @@ uploadArchives {
     }
 }
 
+compileCompilerGroovy.doLast {
+  copy {
+    from 'Compiler/src/META-INF'
+    into 'build/classes/main/META-INF'
+  }
+}
+
+compileTestCompilerGroovy.dependsOn = [compileCompilerGroovy]
 
 compileStdlibGroovy.dependsOn << [compileCompilerGroovy, prepareMetaInf]
 
@@ -201,6 +227,6 @@ compileGroovy.dependsOn << compileStdlibGroovy
 
 compileTestGroovy.dependsOn << [compileTestCompilerGroovy, compileTestStdlibGroovy]
 
-compileTestCompilerGroovy.dependsOn << compileStdlibGroovy
+//compileTestCompilerGroovy.dependsOn << compileStdlibGroovy
 
 compileTestStdlibGroovy.dependsOn   << compileStdlibGroovy

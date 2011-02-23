@@ -24,6 +24,8 @@ import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.EmptyStatement;
 import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
+import org.codehaus.groovy.classgen.BytecodeHelper;
+import org.codehaus.groovy.classgen.BytecodeInstruction;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.CompilePhase;
 import org.codehaus.groovy.control.SourceUnit;
@@ -32,6 +34,7 @@ import org.codehaus.groovy.syntax.SyntaxException;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.util.FastArray;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import java.util.*;
@@ -96,7 +99,7 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
         SourceUnitContext context = new SourceUnitContext();
         for (Map.Entry<MethodNode, TypePolicy> entry : toProcess.entrySet()) {
-            final MethodNode mn = entry.getKey();
+            MethodNode mn = entry.getKey();
             final TypePolicy policy = entry.getValue();
 
             final List<AnnotationNode> anns = mn.getAnnotations(COMPILE_TYPE);
@@ -280,7 +283,8 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
             TypePolicy innerClassPolicy = getPolicy(node, source, classPolicy);
 
-            allMethods(source, toProcess, node, innerClassPolicy);        }
+            allMethods(source, toProcess, node, innerClassPolicy);
+        }
     }
 
     public static TypePolicy getPolicy(AnnotatedNode ann, SourceUnit source, TypePolicy def) {

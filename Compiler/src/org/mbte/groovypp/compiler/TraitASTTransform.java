@@ -47,6 +47,8 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
         final boolean forceTyped = source.getName().endsWith(".gpp");
         AnnotationNode pkgTypedAnn = getTypedAnnotation(module.getPackage());
         for (ClassNode classNode : module.getClasses()) {
+            VolatileFieldUpdaterTransform.addUpdaterForVolatileFields(classNode);
+
             boolean process = false;
             boolean typed = false;
             for (AnnotationNode ann : classNode.getAnnotations()) {

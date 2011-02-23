@@ -19,7 +19,9 @@ package org.mbte.groovypp.compiler;
 import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.GroovyCodeVisitor;
 import org.codehaus.groovy.ast.MethodNode;
+import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
+import org.codehaus.groovy.classgen.AsmClassGenerator;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeInstruction;
@@ -101,7 +103,13 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
         if (!(code instanceof BytecodeSequence)) {
             try {
                 final StaticMethodBytecode methodBytecode = new StaticMethodBytecode(methodNode, context, source, code, compileStack, debug, fastArrays, policy, baseClosureName);
-                methodNode.setCode(new MyBytecodeSequence(methodBytecode));
+                if(!methodNode.getName().equals("<clinit>"))
+                    methodNode.setCode(new MyBytecodeSequence(methodBytecode));
+                else {
+                    BlockStatement blockStatement = new BlockStatement();
+                    blockStatement.getStatements().add(new MyBytecodeSequence(methodBytecode));
+                    methodNode.setCode(blockStatement);
+                }
                 if (methodBytecode.compiler.shouldImproveReturnType && !TypeUtil.NULL_TYPE.equals(methodBytecode.compiler.calculatedReturnType))
                     methodNode.setReturnType(methodBytecode.compiler.calculatedReturnType);
             }
@@ -153,7 +161,8 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
 
         @Override
         public void visit(GroovyCodeVisitor visitor) {
-//            ((StaticMethodBytecode) getInstructions().get(0)).code.visit(visitor);
+            if(visitor instanceof AsmClassGenerator)
+                ((AsmClassGenerator)visitor).visitBytecodeSequence(this);
         }
     }
 }
