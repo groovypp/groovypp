@@ -290,6 +290,10 @@ public class ClosureUtil {
             closureType.setInterfaces(baseType.equals(ClassHelper.CLOSURE_TYPE) ? new ClassNode[] {ClassHelper.GENERATED_CLOSURE_Type} : ClassNode.EMPTY_ARRAY);
             closureType.setSuperClass(baseType);
         }
+
+        for(MethodNode mn: closureType.getMethods()) {
+            CompileASTTransform.improveMethodTypes(mn);
+        }
     }
 
     public static void createClosureConstructor(final ClassNode newType, final Parameter[] constrParams, Expression superArgs, CompilerTransformer compiler) {

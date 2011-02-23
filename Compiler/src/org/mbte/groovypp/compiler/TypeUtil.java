@@ -87,6 +87,7 @@ public class TypeUtil {
     public static final ClassNode POWER_ASSERT_ERROR = make(PowerAssertionError.class);
     public static final ClassNode SCRIPT_BYTECODE_ADAPTER = make(ScriptBytecodeAdapter.class);
     public static final ClassNode ASSERTION_RENDERER = make(AssertionRenderer.class);
+    public static final ClassNode IMPROVE_TYPE = new ClassNode(Object.class);
 
     public TypeUtil() {
         RAW_CLASS = new ClassNode(RawMarker.class);

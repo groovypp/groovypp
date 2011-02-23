@@ -20,6 +20,9 @@ import groovy.lang.TypePolicy;
 import groovy.lang.Typed;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
+import org.codehaus.groovy.ast.stmt.BlockStatement;
+import org.codehaus.groovy.ast.stmt.EmptyStatement;
+import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.CompilePhase;
@@ -28,6 +31,7 @@ import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.syntax.SyntaxException;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
+import org.codehaus.groovy.util.FastArray;
 import org.objectweb.asm.Opcodes;
 
 import java.util.*;
@@ -53,7 +57,7 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
             classNode = parent.getDeclaringClass();
             if (methodPolicy != TypePolicy.DYNAMIC) {
                 final MethodNode mn = (MethodNode) parent;
-                addMethodToProcessingQueue(source, toProcess, methodPolicy, mn);
+                addMethodToProcessingQueue(source, toProcess, methodPolicy, mn, null);
             }
 
         } else if (parent instanceof ClassNode) {
@@ -82,6 +86,13 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
         final Expression fastArraysMember = ((AnnotationNode) nodes[0]).getMember("fastArrays");
         boolean fastArrays = fastArraysMember == null || fastArraysMember instanceof ConstantExpression && !((ConstantExpression) fastArraysMember).getValue().equals(Boolean.FALSE);
+
+        // here we want to improve method types
+        for (Map.Entry<MethodNode, TypePolicy> entry : toProcess.entrySet()) {
+            final MethodNode mn = entry.getKey();
+
+            improveMethodTypes(mn);
+        }
 
         SourceUnitContext context = new SourceUnitContext();
         for (Map.Entry<MethodNode, TypePolicy> entry : toProcess.entrySet()) {
@@ -124,14 +135,108 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
         }
     }
 
-    private void addMethodToProcessingQueue(final SourceUnit source, final Map<MethodNode, TypePolicy> toProcess, final TypePolicy methodPolicy, MethodNode mn) {
+    public static void improveMethodTypes(MethodNode mn) {
+        boolean dynamic = mn.getReturnType() == ClassHelper.DYNAMIC_TYPE || mn.getReturnType() == TypeUtil.IMPROVE_TYPE;
+        for(Parameter p: mn.getParameters()) {
+            dynamic |= p.getType() == ClassHelper.DYNAMIC_TYPE;
+        }
+
+        if(dynamic) {
+            ClassNode type = mn.getDeclaringClass();
+            Object methods = ClassNodeCache.getSuperMethods(type, mn.getName());
+            boolean changed = false;
+            if (methods != null) {
+                if (methods instanceof MethodNode) {
+                    MethodNode baseMethod = (MethodNode) methods;
+                    if(baseMethod.getDeclaringClass() != mn.getDeclaringClass())
+                        changed = checkOverride(mn, baseMethod, type);
+                }
+                else {
+                    FastArray methodsArr = (FastArray) methods;
+                    int methodCount = methodsArr.size();
+                    for (int j = 0; j != methodCount; ++j) {
+                        MethodNode baseMethod = (MethodNode) methodsArr.get(j);
+                        if(baseMethod.getDeclaringClass() != mn.getDeclaringClass()) {
+                            changed = checkOverride(mn, baseMethod, type);
+                            if(changed)
+                                break;
+                        }
+                    }
+                }
+            }
+
+            if(changed)
+                ClassNodeCache.clearCache (mn.getDeclaringClass());
+        }
+    }
+
+    private static boolean checkOverride(MethodNode method, MethodNode baseMethod, ClassNode baseType) {
+        class Mutation {
+            final Parameter p;
+            final ClassNode t;
+
+            public Mutation(ClassNode t, Parameter p) {
+                this.t = t;
+                this.p = p;
+            }
+
+            void mutate () {
+                p.setType(t);
+            }
+        }
+
+        List<Mutation> mutations = null;
+
+        Parameter[] baseMethodParameters = baseMethod.getParameters();
+        Parameter[] closureParameters = method.getParameters();
+
+        if (closureParameters.length == baseMethodParameters.length) {
+            for (int i = 0; i < closureParameters.length; i++) {
+                Parameter closureParameter = closureParameters[i];
+                Parameter missingMethodParameter = baseMethodParameters[i];
+
+                ClassNode parameterType = missingMethodParameter.getType();
+                if (!parameterType.redirect().equals(closureParameter.getType().redirect()) || closureParameter.getType() == ClassHelper.DYNAMIC_TYPE) {
+                    parameterType = TypeUtil.getSubstitutedType(parameterType, baseType.redirect(), baseType);
+                    if (parameterType.redirect().equals(closureParameter.getType().redirect()) ||
+                        closureParameter.getType() == ClassHelper.DYNAMIC_TYPE) {
+                        parameterType = TypeUtil.withGenericTypes(parameterType, (GenericsType[]) null);
+                        if (mutations == null)
+                            mutations = new ArrayList<Mutation>();
+                        mutations.add(new Mutation(parameterType, closureParameter));
+                    } else {
+                        return false;
+                    }
+                }
+            }
+
+            if (mutations != null)
+                for (Mutation mutation : mutations) {
+                    mutation.mutate();
+                }
+            ClassNode returnType = TypeUtil.getSubstitutedType(baseMethod.getReturnType(), baseType.redirect(), baseType);
+            method.setReturnType(returnType);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void addMethodToProcessingQueue(final SourceUnit source, final Map<MethodNode, TypePolicy> toProcess, final TypePolicy methodPolicy, final MethodNode mn, final LinkedList<MethodNode> methods) {
         final Statement code = mn.getCode();
         if (code == null)
             return;
 
+        code.visit(new LabeledClosureExtractor(source, mn.getDeclaringClass()) {
+            protected void onExtractedMethod(MethodNode methodNode) {
+                addMethodToProcessingQueue(source, toProcess, methodPolicy, methodNode, methods);
+                methods.addLast(methodNode);
+            }
+        });
+
         toProcess.put(mn, methodPolicy);
+
         code.visit(new CodeVisitorSupport(){
-            @Override
             public void visitConstructorCallExpression(ConstructorCallExpression call) {
                 final ClassNode type = call.getType();
                 if (type instanceof InnerClassNode && ((InnerClassNode)type).isAnonymous()) {
@@ -143,19 +248,23 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
     }
 
     private void allMethods(SourceUnit source, Map<MethodNode, TypePolicy> toProcess, ClassNode classNode, TypePolicy classPolicy) {
-        for (MethodNode mn : classNode.getMethods()) {
+        LinkedList<MethodNode> methods = new LinkedList<MethodNode>(classNode.getMethods());
+        while (!methods.isEmpty()) {
+            MethodNode mn = methods.removeFirst();
             if (!mn.isAbstract() && (mn.getModifiers() & ACC_SYNTHETIC) == 0) {
                 TypePolicy methodPolicy = getPolicy(mn, source, classPolicy);
                 if (methodPolicy != TypePolicy.DYNAMIC) {
-                    addMethodToProcessingQueue(source, toProcess, methodPolicy, mn);
+                    addMethodToProcessingQueue(source, toProcess, methodPolicy, mn, methods);
                 }
             }
         }
 
-        for (MethodNode mn : classNode.getDeclaredConstructors()) {
+        methods = new LinkedList<MethodNode>(classNode.getDeclaredConstructors());
+        while (!methods.isEmpty()) {
+            MethodNode mn = methods.removeFirst();
             TypePolicy methodPolicy = getPolicy(mn, source, classPolicy);
             if (methodPolicy != TypePolicy.DYNAMIC) {
-                addMethodToProcessingQueue(source, toProcess, methodPolicy, mn);
+                addMethodToProcessingQueue(source, toProcess, methodPolicy, mn, methods);
             }
         }
 
@@ -174,7 +283,10 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
             allMethods(source, toProcess, node, innerClassPolicy);        }
     }
 
-    private TypePolicy getPolicy(AnnotatedNode ann, SourceUnit source, TypePolicy def) {
+    public static TypePolicy getPolicy(AnnotatedNode ann, SourceUnit source, TypePolicy def) {
+        if(ann == null)
+            return def;
+
         final List<AnnotationNode> list = ann.getAnnotations(COMPILE_TYPE);
         if (list.isEmpty())
             return def;
@@ -218,7 +330,7 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
         return TypePolicy.STATIC;
     }
     
-    private boolean checkDuplicateTypedAnn(List<AnnotationNode> list, SourceUnit source) {
+    private static boolean checkDuplicateTypedAnn(List<AnnotationNode> list, SourceUnit source) {
     	if(list.size() > 1) {
     		AnnotationNode secondAnn = list.get(1);
             int line = secondAnn.getLineNumber();

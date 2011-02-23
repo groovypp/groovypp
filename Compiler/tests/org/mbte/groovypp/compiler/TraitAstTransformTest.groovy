@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.mbte.groovypp.compiler
 
-package groovypp.concurrent
+class TraitAstTransformTest extends GroovyShellTestCase {
+  void testMe () {
+    shell.evaluate """
+    @Typed package p
 
-import java.util.concurrent.Callable
-import java.util.concurrent.Future
+@Trait abstract class W { int x }
 
-/**
- * Specially optimized version of FutureTask from JDK
- */
-@Typed abstract class CallLater<V> extends BindLater<V> implements Runnable, Callable<V> {
-    final void run() {
-      if (setRunningThread()) {
-          try {
-              set(call())
-          }
-          catch (Throwable ex) {
-              setException(ex)
-          }
+    class A implements W {
+      static class B implements W {
+        volatile int a
+
+        void f () {
+          a.compareAndSet(0,1)
+        }
       }
     }
+
+    new A()
+    """
+  }
 }

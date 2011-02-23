@@ -19,7 +19,6 @@ package org.mbte.groovypp.compiler.transformers;
 import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.util.FastArray;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
@@ -388,7 +387,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
 
             for (MapEntryExpression me : methods) {
                 final String keyName = (String) ((ConstantExpression) me.getKeyExpression()).getValue();
-                closureToMethod(type, compiler, objType, keyName, (ClosureExpression)me.getValueExpression());
+                StaticCompiler.closureToMethod(type, compiler, objType, keyName, (ClosureExpression) me.getValueExpression());
             }
 
             return new BytecodeExpr(exp, objType) {
@@ -434,44 +433,6 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
                 }
             };
         }
-    }
-
-    private void closureToMethod(ClassNode type, CompilerTransformer compiler, ClassNode objType, String keyName, ClosureExpression ce) {
-        if (ce.getParameters() != null && ce.getParameters().length == 0) {
-            final VariableScope scope = ce.getVariableScope();
-            ce = new ClosureExpression(new Parameter[1], ce.getCode());
-            ce.setVariableScope(scope);
-            ce.getParameters()[0] = new Parameter(ClassHelper.OBJECT_TYPE, "it", new ConstantExpression(null));
-        }
-
-        final ClosureMethodNode _doCallMethod = new ClosureMethodNode(
-                keyName,
-                Opcodes.ACC_PUBLIC,
-                ClassHelper.OBJECT_TYPE,
-                ce.getParameters() == null ? Parameter.EMPTY_ARRAY : ce.getParameters(),
-                ce.getCode());
-        objType.addMethod(_doCallMethod);
-
-        _doCallMethod.createDependentMethods(objType);
-
-        Object methods = ClassNodeCache.getMethods(type, keyName);
-        if (methods != null) {
-            if (methods instanceof MethodNode) {
-                MethodNode baseMethod = (MethodNode) methods;
-                _doCallMethod.checkOverride(baseMethod, type);
-            }
-            else {
-                FastArray methodsArr = (FastArray) methods;
-                int methodCount = methodsArr.size();
-                for (int j = 0; j != methodCount; ++j) {
-                    MethodNode baseMethod = (MethodNode) methodsArr.get(j);
-                    _doCallMethod.checkOverride(baseMethod, type);
-                }
-            }
-        }
-
-        ClassNodeCache.clearCache (_doCallMethod.getDeclaringClass());
-        compiler.replaceMethodCode(_doCallMethod.getDeclaringClass(), _doCallMethod);
     }
 
     private ClassNode createNewType(ClassNode type, Expression exp, CompilerTransformer compiler) {

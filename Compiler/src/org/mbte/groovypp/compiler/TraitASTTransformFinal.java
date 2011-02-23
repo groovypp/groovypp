@@ -16,6 +16,7 @@
 
 package org.mbte.groovypp.compiler;
 
+import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import static org.codehaus.groovy.ast.ClassHelper.*;
@@ -53,10 +54,15 @@ public class TraitASTTransformFinal implements ASTTransformation, Opcodes {
             }
         }
 
+        TypePolicy packagePolicy = CompileASTTransform.getPolicy(module.getPackage(), source, TypePolicy.DYNAMIC);
         for (ClassNode classNode : module.getClasses()) {
             if (classNode instanceof InnerClassNode && classNode.getName().endsWith("$TraitImpl")) {
                 continue;
             }
+
+            TypePolicy classPolicy = getClassPolicy(classNode, source, packagePolicy);
+            if(classPolicy == TypePolicy.DYNAMIC)
+                continue;
 
             VolatileFieldUpdaterTransform.addUpdaterForVolatileFields(classNode);
             try {
@@ -74,6 +80,12 @@ public class TraitASTTransformFinal implements ASTTransformation, Opcodes {
 
             improveAbstractMethods(classNode);
         }
+    }
+
+    TypePolicy getClassPolicy (ClassNode classNode, SourceUnit source, TypePolicy def) {
+        if(classNode.getOuterClass() != null)
+            def = getClassPolicy(classNode.getOuterClass(), source, def);
+        return CompileASTTransform.getPolicy(classNode, source, def);
     }
 
     private void makeImplementationMethodsStatic(final ClassNode classNode, final SourceUnit source) {
