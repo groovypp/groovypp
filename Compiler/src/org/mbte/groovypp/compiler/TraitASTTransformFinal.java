@@ -61,8 +61,8 @@ public class TraitASTTransformFinal implements ASTTransformation, Opcodes {
             }
 
             TypePolicy classPolicy = getClassPolicy(classNode, source, packagePolicy);
-            if(classPolicy == TypePolicy.DYNAMIC)
-                continue;
+//            if(classPolicy == TypePolicy.DYNAMIC)
+//                continue;
 
             VolatileFieldUpdaterTransform.addUpdaterForVolatileFields(classNode);
             try {
