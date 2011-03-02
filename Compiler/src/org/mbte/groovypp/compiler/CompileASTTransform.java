@@ -20,12 +20,7 @@ import groovy.lang.TypePolicy;
 import groovy.lang.Typed;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.ast.stmt.BlockStatement;
-import org.codehaus.groovy.ast.stmt.EmptyStatement;
-import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
-import org.codehaus.groovy.classgen.BytecodeHelper;
-import org.codehaus.groovy.classgen.BytecodeInstruction;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.CompilePhase;
 import org.codehaus.groovy.control.SourceUnit;
@@ -34,7 +29,6 @@ import org.codehaus.groovy.syntax.SyntaxException;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.util.FastArray;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import java.util.*;
@@ -175,16 +169,12 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
     private static boolean checkOverride(MethodNode method, MethodNode baseMethod, ClassNode baseType) {
         class Mutation {
-            final Parameter p;
+            final int index;
             final ClassNode t;
 
-            public Mutation(ClassNode t, Parameter p) {
+            public Mutation(ClassNode t, int index) {
                 this.t = t;
-                this.p = p;
-            }
-
-            void mutate () {
-                p.setType(t);
+                this.index = index;
             }
         }
 
@@ -206,17 +196,25 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
                         parameterType = TypeUtil.withGenericTypes(parameterType, (GenericsType[]) null);
                         if (mutations == null)
                             mutations = new ArrayList<Mutation>();
-                        mutations.add(new Mutation(parameterType, closureParameter));
+                        mutations.add(new Mutation(parameterType, i));
                     } else {
                         return false;
                     }
                 }
             }
 
-            if (mutations != null)
-                for (Mutation mutation : mutations) {
-                    mutation.mutate();
+            if (mutations != null) {
+                Parameter[] newParams = closureParameters.clone();
+                for(Mutation m : mutations) {
+                    newParams[m.index] = new Parameter(m.t, closureParameters[m.index].getName());
                 }
+
+                MethodNode found = method.getDeclaringClass().getDeclaredMethod(method.getName(), newParams);
+                if(found != null) {
+                    return false;
+                }
+                method.setParameters(newParams);
+            }
             ClassNode returnType = TypeUtil.getSubstitutedType(baseMethod.getReturnType(), baseType.redirect(), baseType);
             method.setReturnType(returnType);
             return true;

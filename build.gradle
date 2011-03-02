@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.170'
+version = '0.4.171'
 
 test {
   maxHeapSize = '512m'
@@ -154,11 +154,11 @@ task installZip(dependsOn:[jar, allJar]) << {
 task deployGoogle(dependsOn:[jar, allJar, sourcesJar, installZip]) << {
   ant.taskdef(name:"gcupload", classname:"net.bluecow.googlecode.ant.GoogleCodeUploadTask", classpath:"lib/ant-googlecode-0.0.2.jar")
 
-  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/groovypp-${version}.zip", targetfilename:"groovypp-${version}.zip", summary:"Groovy 1.7.5 installation including Groovy++ ${version}", labels:"Featured", verbose:"true")
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/groovypp-${version}.zip", targetfilename:"groovypp-${version}.zip", summary:"Groovy 1.7.8 installation including Groovy++ ${version}", labels:"Featured", verbose:"true")
 
-  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}.jar", targetfilename:"groovypp-${version}.jar", summary:"Groovy++ Jar ${version} (use with groovy-1.7.5+.jar)", labels:"Featured", verbose:"true")
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}.jar", targetfilename:"groovypp-${version}.jar", summary:"Groovy++ Jar ${version} (use with groovy-1.7.8+.jar)", labels:"Featured", verbose:"true")
 
-  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-all-${version}.jar", targetfilename:"groovypp-all-${version}.jar", summary:"Groovy++ Embeddable Jar ${version} (use with groovy-all-1.7.5.jar)", labels:"Featured", verbose:"true")
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-all-${version}.jar", targetfilename:"groovypp-all-${version}.jar", summary:"Groovy++ Embeddable Jar ${version} (use with groovy-all-1.7.8.jar)", labels:"Featured", verbose:"true")
 
   ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}-sources.jar", targetfilename:"groovypp-${version}-sources.jar", summary:"Groovy++ Sources Jar", labels:"Featured", verbose:"true")
 }
@@ -182,8 +182,11 @@ uploadArchives.doFirst {
 
 uploadArchives {
     repositories.mavenDeployer {
-        repository(url: "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/") {
-//        repository(url: "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath) {
+        def repo = "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/"
+        if(System.getProperty("repo") == 'local')
+          repo = "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath
+
+        repository(url: repo) {
             authentication(userName: ARTIFACTORY_USER, password: ARTIFACTORY_PASSWORD)
         }
 

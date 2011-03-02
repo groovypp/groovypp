@@ -18,7 +18,7 @@ package org.mbte.groovypp.compiler
 class LabeledClosureAsMethodTest extends GroovyShellTestCase {
   void testAbstract () {
     shell.evaluate """
-@Typed(debug=true) package p
+@Typed package p
 
 abstract class Listener {
   abstract int call ()
