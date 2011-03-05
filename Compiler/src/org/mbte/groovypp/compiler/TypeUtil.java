@@ -225,7 +225,7 @@ public class TypeUtil {
         return method;
     }
 
-    private static boolean isTransparentClass(ClassNode node) {
+    public static boolean isTransparentClass(ClassNode node) {
         for (String name : TRANSPARENT_DEREFERENCE_CLASSES) {
             if (node.getName().equals(name)) return true;
         }

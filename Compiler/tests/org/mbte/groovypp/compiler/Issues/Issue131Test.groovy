@@ -17,6 +17,7 @@
 package org.mbte.groovypp.compiler.Issues
 
 import static groovy.util.test.CompileTestSupport.shouldCompile
+import static groovy.util.test.CompileTestSupport.shouldNotCompile
 
 @Typed
 public class Issue131Test extends GroovyShellTestCase {
@@ -45,5 +46,21 @@ public class Issue131Test extends GroovyShellTestCase {
                 }
             }
         """
+    }
+
+    void testAssignmentInClosureWithFinalVarTypeMatching () {
+        try {
+        shell.evaluate """
+            @Typed class Test {
+                def foo(Number x) {
+                    def c = {Number it -> x = it}
+                }
+            }
+        """
+        }
+        catch(ex) {
+          assert ex instanceof org.codehaus.groovy.control.MultipleCompilationErrorsException
+          assert ex.message.contains('Cannot modify final field Test$foo$1.x')
+        }
     }
 }

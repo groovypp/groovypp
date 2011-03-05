@@ -40,6 +40,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.codehaus.groovy.ast.ClassHelper.int_TYPE;
+import static org.mbte.groovypp.compiler.TypeUtil.isTransparentClass;
 
 public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpression> {
     private static final Token INTDIV = Token.newSymbol(Types.INTDIV, -1, -1);
@@ -332,18 +333,27 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
         }
 
         BytecodeExpr right = (BytecodeExpr) compiler.transform(be.getRightExpression());
-        MethodNode boxing = TypeUtil.getReferenceBoxingMethod(left.getType(), right.getType());
-        if (boxing != null && !TypeUtil.isDirectlyAssignableFrom(left.getType(), right.getType())) {
-            return ResolvedMethodBytecodeExpr.create(be, boxing, left, new ArgumentListExpression(right), compiler);
-        } else {
-        	ResolvedLeftExpr leftExpr = (ResolvedLeftExpr) left;
-        	if(leftExpr.checkAssignment(false)) {
+        if(isTransparentClass(left.getType())) {
+            MethodNode boxing = TypeUtil.getReferenceBoxingMethod(left.getType(), right.getType());
+            if (boxing != null && !TypeUtil.isDirectlyAssignableFrom(left.getType(), right.getType())) {
+                return ResolvedMethodBytecodeExpr.create(be, boxing, left, new ArgumentListExpression(right), compiler);
+            } else {
+                ResolvedLeftExpr leftExpr = (ResolvedLeftExpr) left;
+                if(leftExpr.checkAssignment(false)) {
+                    return leftExpr.createAssign(be, right, compiler);
+                } else {
+                    compiler.addError("Invalid assignment: " + left.getType() + " is not assignable from " + right.getType(), be);
+                    return null;
+                }
+            }
+        }
+        else {
+            ResolvedLeftExpr leftExpr = (ResolvedLeftExpr) left;
+            if(leftExpr.checkAssignment(true)) {
                 return leftExpr.createAssign(be, right, compiler);
-        	} else {
-        		compiler.addError("Invalid assignment: " + left.getType() + " is not assignable from " +
-        			right.getType(), be);
-        		return null;
-        	}
+            } else {
+                return null;
+            }
         }
     }
 
