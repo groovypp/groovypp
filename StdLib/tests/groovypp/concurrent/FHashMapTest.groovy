@@ -29,7 +29,15 @@ public class FHashMapTest extends GroovyTestCase {
         assertEquals (-11,m [34])
         assertEquals (-3,m [2])
         assertEquals (-1,m [10])
+
+        assertNull m.get(1222)
+        assertEquals (17,m.get(1222,17))
+        assertEquals (177,m.getOr(1222){177})
+
         assertEquals 3, m.size()
+
+        m = m.put("mama", "papa")
+        assertEquals "papa", m.mama
     }
 
     static class Collision {

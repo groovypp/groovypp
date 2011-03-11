@@ -17,6 +17,7 @@
 package groovypp.concurrent
 
 import java.util.Map.Entry
+import java.util.concurrent.Callable
 
 /**
  * A clean-room port of Rich Hickey's persistent hashCode trie implementation from
@@ -31,6 +32,14 @@ import java.util.Map.Entry
   abstract int size()
 
   final V getAt(K key) { getAt(0, key, key.hashCode()) }
+
+  final V get(K key) { getAt(0, key, key.hashCode()) }
+
+  final V get(K key, V defaultValue) { getAt(0, key, key.hashCode()) ?: defaultValue }
+
+  final V getOr(K key, Callable<V> defaultValue) { getAt(0, key, key.hashCode()) ?: defaultValue() }
+
+  final V getUnresolvedProperty(K key) { getAt(0, key, key.hashCode()) }
 
   final FHashMap<K, V> put(K key, V value) {
     update(0, key, key.hashCode(), value)
