@@ -22,6 +22,7 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import org.codehaus.groovy.runtime.DefaultGroovyMethods
+import groovypp.concurrent.FHashMap
 
 /**
  * Utility methods to iterate over objects of standard types.
@@ -235,6 +236,16 @@ abstract class Iterations {
      * @param op function to be applied.
      */
     static <K, V> void each(Map<K, V> self, Function2<K, V, Object> op) {
+      if(self) {
+        def it = self.entrySet().iterator()
+        while (it.hasNext()) {
+            def el = it.next()
+            op.call(el.key, el.value)
+        }
+      }
+    }
+
+    static <K, V> void each(FHashMap<K, V> self, Function2<K, V, Object> op) {
       if(self) {
         def it = self.entrySet().iterator()
         while (it.hasNext()) {

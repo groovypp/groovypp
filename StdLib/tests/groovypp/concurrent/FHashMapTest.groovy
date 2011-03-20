@@ -129,4 +129,21 @@ public class FHashMapTest extends GroovyTestCase {
         assertEquals 250000, map.size()
         assertEquals (-25,map [25])
     }
+
+    void testSet () {
+        FHashMap map = FHashMap.emptyMap.put(11,-11).put(10,12).put(4,5)
+        assert map.keySet() == [4,10,11] as Set
+        assert map.values() as Set == [-11, 12, 5] as Set
+        assert map.entrySet().toString() == "[[4, 5], [10, 12], [11, -11]]"
+    }
+
+    void testIterations () {
+        FHashMap map = FHashMap.emptyMap.put(11,-11).put(10,12).put(4,5)
+        for(e in map)
+            println e
+
+        map.each { k, v ->
+            println "$k $v"
+        }
+    }
 }
