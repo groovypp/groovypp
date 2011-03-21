@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.172'
+version = '0.4.174'
 
 test {
   maxHeapSize = '512m'

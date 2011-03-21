@@ -88,6 +88,8 @@ public class TypeUtil {
     public static final ClassNode SCRIPT_BYTECODE_ADAPTER = make(ScriptBytecodeAdapter.class);
     public static final ClassNode ASSERTION_RENDERER = make(AssertionRenderer.class);
     public static final ClassNode IMPROVE_TYPE = new ClassNode(Object.class);
+    public static final ClassNode FHASHMAP_TYPE = ClassHelper.make("groovypp.concurrent.FHashMap");
+    public static final ClassNode FLIST_TYPE = ClassHelper.make("groovypp.concurrent.FList");
 
     public TypeUtil() {
         RAW_CLASS = new ClassNode(RawMarker.class);

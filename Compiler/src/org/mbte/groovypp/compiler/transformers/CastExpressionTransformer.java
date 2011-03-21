@@ -175,6 +175,18 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
 
         if (cast.getExpression() instanceof MapExpression) {
             MapExpression mapExpression = (MapExpression) cast.getExpression();
+            ClassNode castType = cast.getType();
+            if (castType.equals(TypeUtil.FHASHMAP_TYPE)) {
+                ClassNode keyType = compiler.getMapKeyType(castType);
+                ClassNode valueType = compiler.getMapValueType(castType);
+                improveMapTypes(mapExpression, keyType, valueType);
+
+                ClassNode collType = ClassHelper.make (TypeUtil.FHASHMAP_TYPE.getName());
+                collType.setRedirect(castType.redirect());
+                collType.setGenericsTypes(new GenericsType[]{new GenericsType(keyType), new GenericsType(valueType)});
+
+                return new MapExpressionTransformer.TransformedFMapExpr(mapExpression, collType, compiler);
+            }
 
             if (cast.getType().implementsInterface(ClassHelper.MAP_TYPE)) {
                 if(compiler.findConstructor(cast.getType(), ClassNode.EMPTY_ARRAY, null) != null){

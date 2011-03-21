@@ -17,7 +17,7 @@
 package groovypp.concurrent
 
 @Typed
-public class FHashMapTest extends GroovyTestCase {
+public class FHashMapTest extends GroovyShellTestCase {
     void testInsert () {
         def map = FHashMap.emptyMap
         FHashMap m = map.put(10,-1).put(2,-2).put(2,-3)
@@ -145,5 +145,25 @@ public class FHashMapTest extends GroovyTestCase {
         map.each { k, v ->
             println "$k $v"
         }
+    }
+
+    void testCompilation () {
+        shell.evaluate """
+@Typed package p
+
+FHashMap map = [10:12, 'a':45]
+assert map[10] == 12
+assert map.a== 45
+
+def map2 = (FHashMap)[10:12, 'a':45]
+assert map2[10] == 12
+assert map2.a== 45
+
+FHashMap mutate(FHashMap m) {
+    m.put(10, 11)
+}
+
+assert mutate([10:15])[10] == 11
+        """
     }
 }

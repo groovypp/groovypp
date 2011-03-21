@@ -18,7 +18,6 @@ package groovypp.concurrent
 
 import java.util.Map.Entry
 import java.util.concurrent.Callable
-import java.rmi.activation.UnknownObjectException
 
 /**
  * A clean-room port of Rich Hickey's persistent hashCode trie implementation from
@@ -68,7 +67,7 @@ import java.rmi.activation.UnknownObjectException
         values().contains(value)
     }
 
-    static final FHashMap emptyMap = new EmptyNode()
+    public static final FHashMap emptyMap = new EmptyNode()
 
     private static class EmptyNode<K, V> extends FHashMap<K, V> {
         private EmptyNode() {}
@@ -521,7 +520,7 @@ import java.rmi.activation.UnknownObjectException
     }
 
     private final class KeySet<K> extends AbstractSet<K> {
-        @Typed(debug=true) Iterator<K> iterator() {
+        @Typed Iterator<K> iterator() {
             FHashMap.this.iterator()*.key
         }
 
