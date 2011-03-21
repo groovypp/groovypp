@@ -24,18 +24,13 @@ import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.syntax.Types;
-import org.mbte.groovypp.compiler.ClassNodeCache;
-import org.mbte.groovypp.compiler.CompilerTransformer;
-import org.mbte.groovypp.compiler.PresentationUtil;
-import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.bytecode.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedArrayBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedArrayLikeBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedLeftExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
-import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
@@ -203,12 +198,34 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
     private BytecodeExpr evaluateInstanceof(BinaryExpression be, CompilerTransformer compiler, final Label label, final boolean onTrue) {
         final BytecodeExpr l = (BytecodeExpr) compiler.transform(be.getLeftExpression());
         final ClassNode type = be.getRightExpression().getType();
+        boolean weakInference = false;
+        if(be.getLeftExpression() instanceof VariableExpression) {
+            VariableExpression leftExpression = (VariableExpression) be.getLeftExpression();
+            if(leftExpression.getType() == ClassHelper.DYNAMIC_TYPE) {
+                if(onTrue) {
+                    compiler.addLocalVarInferenceType(label, leftExpression, type, ((ResolvedVarBytecodeExpr) l).var.getIndex());
+                }
+                else {
+                    compiler.getLocalVarInferenceTypes().add(leftExpression, type);
+                    weakInference = true;
+                }
+            }
+        }
+        final boolean finalWeakInference = weakInference;
         return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
             protected void compile(MethodVisitor mv) {
                 l.visit(mv);
                 box(l.getType(), mv);
                 mv.visitTypeInsn(INSTANCEOF, BytecodeHelper.getClassInternalName(type));
                 mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
+                if(finalWeakInference) {
+                    Register var = ((ResolvedVarBytecodeExpr) l).var;
+
+                    // we do it in order to make JVM verifier happy and do not check cast on each use of variable
+                    mv.visitVarInsn(ALOAD, var.getIndex());
+                    mv.visitTypeInsn(CHECKCAST, BytecodeHelper.getClassInternalName(type));
+                    mv.visitVarInsn(ASTORE, var.getIndex());
+                }
             }
         };
     }

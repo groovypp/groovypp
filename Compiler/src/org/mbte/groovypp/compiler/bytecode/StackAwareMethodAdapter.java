@@ -16,12 +16,11 @@
 
 package org.mbte.groovypp.compiler.bytecode;
 
+import org.codehaus.groovy.ast.ClassNode;
+import org.codehaus.groovy.ast.expr.VariableExpression;
+import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.mbte.groovypp.compiler.asm.LineNumberLabelSwitcherMethodAdapter;
-import org.mbte.groovypp.compiler.bytecode.LocalVarInferenceTypes;
-import org.mbte.groovypp.compiler.bytecode.LocalVarTypeInferenceState;
-import org.mbte.groovypp.compiler.bytecode.BytecodeStack;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -90,6 +89,11 @@ public class StackAwareMethodAdapter extends LineNumberLabelSwitcherMethodAdapte
 
     public LocalVarInferenceTypes getLocalVarInferenceTypes() {
         return curInference;
+    }
+
+    public void addLocalVarInferenceType(Label label, VariableExpression ve, ClassNode type, int index) {
+        LocalVarInferenceTypes labelInfo = getLabelInfo(label);
+        labelInfo.bringType(ve, type, index);
     }
 
     public StackAwareMethodAdapter(MethodVisitor methodVisitor) {
@@ -715,6 +719,17 @@ public class StackAwareMethodAdapter extends LineNumberLabelSwitcherMethodAdapte
     public void visitLabel(Label label) {
         comeToLabel(label);
         super.visitLabel(label);
+        afterCameToLabel(label);
+    }
+
+    protected void afterCameToLabel(Label label) {
+        final LocalVarInferenceTypes li = getLabelInfo(label);
+        if(li.instanceOfVar != null) {
+            li.add(li.instanceOfVar, li.instanceOfType);
+            visitVarInsn(ALOAD, li.instanceOfIndex);
+            visitTypeInsn(CHECKCAST, BytecodeHelper.getClassInternalName(li.instanceOfType));
+            visitVarInsn(ASTORE, li.instanceOfIndex);
+        }
     }
 
     @Override

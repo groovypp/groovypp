@@ -32,6 +32,10 @@ public class LocalVarInferenceTypes extends BytecodeLabelInfo {
     private boolean visited;
     LocalVarInferenceTypes parentScopeInference;
 
+    VariableExpression instanceOfVar;
+    ClassNode          instanceOfType;
+    int instanceOfIndex;
+
     // Return false if the inference is illegal. Currently this only happens if the var is reassigned to incompatible
     // type inside the loop.
     public boolean add(VariableExpression ve, ClassNode type) {
@@ -115,6 +119,17 @@ public class LocalVarInferenceTypes extends BytecodeLabelInfo {
 
     public void comeFrom(LocalVarInferenceTypes cur) {
         jumpFrom(cur);
+        if(instanceOfVar != null) {
+            add(instanceOfVar, instanceOfType);
+        }
         visited = true;
+    }
+
+    public void bringType(VariableExpression ve, ClassNode type, int index) {
+        if(!visited) {
+            instanceOfType = type;
+            instanceOfVar = ve;
+            instanceOfIndex = index;
+        }
     }
 }

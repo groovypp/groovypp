@@ -1253,4 +1253,8 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
     public LocalVarInferenceTypes getLocalVarInferenceTypes() {
         return mv.getLocalVarInferenceTypes();
     }
+
+    public void addLocalVarInferenceType(Label label, VariableExpression ve, ClassNode type, int index) {
+        mv.addLocalVarInferenceType(label, ve, type, index);
+    }
 }
