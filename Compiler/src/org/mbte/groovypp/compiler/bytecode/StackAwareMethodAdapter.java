@@ -347,31 +347,37 @@ public class StackAwareMethodAdapter extends LineNumberLabelSwitcherMethodAdapte
             case IRETURN:
                 stack.pop(BytecodeStack.KIND_INT);
                 stack.clear();
+//                curInference = AFTER_GOTO;
                 break;
 
             case LRETURN:
                 stack.pop(BytecodeStack.KIND_LONG);
                 stack.clear();
+//                curInference = AFTER_GOTO;
                 break;
 
             case FRETURN:
                 stack.pop(BytecodeStack.KIND_FLOAT);
                 stack.clear();
+//                curInference = AFTER_GOTO;
                 break;
 
             case DRETURN:
                 stack.pop(BytecodeStack.KIND_DOUBLE);
                 stack.clear();
+//                curInference = AFTER_GOTO;
                 break;
 
             case ARETURN:
             case ATHROW:
                 stack.pop(BytecodeStack.KIND_OBJ);
                 stack.clear();
+//                curInference = AFTER_GOTO;
                 break;
 
             case RETURN:
                 stack.clear();
+//                curInference = AFTER_GOTO;
                 break;
 
             case MONITORENTER:

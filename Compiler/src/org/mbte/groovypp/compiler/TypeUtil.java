@@ -313,6 +313,8 @@ public class TypeUtil {
         type2 = TypeUtil.wrapSafely(type2);
 
         if (isNumericalType(type1) && isNumericalType(type2)) {
+            if (type1.equals(Number_TYPE) || type2.equals(Number_TYPE))
+                return Number_TYPE;
             if (type1.equals(ClassHelper.Double_TYPE) || type2.equals(ClassHelper.Double_TYPE))
                 return ClassHelper.double_TYPE;
             if (type1.equals(ClassHelper.Float_TYPE) || type2.equals(ClassHelper.Float_TYPE))

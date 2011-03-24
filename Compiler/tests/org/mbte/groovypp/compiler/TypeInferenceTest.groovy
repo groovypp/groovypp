@@ -47,9 +47,32 @@ class A extends GroovyTestCase {
 
 new A().m ()
         """)
-    assertTrue res
+    assertTrue res == Boolean.TRUE
   }
 
+    void testAssertBug() {
+      def res = shell.evaluate("""
+  @Typed
+  class A extends GroovyTestCase {
+      def m () {
+          def list = [12]
+
+          if (true) {
+              list = list [0]
+              assertTrue (list instanceof Integer)
+          }
+          else {
+              list = 239G
+              assertTrue list instanceof BigDecimal
+          }
+          list instanceof Number
+      }
+  }
+
+  new A().m ()
+          """)
+      assertTrue res == Boolean.TRUE
+    }
 
     void testList() {
       def res = shell.evaluate("""

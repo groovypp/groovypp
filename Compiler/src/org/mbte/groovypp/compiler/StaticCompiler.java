@@ -1169,6 +1169,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
 
         // start finally
         mv.visitLabel(finallyStart);
+        mv.comeToLabel(dummyLabel);// restore the type inference info for use in catch blocks
         finallyStatement.visit(this);
         // goto end of finally
         Label afterFinally = new Label();

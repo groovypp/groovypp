@@ -18,7 +18,7 @@ package org.mbte.groovypp.compiler.Issues
 class Issue296Test extends GroovyShellTestCase {
     void testLocalTypeInferenceInCatchBlock() {
         shell.evaluate """
-            @Typed package test 
+            @Typed(debug=true) package test
             class Foo {
                 int count = 0
                 def foo() {

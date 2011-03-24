@@ -195,18 +195,17 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
         }
     }
 
-    private BytecodeExpr evaluateInstanceof(BinaryExpression be, CompilerTransformer compiler, final Label label, final boolean onTrue) {
+    private BytecodeExpr evaluateInstanceof(final BinaryExpression be, final CompilerTransformer compiler, final Label label, final boolean onTrue) {
         final BytecodeExpr l = (BytecodeExpr) compiler.transform(be.getLeftExpression());
         final ClassNode type = be.getRightExpression().getType();
         boolean weakInference = false;
         if(be.getLeftExpression() instanceof VariableExpression) {
             VariableExpression leftExpression = (VariableExpression) be.getLeftExpression();
-            if(leftExpression.getType() == ClassHelper.DYNAMIC_TYPE) {
+            if(leftExpression.getType() == ClassHelper.DYNAMIC_TYPE && !(leftExpression.getName().equals("this"))) {
                 if(onTrue) {
                     compiler.addLocalVarInferenceType(label, leftExpression, type, ((ResolvedVarBytecodeExpr) l).var.getIndex());
                 }
                 else {
-                    compiler.getLocalVarInferenceTypes().add(leftExpression, type);
                     weakInference = true;
                 }
             }
@@ -219,7 +218,10 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                 mv.visitTypeInsn(INSTANCEOF, BytecodeHelper.getClassInternalName(type));
                 mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
                 if(finalWeakInference) {
-                    Register var = ((ResolvedVarBytecodeExpr) l).var;
+                    VariableExpression leftExpression = (VariableExpression) be.getLeftExpression();
+                    compiler.getLocalVarInferenceTypes().add(leftExpression, type);
+
+                    Register var = compiler.compileStack.getRegister(leftExpression.getName(), true);
 
                     // we do it in order to make JVM verifier happy and do not check cast on each use of variable
                     mv.visitVarInsn(ALOAD, var.getIndex());

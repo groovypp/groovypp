@@ -318,4 +318,32 @@ abstract class Iterations {
             closure(i);
         }
     }
+//
+//    static abstract class FunctionWithIndex<T> {
+//        abstract void call(T obj, int index)
+//    }
+//
+//    static <T> T [] eachWithIndex(T [] self, FunctionWithIndex<T> op) {
+//        if(self) {
+//            for(int i = 0; i != self.length; ++i)
+//                op(self[i], i)
+//        }
+//        self
+//    }
+//
+//    static <T> Iterator<T> eachWithIndex(Iterator<T> self, FunctionWithIndex<T> op) {
+//        if(self != null) {
+//            for(int i = 0; ; ++i) {
+//                if(self.hasNext())
+//                    op(self.next(), i)
+//            }
+//        }
+//        self
+//    }
+//
+//    static <T,C extends Iterable<T>> C eachWithIndex(C self, FunctionWithIndex<T> op) {
+//        if(self)
+//            eachWithIndex(self.iterator(), op)
+//        self
+//    }
 }

@@ -23,7 +23,7 @@ package org.mbte.groovypp.compiler.Issues
 public class Issue191Test extends GroovyShellTestCase {
     void testImmutableWithBigDecimal() {
         shell.evaluate """
-            @Typed
+            @Typed(debug=true)
             @Immutable class AccountV1 {
                 BigDecimal balance
                 String customer
@@ -41,7 +41,7 @@ public class Issue191Test extends GroovyShellTestCase {
             @Typed
             @Immutable class AccountV2 {
                 BigInteger balance
-                
+
                 void deposit(BigInteger amount) {    }
                 
                 static main(args) {}
@@ -55,6 +55,8 @@ public class Issue191Test extends GroovyShellTestCase {
             @Typed package p
             class AccountV3 {
                 BigDecimal balance
+                String customer
+
                 def AccountV3(Map args) {
                     balance = args.get('balance')
                 }
