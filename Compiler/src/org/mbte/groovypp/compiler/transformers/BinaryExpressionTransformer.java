@@ -388,7 +388,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
         MethodNode lunboxing = TypeUtil.getReferenceUnboxingMethod(left.getType());
         MethodNode rboxing = TypeUtil.getReferenceBoxingMethod(left.getType(), right.getType());
         if (lunboxing != null && rboxing != null) {
-            final ResolvedMethodBytecodeExpr oldValue = ResolvedMethodBytecodeExpr.create(be, lunboxing,
+            final BytecodeExpr oldValue = ResolvedMethodBytecodeExpr.create(be, lunboxing,
                     (BytecodeExpr) left, new ArgumentListExpression(), compiler);
             final BinaryExpression binary = new BinaryExpression(oldValue, op, right);
             binary.setSourcePosition(be);

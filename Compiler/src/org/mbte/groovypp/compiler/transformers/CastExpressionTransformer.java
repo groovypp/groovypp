@@ -255,7 +255,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
         if (!TypeUtil.isDirectlyAssignableFrom(cast.getType(), expr.getType())) {
             MethodNode unboxing = TypeUtil.getReferenceUnboxingMethod(expr.getType());
             if (unboxing != null) {
-                ResolvedMethodBytecodeExpr mce = ResolvedMethodBytecodeExpr.create(cast, unboxing, expr,
+                BytecodeExpr mce = ResolvedMethodBytecodeExpr.create(cast, unboxing, expr,
                         new ArgumentListExpression(), compiler);
                 if (TypeUtil.isDirectlyAssignableFrom(ClassHelper.getUnwrapper(cast.getType()),
                                                       ClassHelper.getUnwrapper(mce.getType())))
