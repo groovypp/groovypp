@@ -237,7 +237,7 @@ public class ClassNodeCache {
         final ClassNodeInfo info = getClassNodeInfo(type.redirect());
 
         if (info.methods == null) {
-            fillMethodsMaps(type, info);
+            fillMethodsMaps(type.redirect(), info);
         }
         return info.methods.get(methodName);
     }
@@ -510,7 +510,7 @@ public class ClassNodeCache {
             ClassNode p1 = params1[i].getType();
             p1 = TypeUtil.getSubstitutedType(p1, aMethod.getDeclaringClass(), type);
             ClassNode p2 = params2[i].getType();
-            p2 = TypeUtil.getSubstitutedType(p2, aMethod.getDeclaringClass(), type);
+            p2 = TypeUtil.getSubstitutedType(p2, method.getDeclaringClass(), type);
             if (!p1.equals(p2)) return false;
         }
         return true;
