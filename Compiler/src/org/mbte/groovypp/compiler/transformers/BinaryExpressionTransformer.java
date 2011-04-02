@@ -139,7 +139,12 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             case Types.KEYWORD_IN: {
                 final BytecodeExpr left = (BytecodeExpr) compiler.transform(exp.getLeftExpression());
                 final BytecodeExpr right = (BytecodeExpr) compiler.transform(exp.getRightExpression());
-                return callMethod(exp, "isCase", compiler, right, left);
+                if(!right.getType().equals(ClassHelper.OBJECT_TYPE))
+                    return callMethod(exp, "isCase", compiler, right, left);
+                else {
+                    compiler.addError("Operator 'in' does not applicable to java.lang.Object", exp);
+                    return null;
+                }
             }
 
             default: {
