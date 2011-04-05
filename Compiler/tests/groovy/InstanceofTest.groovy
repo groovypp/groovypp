@@ -110,42 +110,92 @@ class InstanceofTest extends GroovyShellTestCase {
     void testTypeinference(){
         shell.evaluate  """
 
-          @Typed u0(obj) {
+          @Typed(debug=true) u0(obj) {
                 obj instanceof String ? obj.toUpperCase() : ((Object[])obj)
           }
 
-          @Typed boolean u1(obj) {
-                obj instanceof Pair && obj.first
-          }
-
-          @Typed def u2(obj) {
-                obj instanceof Pair ? obj.first : 'wrong'
-          }
-
-          @Typed def u3(obj) {
-                if(obj instanceof Pair)
-                    obj.first = 11
-                obj
-          }
-
-          @Typed def u4(obj) {
-                if(!(obj instanceof Pair))
-                    throw new RuntimeException()
-                else
-                    obj.second = 50
-                obj
-          }
-
-          @Typed boolean u5(obj) {
-                !(obj instanceof Pair) || obj.first
-          }
-
           assert u0("abc") == "ABC"
-          assert u1((Pair)[10, 12])
-          assert u2((Pair)[10, 12]) == 10
-          assert u3((Pair)[10, 12]).first == 11
-          assert u4((Pair)[10, 12]).second == 50
-          assert u5((Pair)[10, 12])
+
+//          @Typed boolean u1(obj) {
+//                obj instanceof Pair && obj.first
+//          }
+//
+//          assert u1((Pair)[10, 12])
+//          @Typed def u2(obj) {
+//                obj instanceof Pair ? obj.first : 'wrong'
+//          }
+//
+//          assert u2((Pair)[10, 12]) == 10
+//
+//          @Typed def u3(obj) {
+//                if(obj instanceof Pair)
+//                    obj.first = 11
+//                obj
+//          }
+//
+//          assert u3((Pair)[10, 12]).first == 11
+//
+//          @Typed def u4(obj) {
+//                if(!(obj instanceof Pair))
+//                    throw new RuntimeException()
+//                else
+//                    obj.second = 50
+//                obj
+//          }
+//
+//          assert u4((Pair)[10, 12]).second == 50
+//
+//          @Typed boolean u5(obj) {
+//                !(obj instanceof Pair) || obj.first
+//          }
+//
+//          assert u5((Pair)[10, 12])
+//
+//          @Typed def u6(obj) {
+//                def res = obj instanceof Pair ? obj.first : 'wrong'
+//                res
+//          }
+//
+//          assert u6((Pair)[10, 12])
+//
+//          @Typed def u7(obj) {
+//                def res = !(obj instanceof Pair) ? 'wrong':  obj.first
+//                res
+//          }
+//
+//          assert u7((Pair)[10, 12])
+//
+//          @Typed int u8(def p){
+//                if(p instanceof Pair && p.second) {
+//                    (Integer)p.first
+//                }
+//          }
+//
+//          assert u8((Pair)[first:12, second:5]) == 12
+//          assert u8((Pair)[first:12, second:0]) == 0
+//          assert u8([]) == 0
+//
+//          @Typed int u9(def p){
+//                if(!(p instanceof Pair) || p.second) {
+//                    1
+//                }
+//          }
+//
+//          assert u9((Pair)[first:12, second:5]) == 1
+//          assert u9((Pair)[first:12, second:0]) == 0
+//          assert u9([]) == 1
+//
+//            @Typed def u10 () {
+//                def l = []
+//                if(l) {
+//                    l = [:]
+//                }
+//                else {
+//                    l << 10
+//                }
+//            }
+//            assert u10() == [10]
+
         """
     }
 }

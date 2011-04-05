@@ -216,7 +216,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             }
         }
         final boolean finalWeakInference = weakInference;
-        return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+        return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
             protected void compile(MethodVisitor mv) {
                 l.visit(mv);
                 box(l.getType(), mv);

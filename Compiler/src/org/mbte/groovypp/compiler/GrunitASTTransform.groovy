@@ -35,6 +35,8 @@ import org.codehaus.groovy.ast.*
 import static org.codehaus.groovy.ast.ClassHelper.make
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
+import org.mbte.groovypp.compiler.bytecode.JumpIfStatement
+import org.mbte.groovypp.compiler.bytecode.LabelStatement
 
 @Typed
 @GroovyASTTransformation (phase = CompilePhase.CONVERSION)
@@ -353,6 +355,10 @@ class GrunitASTTransform implements ASTTransformation, Opcodes {
                 def add = new IfStatement(new BooleanExpression(transformer.transform(src.booleanExpression.expression)), cloneStatement(src.ifBlock, transformer), cloneStatement(src.elseBlock, transformer))
                 add.setSourcePosition(src)
                 add
+                break
+
+            case LabelStatement:
+                src
                 break
 
             case ReturnStatement:

@@ -25,6 +25,8 @@ import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.RecordingVariableExpression;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
+import org.mbte.groovypp.compiler.bytecode.ExpressionList;
+import org.mbte.groovypp.compiler.bytecode.JumpIfExpression;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
 import org.mbte.groovypp.compiler.transformers.*;
 import org.mbte.groovypp.compiler.transformers.ArrayExpressionTransformer;
@@ -91,6 +93,8 @@ public abstract class ExprTransformer<T extends Expression> implements Opcodes {
         transformers.put(NamedArgumentListExpression.class, new NamedArgumentListExpressionTransformer());
         transformers.put(MethodPointerExpression.class, new MethodPointerExpressionTransformer());
         transformers.put(EmptyExpression.class, new EmptyExpressionTransformer());
+        transformers.put(JumpIfExpression.class, new JumpIfExpressionTransformer());
+        transformers.put(ExpressionList.class, new ExpressionListTransformer());
 
         final BooleanExpressionTransformer bool = new BooleanExpressionTransformer();
         transformers.put(BooleanExpression.class, bool);

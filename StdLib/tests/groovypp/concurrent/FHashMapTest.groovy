@@ -147,6 +147,18 @@ public class FHashMapTest extends GroovyShellTestCase {
         }
     }
 
+    void testPlusMinus() {
+        FHashMap fmap = [a:10, b:12]
+        Map map = [c:13, d:12]
+
+        def fpm = fmap + map
+//        def mfp = map + fmap
+        assert fpm instanceof FHashMap
+        assert fpm == (FHashMap)[a:10, b:12, c:13, d:12]
+//        assert mfp instanceof Map
+    }
+
+
     void testCompilation () {
         shell.evaluate """
 @Typed package p

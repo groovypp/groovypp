@@ -41,6 +41,46 @@ import java.util.concurrent.Callable
 
     final V getUnresolvedProperty(K key) { getAt(0, key, key.hashCode()) }
 
+    final FHashMap<K, V> putAll(Map<K,V> map) {
+        def res = this
+        for(e in map.entrySet())
+            res = res.put(e.key, e.value)
+        res
+    }
+
+    final FHashMap<K, V> putAll(FHashMap<K,V> map) {
+        def res = this
+        for(e in map.entrySet())
+            res = res.put(e.key, e.value)
+        res
+    }
+
+    final FHashMap<K, V> plus(FHashMap<K,V> map) {
+        putAll(map)
+    }
+
+    final FHashMap<K, V> minus(FHashMap<K,V> map) {
+        def res = this
+        for(e in map.entrySet())
+            res = res.remove(e.key)
+        res
+    }
+
+    final FHashMap<K, V> plus(Map<K,V> map) {
+        putAll(map)
+    }
+
+    final FHashMap<K, V> minus(Map<K,V> map) {
+        def res = this
+        for(e in map.entrySet())
+            res = res.remove(e.key)
+        res
+    }
+
+    static <K,V> FHashMap<K,V> create(Map<K,V> map) {
+        FHashMap.emptyMap.putAll(map)
+    }
+
     final FHashMap<K, V> put(K key, V value) {
         update(0, key, key.hashCode(), value)
     }
@@ -59,12 +99,32 @@ import java.util.concurrent.Callable
     final AbstractSet<K> keySet () { new KeySet() }
     final Collection<V>  values () { new Values() }
 
-    final boolean isEmpty() { !size() }
+    boolean isEmpty() { !size() }
 
-    final boolean containsKey(Object key) { get(key) }
+    boolean containsKey(Object key) { get(key) }
 
     boolean containsValue(Object value) {
         values().contains(value)
+    }
+
+    boolean equals(Object obj) {
+        if(obj instanceof FHashMap) {
+            if(((FHashMap)obj).size() == size()) {
+                for(e in ((FHashMap)obj).entrySet()) {
+                    if(this[e.key] != e.value)
+                        return false
+                }
+                return true
+            }
+        }
+    }
+
+    int hashCode() {
+        def hash = 0
+        for(e in entrySet()) {
+            hash += e.key.hashCode()
+            hash += e.value.hashCode()
+        }
     }
 
     public static final FHashMap emptyMap = new EmptyNode()
@@ -136,11 +196,11 @@ import java.util.concurrent.Callable
     protected static Map.Entry<K, V> mapEntry(int index, Object[] table) {
         if (index < table.length) {
             Entry res = [
-                    getKey: { table[index] },
-                    getValue: { table[index + 1] },
-                    setKey: { throw new UnsupportedOperationException() },
-                    setValue: { throw new UnsupportedOperationException() },
-                    toString: {"[$key, $value]" }
+                getKey: { table[index] },
+                getValue: { table[index + 1] },
+                setKey: { throw new UnsupportedOperationException() },
+                setValue: { throw new UnsupportedOperationException() },
+                toString: {"[$key, $value]" }
             ]
             index += 2
             res
@@ -175,13 +235,13 @@ import java.util.concurrent.Callable
 
         public Iterator<Map.Entry<K, V>> iterator() {
             [
-                    index: 0,
-                    hasNext: { index < table.length },
-                    next: {
-                        index += 2
-                        mapEntry(index - 2, table)
-                    },
-                    remove: { throw new UnsupportedOperationException() }
+                index: 0,
+                hasNext: { index < table.length },
+                next: {
+                    index += 2
+                    mapEntry(index - 2, table)
+                },
+                remove: { throw new UnsupportedOperationException() }
             ]
         }
 
