@@ -25,7 +25,7 @@ class CompileStdLibTest extends GroovyFileSystemCompilerTestCase {
     assertNotNull compiler
 
     def finder = new FileNameFinder()
-    def srcDir = "./StdLib/src/"
+    def srcDir = "../StdLib/src/"
 
     assertTrue new File(srcDir).exists()
 

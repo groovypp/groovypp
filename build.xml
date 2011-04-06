@@ -39,7 +39,7 @@
 
 
     <property name="compiler.src" location="Compiler/src" />
-    <property name="compiler.tests" location="Compiler/tests" />
+    <property name="compiler.tests" location="Tests/tests" />
     <property name="stdlib.src" location="${stdlib.module.name}/src" />
     <property name="gretty.src" location="${gretty.module.name}/src" />
     <property name="gretty.tests" location="${gretty.module.name}/tests" />
