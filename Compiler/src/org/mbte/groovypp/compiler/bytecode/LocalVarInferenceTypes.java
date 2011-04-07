@@ -16,6 +16,7 @@
 
 package org.mbte.groovypp.compiler.bytecode;
 
+import groovypp.concurrent.FHashMap;
 import org.codehaus.groovy.ast.ClassHelper;
 import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.Variable;
@@ -28,7 +29,7 @@ import java.util.Map;
 
 public class LocalVarInferenceTypes extends BytecodeLabelInfo {
 
-    IdentityHashMap<Variable, ClassNode> defVars;
+    private FHashMap<Variable, ClassNode> defVars;
     private boolean visited;
     LocalVarInferenceTypes parentScopeInference;
 
@@ -40,22 +41,26 @@ public class LocalVarInferenceTypes extends BytecodeLabelInfo {
     // type inside the loop.
     public boolean add(VariableExpression ve, ClassNode type) {
         if (defVars == null)
-            defVars = new IdentityHashMap<Variable, ClassNode>();
+            defVars = FHashMap.emptyMap;
 
-        if (ve.getAccessedVariable() != null)
-            defVars.put(ve.getAccessedVariable(), type);
+        if (ve.getAccessedVariable() != null) {
+            defVars = defVars.put(ve.getAccessedVariable(), type);
+//            dumpMap(ve);
+        }
         else {
             boolean done = false;
             for (Map.Entry<Variable,ClassNode> variable : defVars.entrySet()) {
                 if (variable.getKey().getName().equals(ve.getName())) {
-                    variable.setValue(type);
+                    defVars = defVars.put(variable.getKey(), type);
+//                    dumpMap(ve);
                     done = true;
                     break;
                 }
             }
 
             if (!done) {
-                defVars.put(ve, type);
+                defVars = defVars.put(ve, type);
+//                dumpMap(ve);
             }
         }
 
@@ -69,6 +74,20 @@ public class LocalVarInferenceTypes extends BytecodeLabelInfo {
         }
 
         return true;
+    }
+
+    private void dumpMap(VariableExpression ve) {
+        System.out.print(ve.getName());
+        System.out.print("  ");
+        System.out.print(defVars.size());
+        System.out.print("  ");
+        for (Map.Entry<Variable,ClassNode> variable : defVars.entrySet()) {
+            System.out.print(variable.getKey().getName());
+            System.out.print("->");
+            System.out.print(variable.getValue().getNameWithoutPackage());
+            System.out.print(",");
+        }
+        System.out.println();
     }
 
     public ClassNode get(VariableExpression ve) {
@@ -100,16 +119,19 @@ public class LocalVarInferenceTypes extends BytecodeLabelInfo {
             if (defVars == null) {
                 // we are 1st time here - just init
                 if (cur.defVars != null)
-                    defVars = new IdentityHashMap<Variable, ClassNode>(cur.defVars);
+                    defVars = cur.defVars;
                 else
-                    defVars = new IdentityHashMap<Variable, ClassNode>();
+                    defVars = FHashMap.emptyMap;
             } else {
                 // we were here already, so we need to merge
                 if (cur.defVars != null)
                     for (Map.Entry<Variable, ClassNode> e : cur.defVars.entrySet()) {
                         final ClassNode oldType = defVars.get(e.getKey());
-                        if (oldType != null)
-                            defVars.put(e.getKey(), TypeUtil.commonType(e.getValue(), oldType));
+                        if (oldType != null) {
+                            final ClassNode newType = TypeUtil.commonType(oldType, e.getValue());
+                            if(newType != oldType)
+                                defVars = defVars.put(e.getKey(), newType);
+                        }
                     }
             }
         } else {

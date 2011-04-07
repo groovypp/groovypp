@@ -173,8 +173,8 @@ import java.util.concurrent.Callable
     }
 
     static BitmappedNode bitmap(int shift, int hash, K key, V value, K key2, V value2) {
-        int bits1 = 1 << (hash >>> shift) & 0x1f
-        int bits2 = 1 << (key2.hashCode() >>> shift) & 0x1f
+        int bits1 = 1 << ((hash >>> shift) & 0x1f)
+        int bits2 = 1 << ((key2.hashCode() >>> shift) & 0x1f)
 
         int mask = bits1 | bits2
 
@@ -249,7 +249,7 @@ import java.util.concurrent.Callable
             if (this.hash == hash) {
                 for (int i = 0; i != table.length; i += 2) {
                     if (key.equals(table[i])) {
-                        if (table[i + 1].equals(value))
+                        if (table[i + 1] === value && table[i] === key)
                             return this
                         else {
                             Object[] newTable = table.clone()
@@ -351,7 +351,7 @@ import java.util.concurrent.Callable
                 if (leafBits & bit) {
                     // table [i] - key, table [i+1] - value
                     if (table[i].equals(key)) {
-                        if (table[i + 1].equals(value))
+                        if (table[i + 1] === value)
                             return this
                         else {
                             replaceLeafValue(value, i)
@@ -477,23 +477,18 @@ import java.util.concurrent.Callable
                             curBit++
                         }
 
-                        int bit = 1 << curBit
-                        while (curBit != 32 && !(bits & bit)) {
-                            bit = bit << 1
-                            curBit++
-                        }
-
-                        if (curBit == 32) {
-                            return false
-                        }
-
-                        if (leafBits & bit) {
-                            return true
-                        }
-                        else {
-                            int index = bitIndex(bit, bits) + bitIndex(bit, leafBits)
-                            curIterator = ((FHashMap<K, V>) table[index]).iterator()
-                            return curIterator.hasNext()
+                        for(; curBit != 32; curBit++) {
+                            int bit = 1 << curBit
+                            if(bits & bit) {
+                                if (leafBits & bit) {
+                                    return true
+                                }
+                                else {
+                                    int index = bitIndex(bit, bits) + bitIndex(bit, leafBits)
+                                    curIterator = ((FHashMap<K, V>) table[index]).iterator()
+                                    return curIterator.hasNext()
+                                }
+                            }
                         }
                     },
                     next: {
@@ -507,7 +502,7 @@ import java.util.concurrent.Callable
                             return mapEntry(bitIndex(bit, bits) + bitIndex(bit, leafBits), table)
                         }
                         else {
-                            return curIterator.next()
+                            throw new NoSuchElementException()
                         }
                     },
                     remove: { throw new UnsupportedOperationException() }
