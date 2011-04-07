@@ -3,7 +3,7 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.190'
+version = '0.4.191'
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ dependencies {
     groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.8')
 
     compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.8')
-    compile(group: 'org.mbte.groovypp', name: 'groovypp', version: '0.4.182')
+    compile(group: 'org.mbte.groovypp', name: 'groovypp', version: '0.4.190')
     compile "junit:junit:4.8.1"
 }
 
@@ -42,11 +42,6 @@ task copyMetaInf << {
   copy {
     from file('../Compiler/src/META-INF')
     into file('../Compiler/build/classes/main/META-INF')
-  }
-
-  copy {
-      from file('../StdLib/src/META-INF')
-      into file('../Compiler/build/classes/main/META-INF')
   }
 
   def src = myFile.text

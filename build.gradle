@@ -1,89 +1,29 @@
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.190'
-
-//repositories {
-//    mavenCentral()
-//}
-//
-subprojects {
-}
-
-//dependencies {
-//    groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.8')
-//
-//    compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.8')
-//
-//    compile files('./Compiler/build/classes/main')
-//
-//    compile "junit:junit:4.8.1"
-//
-//    testRuntime(group: 'org.apache.ant', name: 'ant', version: '1.8.1')
-//    testRuntime(group: 'commons-cli', name: 'commons-cli', version: '1.1')
-//    testRuntime(group: 'org.apache.ivy', name: 'ivy', version: '2.2.0')
-//    testRuntime(group: 'org.mortbay.jetty', name: 'servlet-api', version: '3.0.20100224')
-//}
-//
-//sourceSets {
-//    compiler {
-//        groovy {
-//            srcDir "Compiler/src"
-//        }
-//        classesDir = file("build/classes/main")
-//    }
-//    stdlib {
-//        groovy {
-//            srcDir "StdLib/src"
-//        }
-//        classesDir = file("build/classes/main")
-//    }
-//    testCompiler {
-//        groovy {
-//            srcDir 'Compiler/tests'
-//        }
-//        classesDir = file("build/classes/testCompiler")
-//    }
-//    testStdlib {
-//        groovy {
-//            srcDir 'StdLib/tests'
-//        }
-//        classesDir = file("build/classes/testStdlib")
-//    }
-//}
-
-//task prepareMetaInf << {
-//  copy {
-//    from 'Compiler/build/classes/main/META-INF'
-//    into 'build/classes/main/META-INF'
-//  }
-//}
-
-//compileJava.dependsOn << ":Compiler:compileGroovy"
-
-//test.dependsOn << [testCompiler, testStdlib]
+version = '0.4.191'
 
 task test(dependsOn: [':Tests:test', ':StdLib:test'])
 
-//task installZip(dependsOn:[jar, allJar]) << {
-//  ant.zip(destfile:"build/groovypp-${version}.zip",comment:"The Groovy++ binary distribution.") {
-//    zipfileset dir:"install", prefix=""
-//
-//    zipfileset file:"build/libs/groovypp-${version}.jar", prefix:"lib"
-//    zipfileset file:"build/libs/groovypp-all-${version}.jar", prefix:"embeddable"
-//  }
-//}
-//
-//task deployGoogle(dependsOn:[jar, allJar, sourcesJar, installZip]) << {
-//  ant.taskdef(name:"gcupload", classname:"net.bluecow.googlecode.ant.GoogleCodeUploadTask", classpath:"lib/ant-googlecode-0.0.2.jar")
-//
-//  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/groovypp-${version}.zip", targetfilename:"groovypp-${version}.zip", summary:"Groovy 1.7.8 installation including Groovy++ ${version}", labels:"Featured", verbose:"true")
-//
-//  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}.jar", targetfilename:"groovypp-${version}.jar", summary:"Groovy++ Jar ${version} (use with groovy-1.7.8+.jar)", labels:"Featured", verbose:"true")
-//
-//  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-all-${version}.jar", targetfilename:"groovypp-all-${version}.jar", summary:"Groovy++ Embeddable Jar ${version} (use with groovy-all-1.7.8.jar)", labels:"Featured", verbose:"true")
-//
-//  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}-sources.jar", targetfilename:"groovypp-${version}-sources.jar", summary:"Groovy++ Sources Jar", labels:"Featured", verbose:"true")
-//}
-//
-//
+task installZip(dependsOn:[':Compiler:jar', ':Compiler:allJar']) << {
+  ant.zip(destfile:"build/groovypp-${version}.zip",comment:"The Groovy++ binary distribution.") {
+    zipfileset dir:"install", prefix=""
+
+    zipfileset file:"./Compiler/build/libs/groovypp-${version}.jar", prefix:"lib"
+    zipfileset file:"./Compiler/build/libs/groovypp-all-${version}.jar", prefix:"embeddable"
+  }
+}
+
+task deployGoogle(dependsOn:[':Compiler:sourcesJar', installZip]) << {
+  ant.taskdef(name:"gcupload", classname:"net.bluecow.googlecode.ant.GoogleCodeUploadTask", classpath:"lib/ant-googlecode-0.0.2.jar")
+
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/groovypp-${version}.zip", targetfilename:"groovypp-${version}.zip", summary:"Groovy 1.7.8 installation including Groovy++ ${version}", labels:"Featured", verbose:"true")
+
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"./Compiler/build/libs/groovypp-${version}.jar", targetfilename:"groovypp-${version}.jar", summary:"Groovy++ Jar ${version} (use with groovy-1.7.8+.jar)", labels:"Featured", verbose:"true")
+
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"./Compiler/build/libs/groovypp-all-${version}.jar", targetfilename:"groovypp-all-${version}.jar", summary:"Groovy++ Embeddable Jar ${version} (use with groovy-all-1.7.8.jar)", labels:"Featured", verbose:"true")
+
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"./Compiler/build/libs/groovypp-${version}-sources.jar", targetfilename:"groovypp-${version}-sources.jar", summary:"Groovy++ Sources Jar", labels:"Featured", verbose:"true")
+}
+
+task uploadArchives(dependsOn: ':Compiler:uploadArchives')

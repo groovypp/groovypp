@@ -42,4 +42,5 @@ sourceSets {
     }
 }
 
-compileTestGroovy.dependsOn << [':Compiler:compileGroovy']
+compileJava.dependsOn << [':Compiler:compileGroovy']
+compileTestGroovy.dependsOn << [':Tests:compileTestGroovy']
