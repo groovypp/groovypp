@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-
-
-
 package org.mbte.groovypp.compiler
 
 public class ConstructorCallTest extends GroovyShellTestCase {
@@ -36,5 +32,30 @@ public class ConstructorCallTest extends GroovyShellTestCase {
 
     void testSuper () {
 
+    }
+
+    void testAnonimous () {
+        shell.evaluate """
+@Typed package p
+
+abstract class A {
+    int v
+
+    A (int v) {
+        this.v = v
+    }
+
+    abstract int act ()
+}
+
+def x = 10
+def obj = new A (12){
+    int act() {
+        x + v
+    }
+}
+def res = obj.act ()
+assert res == 22
+        """
     }
 }
