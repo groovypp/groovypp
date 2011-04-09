@@ -205,6 +205,24 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
 
                             @Override
                             public Expression transform(Expression exp) {
+                                if(exp instanceof AndExpression) {
+                                    AndExpression endExpr = (AndExpression) exp;
+                                    final Token token = endExpr.getOperation();
+                                    int column = finalSourceText.getNormalizedColumn(token.getStartLine(), token.getStartColumn());
+                                    final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(super.transform(exp), new ConstantExpression(column)));
+                                    res.setSourcePosition(exp);
+                                    return res;
+                                }
+
+                                if(exp instanceof OrExpression) {
+                                    OrExpression endExpr = (OrExpression) exp;
+                                    final Token token = endExpr.getOperation();
+                                    int column = finalSourceText.getNormalizedColumn(token.getStartLine(), token.getStartColumn());
+                                    final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(super.transform(exp), new ConstantExpression(column)));
+                                    res.setSourcePosition(exp);
+                                    return res;
+                                }
+
                                 if(exp instanceof BinaryExpression) {
                                     BinaryExpression binExpr = (BinaryExpression) exp;
                                     final Token token = binExpr.getOperation();
