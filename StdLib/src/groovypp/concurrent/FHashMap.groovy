@@ -20,7 +20,7 @@ import java.util.Map.Entry
 import java.util.concurrent.Callable
 
 /**
- * A clean-room port of Rich Hickey's persistent hashCode trie implementation from
+ * A clean-room port of Rich Hickey's persistent hash trie implementation from
  * Clojure (http://clojure.org).  Originally presented as a mutable structure in
  * a paper by Phil Bagwell.
  *
