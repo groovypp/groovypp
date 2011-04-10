@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.groovypp.compiler.bytecode;
+package org.mbte.groovypp.compiler.flow;
 
 import org.codehaus.groovy.ast.ASTNode;
-import org.codehaus.groovy.ast.stmt.Statement;
-import org.objectweb.asm.Label;
+import org.codehaus.groovy.ast.stmt.Statement
+import org.codehaus.groovy.ast.GroovyCodeVisitor;
 
-public class LabelStatement extends Statement{
+
+@Typed class LabelStatement extends Statement{
     public final LabelExpression labelExpression = new LabelExpression(this);
 
     public void setSourcePosition(ASTNode node) {
         super.setSourcePosition(node);
         labelExpression.setSourcePosition(node);
+    }
+
+    void visit(GroovyCodeVisitor visitor) {
     }
 }

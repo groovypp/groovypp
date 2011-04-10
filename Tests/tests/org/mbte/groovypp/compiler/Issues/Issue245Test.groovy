@@ -30,7 +30,7 @@ class Singleton {
     private Singleton(){
     }
 
-    @Typed(debug = true)
+    @Typed
     public static Singleton getInstance() {
         if (instance == null) {
             instance = new Singleton()

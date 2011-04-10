@@ -107,20 +107,26 @@ class InstanceofTest extends GroovyShellTestCase {
         """
     }
 
-    void testTypeinference(){
+    void testInstanceOf_0(){
         shell.evaluate  """
 
-          @Typed(debug=true) u0(obj) {
+          @Typed u0(obj) {
                 obj instanceof String ? obj.toUpperCase() : ((Object[])obj)
           }
 
           assert u0("abc") == "ABC"
+          """
+    }
 
-//          @Typed boolean u1(obj) {
-//                obj instanceof Pair && obj.first
-//          }
-//
-//          assert u1((Pair)[10, 12])
+    void testTypeinference(){
+        shell.evaluate  """
+
+          @Typed boolean u1(obj) {
+                obj instanceof Pair && obj.first
+          }
+
+          assert u1((Pair)[10, 12])
+
 //          @Typed def u2(obj) {
 //                obj instanceof Pair ? obj.first : 'wrong'
 //          }

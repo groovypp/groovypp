@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.groovypp.compiler.bytecode
+package org.mbte.groovypp.compiler.flow
 
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.NotExpression
 import org.codehaus.groovy.ast.expr.BinaryExpression
 import org.codehaus.groovy.ast.expr.BooleanExpression
 import org.codehaus.groovy.syntax.Types
-import org.codehaus.groovy.ast.expr.ExpressionTransformer
+
 import org.codehaus.groovy.ast.ClassCodeExpressionTransformer
 import org.codehaus.groovy.ast.expr.TernaryExpression
 import org.codehaus.groovy.ast.stmt.Statement
+import org.codehaus.groovy.ast.ClassHelper
 
-@Typed abstract class LogicalExpression extends Expression {
+@Typed abstract class LogicalExpressionRewriter {
     private static final ClassCodeExpressionTransformer normalizer = [
         getSourceUnit: { null },
 
@@ -53,6 +54,48 @@ import org.codehaus.groovy.ast.stmt.Statement
                         default:
                             return src
                     }
+                break
+
+                case JumpIfExpression:
+                    def condition = src.condition
+                    switch(condition) {
+                        case AndExpression:
+                            // jif a && b, L =>
+                            //
+                            // jif !a, end
+                            // jif b, L
+                            // end:
+                            LabelExpression end = [src]
+                            ExpressionList res = [src, ClassHelper.VOID_TYPE]
+
+                            JumpIfExpression na = [end, negate(condition.left)]
+                            na.sourcePosition = condition.left
+
+                            JumpIfExpression  b = [src.targetExpression, condition.right]
+                            b.sourcePosition = condition.right
+
+                            // @todo probably unneded recursion here
+                            return res << normalize(na) << b << end
+
+                        case OrExpression:
+                            // jif a || b, L =>
+                            //
+                            // jif a, L
+                            // jif b, L
+                            ExpressionList res = [src, ClassHelper.VOID_TYPE]
+
+                            JumpIfExpression a = [src.targetExpression, condition.left]
+                            a.sourcePosition = condition.left
+
+                            JumpIfExpression  b = [src.targetExpression, condition.right]
+                            b.sourcePosition = condition.right
+
+                            return res << a << b
+
+                        default:
+                            return src
+                    }
+                break
 
                 default:
                     return src
@@ -62,6 +105,10 @@ import org.codehaus.groovy.ast.stmt.Statement
 
     static void normalize(Statement src) {
         src.visit normalizer
+    }
+
+    static Expression normalize(Expression src) {
+        normalizer.transform src
     }
 
     static Expression negate(Expression src)  {

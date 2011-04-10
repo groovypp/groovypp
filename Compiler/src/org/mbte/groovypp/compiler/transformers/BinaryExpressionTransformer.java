@@ -532,7 +532,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             final ClassNode mathType = TypeUtil.getMathType(l.getType(), r.getType());
             final BytecodeExpr l1 = l;
             final BytecodeExpr r1 = r;
-            return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+            return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                 public void compile(MethodVisitor mv) {
                     l1.visit(mv);
                     box(l1.getType(), mv);
@@ -602,7 +602,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
 
             final int opType = be.getOperation().getType();
             if ((leftNull || rightNull) && (opType == Types.COMPARE_EQUAL || opType == Types.COMPARE_NOT_EQUAL || opType == Types.COMPARE_IDENTICAL || opType == Types.COMPARE_NOT_IDENTICAL)) {
-                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                     public void compile(MethodVisitor mv) {
                         if (rightNull) {
                             l2.visit(mv);
@@ -639,7 +639,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                 return evaluateEqualNotEqual(be, compiler, label, l2, r2, opType1, false);
             }
 
-            return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+            return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                 public void compile(MethodVisitor mv) {
                     l2.visit(mv);
                     box(l2.getType(), mv);
@@ -693,7 +693,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
     private BytecodeExpr evaluateEqualNotEqual(final BinaryExpression be, CompilerTransformer compiler, final Label label, final BytecodeExpr left, final BytecodeExpr right, final int opType, final boolean swap) {
         if (left.getType().equals(ClassHelper.OBJECT_TYPE)) {
             if (right.getType().equals(ClassHelper.OBJECT_TYPE)) {
-                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                     public void compile(MethodVisitor mv) {
                         swapIfNeeded(mv, swap, right, left);
 
@@ -718,7 +718,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
 
         final ClassNode wrapper = ClassHelper.getWrapper(left.getType());
         if (wrapper.implementsInterface(TypeUtil.COMPARABLE) || wrapper.equals(TypeUtil.COMPARABLE)) {
-            return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+            return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                 public void compile(MethodVisitor mv) {
                     swapIfNeeded(mv, swap, right, left);
 
@@ -752,7 +752,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             final boolean defaultEquals = !staticEquals && call.getMethodNode().getParameters()[0].getType().equals(ClassHelper.OBJECT_TYPE);
 
             if(staticEquals || defaultEquals) {
-                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                     public void compile(MethodVisitor mv) {
                         swapIfNeeded(mv, swap, right, left);
 
@@ -776,7 +776,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             }
             else {
                 // case of multi-method
-                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                     public void compile(MethodVisitor mv) {
                         swapIfNeeded(mv, swap, right, left);
 

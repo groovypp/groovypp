@@ -13,32 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.groovypp.compiler.bytecode
+package org.mbte.groovypp.compiler.flow
 
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.ExpressionTransformer
 import org.codehaus.groovy.syntax.Token
-import org.codehaus.groovy.ast.GroovyCodeVisitor
 
-@Typed class OrExpression extends Expression {
-    final Token operation;
-    final Expression left
-    final Expression right
-
+@Typed class OrExpression extends AndOrExpression {
     OrExpression(Expression left, Expression right, Token operation) {
-        this.left  = left
-        this.right = right
-        this.operation = operation
+        super(left, right, operation)
     }
 
     Expression transformExpression(ExpressionTransformer transformer) {
-        def result = new OrExpression(transformer.transform(left), transformer.transform(right), operation)
+        OrExpression result = [transformer.transform(left), transformer.transform(right), operation]
         result.sourcePosition = this
-        return result
-    }
-
-    void visit(GroovyCodeVisitor visitor) {
-        left.visit visitor
-        right.visit visitor
+        result
     }
 }

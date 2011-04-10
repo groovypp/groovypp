@@ -1,7 +1,7 @@
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.191'
+version = '0.4.195'
 
 task test(dependsOn: [':Tests:test', ':StdLib:test'])
 

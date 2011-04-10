@@ -33,6 +33,7 @@ import org.codehaus.groovy.transform.powerassert.SourceText;
 import org.codehaus.groovy.transform.powerassert.SourceTextNotAvailableException;
 import org.codehaus.groovy.util.FastArray;
 import org.mbte.groovypp.compiler.bytecode.*;
+import org.mbte.groovypp.compiler.flow.*;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -371,8 +372,8 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
             if (statement instanceof BytecodeSequence)
                 visitBytecodeSequence((BytecodeSequence) statement);
             else {
-                if(statement instanceof LabelStatement) {
-                    mv.visitLabel(((LabelStatement)statement).labelExpression.label);
+                if(statement instanceof org.mbte.groovypp.compiler.flow.LabelStatement) {
+                    mv.visitLabel(((org.mbte.groovypp.compiler.flow.LabelStatement)statement).labelExpression.label);
                 }
                 else
                     statement.visit(this);
@@ -1221,6 +1222,10 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
     public void execute() {
         checkWeakerOverriding();
         addReturnIfNeeded();
+
+        setCode(LogicalStatementRewriter.rewrite(getCode(), new VariableScope()));
+        LogicalExpressionRewriter.normalize(getCode());
+
         compileStack.init(methodNode.getVariableScope(), methodNode.getParameters(), mv, methodNode.getDeclaringClass());
         getCode().visit(this);
         compileStack.clear();

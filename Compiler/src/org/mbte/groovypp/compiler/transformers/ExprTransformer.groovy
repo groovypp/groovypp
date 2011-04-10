@@ -19,7 +19,7 @@ package org.mbte.groovypp.compiler.transformers
 
 import org.codehaus.groovy.ast.ClassHelper
 import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.MethodNode
+
 import org.mbte.groovypp.compiler.CompilerTransformer
 import org.mbte.groovypp.compiler.RecordingVariableExpression
 import org.mbte.groovypp.compiler.TypeUtil
@@ -29,6 +29,11 @@ import org.objectweb.asm.Opcodes
 import org.codehaus.groovy.ast.expr.*
 import org.mbte.groovypp.compiler.bytecode.*
 import org.codehaus.groovy.classgen.BytecodeExpression
+import org.mbte.groovypp.compiler.flow.OrExpression
+import org.mbte.groovypp.compiler.flow.JumpIfExpression
+import org.mbte.groovypp.compiler.flow.AndExpression
+import org.mbte.groovypp.compiler.flow.ExpressionList
+import org.mbte.groovypp.compiler.flow.LabelExpression
 
 @Typed public abstract class ExprTransformer<T extends Expression> implements Opcodes {
 
@@ -66,6 +71,8 @@ import org.codehaus.groovy.classgen.BytecodeExpression
         transformers.put(ExpressionList, new ExpressionListTransformer())
         transformers.put(AndExpression, new AndExpressionTransformer())
         transformers.put(OrExpression, new OrExpressionTransformer())
+        transformers.put(ExpressionList, new ExpressionListTransformer())
+        transformers.put(LabelExpression, new LabelExpressionTransformer())
 
         def bool = new BooleanExpressionTransformer()
         transformers.put(BooleanExpression, bool)
@@ -101,7 +108,8 @@ import org.codehaus.groovy.classgen.BytecodeExpression
             return transformLogicalExpression(mce, compiler, label, onTrue)
         }
 
-        transformers.get(exp.class).transformLogical(exp, compiler, label, onTrue)
+        def t = transformers.get(exp.class)
+        t.transformLogical(exp, compiler, label, onTrue)
     }
 
     public abstract Expression transform(T exp, CompilerTransformer compiler)

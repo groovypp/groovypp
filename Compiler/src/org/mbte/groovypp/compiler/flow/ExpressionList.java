@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.groovypp.compiler.bytecode;
+package org.mbte.groovypp.compiler.flow;
 
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassNode;
+import org.codehaus.groovy.ast.GroovyCodeVisitor;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.ExpressionTransformer;
-import org.objectweb.asm.MethodVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +32,27 @@ public class ExpressionList extends Expression {
         setType(type);
     }
 
-    @Override
     public Expression transformExpression(ExpressionTransformer transformer) {
         final ExpressionList expressionList = new ExpressionList(this, getType());
         for(Expression e : expressions) {
-            expressionList.expressions.add(transformer.transform(e));
+            expressionList.leftShift(transformer.transform(e));
         }
         return expressionList;
+    }
+
+    public void visit(GroovyCodeVisitor visitor) {
+        for(Expression e : expressions) {
+            e.visit(visitor);
+        }
+    }
+
+    ExpressionList leftShift(Expression exp) {
+        if(exp instanceof ExpressionList) {
+            expressions.addAll(((ExpressionList)exp).expressions);
+        }
+        else {
+            expressions.add(exp);
+        }
+        return this;
     }
 }

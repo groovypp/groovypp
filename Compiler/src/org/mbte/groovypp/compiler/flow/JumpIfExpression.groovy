@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.groovypp.compiler.bytecode;
+package org.mbte.groovypp.compiler.flow;
 
 
-import org.codehaus.groovy.ast.ASTNode;
-import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.syntax.Token;
-import org.codehaus.groovy.syntax.Types;
+import org.codehaus.groovy.ast.expr.*
+import org.codehaus.groovy.ast.GroovyCodeVisitor
 
-public class JumpIfExpression extends Expression {
-    public final LabelExpression targetExpression;
-    public final BooleanExpression condition; // null means GOTO
+@Typed class JumpIfExpression extends Expression {
+    public final LabelExpression targetExpression
+    public final BooleanExpression condition // null means GOTO
 
-    public JumpIfExpression(ASTNode parent, LabelExpression labelExpression, BooleanExpression condition) {
+    public JumpIfExpression(LabelExpression labelExpression, Expression condition) {
         this.targetExpression = labelExpression;
-        this.condition = condition;
-        setSourcePosition(parent);
+        this.condition = condition instanceof BooleanExpression ? condition : ( condition ? [condition] : null)
     }
 
     public Expression transformExpression(ExpressionTransformer transformer) {
-        return new JumpIfExpression(this, targetExpression, condition != null ? (BooleanExpression) transformer.transform(condition) : null);
+        JumpIfExpression res = [targetExpression, condition != null ? (BooleanExpression)transformer.transform(condition) : null]
+        res.sourcePosition = this
+        res
+    }
+
+    void visit(GroovyCodeVisitor visitor) {
+        condition.visit(visitor)
     }
 }

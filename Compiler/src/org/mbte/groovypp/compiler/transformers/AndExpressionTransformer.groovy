@@ -15,7 +15,7 @@
  */
 package org.mbte.groovypp.compiler.transformers
 
-import org.mbte.groovypp.compiler.bytecode.AndExpression
+import org.mbte.groovypp.compiler.flow.AndExpression
 import org.codehaus.groovy.ast.expr.Expression
 import org.mbte.groovypp.compiler.CompilerTransformer
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr

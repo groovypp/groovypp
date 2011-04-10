@@ -24,8 +24,8 @@ import org.codehaus.groovy.ast.stmt.*;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.syntax.Types;
-import org.mbte.groovypp.compiler.bytecode.JumpIfStatement;
-import org.mbte.groovypp.compiler.bytecode.LogicalExpression;
+import org.mbte.groovypp.compiler.flow.LogicalExpressionRewriter;
+import org.mbte.groovypp.compiler.flow.LogicalStatementRewriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,9 +48,6 @@ public abstract class ReturnsAdder extends ClassCodeExpressionTransformer  {
         else if (!methodNode.isAbstract()) {
             setCode(addReturnsIfNeeded(statement, methodNode.getVariableScope()));
         }
-
-        LogicalExpression.normalize(getCode());
-//        setCode(JumpIfStatement.rewrite(getCode(), new VariableScope()));
     }
 
     protected abstract void setCode(Statement newBlock);

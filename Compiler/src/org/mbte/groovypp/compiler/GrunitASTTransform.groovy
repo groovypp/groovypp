@@ -25,18 +25,17 @@ import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.syntax.SyntaxException
-import org.codehaus.groovy.syntax.Token
-import org.codehaus.groovy.syntax.Types
+
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
-import org.mbte.groovypp.compiler.TypeUtil
+
 import org.objectweb.asm.Opcodes
 import org.codehaus.groovy.ast.*
 import static org.codehaus.groovy.ast.ClassHelper.make
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
-import org.mbte.groovypp.compiler.bytecode.JumpIfStatement
-import org.mbte.groovypp.compiler.bytecode.LabelStatement
+
+import org.mbte.groovypp.compiler.flow.LabelStatement
 
 @Typed
 @GroovyASTTransformation (phase = CompilePhase.CONVERSION)

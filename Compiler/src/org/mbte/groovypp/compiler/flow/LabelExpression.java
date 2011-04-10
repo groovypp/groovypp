@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.groovypp.compiler.bytecode;
+package org.mbte.groovypp.compiler.flow;
 
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassHelper;
 import org.codehaus.groovy.ast.ClassNode;
+import org.codehaus.groovy.ast.GroovyCodeVisitor;
 import org.codehaus.groovy.ast.stmt.Statement;
+import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
@@ -29,8 +31,10 @@ public class LabelExpression extends BytecodeExpr {
         super(parent, ClassHelper.VOID_TYPE);
     }
 
-    @Override
     protected void compile(MethodVisitor mv) {
         mv.visitLabel(label);
+    }
+
+    public void visit(GroovyCodeVisitor visitor) {
     }
 }

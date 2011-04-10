@@ -21,7 +21,7 @@ import org.mbte.groovypp.compiler.CompilerTransformer
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
-import org.mbte.groovypp.compiler.bytecode.OrExpression
+import org.mbte.groovypp.compiler.flow.OrExpression
 
 @Typed class OrExpressionTransformer extends ExprTransformer<OrExpression> {
     Expression transform(OrExpression exp, CompilerTransformer compiler) {
