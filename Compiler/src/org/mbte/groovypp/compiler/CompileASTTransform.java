@@ -23,6 +23,8 @@ import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.Statement;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.CompilePhase;
+import org.codehaus.groovy.control.ParserPlugin;
+import org.codehaus.groovy.control.ParserPluginFactory;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.syntax.SyntaxException;

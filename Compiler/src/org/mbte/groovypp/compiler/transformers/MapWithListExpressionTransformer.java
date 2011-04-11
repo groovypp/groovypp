@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,13 +26,13 @@ import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
+import org.mbte.groovypp.compiler.flow.MapWithListExpression;
 import org.objectweb.asm.MethodVisitor;
 
 import java.util.List;
 
-public class MapExpressionTransformer extends ExprTransformer<MapExpression> {
-    public Expression transform(final MapExpression exp, final CompilerTransformer compiler) {
+public class MapWithListExpressionTransformer extends ExprTransformer<MapWithListExpression> {
+    public Expression transform(final MapWithListExpression exp, final CompilerTransformer compiler) {
         InnerClassNode newType = new InnerClassNode(compiler.classNode, compiler.getNextClosureName(), ACC_PUBLIC|ACC_SYNTHETIC, ClassHelper.OBJECT_TYPE);
         newType.setModule(compiler.classNode.getModule());
         newType.setInterfaces(new ClassNode[] {TypeUtil.TMAP});
@@ -40,9 +40,9 @@ public class MapExpressionTransformer extends ExprTransformer<MapExpression> {
     }
 
     public static class Untransformed extends BytecodeExpr {
-        public final MapExpression exp;
+        public final MapWithListExpression exp;
 
-        public Untransformed(MapExpression exp, ClassNode type) {
+        public Untransformed(MapWithListExpression exp, ClassNode type) {
             super(exp, type);
             this.exp = exp;
         }

@@ -25,6 +25,7 @@ import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
+import org.mbte.groovypp.compiler.flow.MapWithListExpression;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -74,20 +75,26 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             return compiler.cast(newCall, cast.getType());
         }
 
-        if (cast.getExpression() instanceof org.mbte.groovypp.compiler.transformers.ListExpressionTransformer.UntransformedListExpr) {
-            final CastExpression newExp = new CastExpression(cast.getType(), ((ListExpressionTransformer.UntransformedListExpr) cast.getExpression()).exp);
+        if (cast.getExpression() instanceof ListExpressionTransformer.Untransformed) {
+            final CastExpression newExp = new CastExpression(cast.getType(), ((ListExpressionTransformer.Untransformed) cast.getExpression()).exp);
             newExp.setSourcePosition(cast);
             cast = newExp;
         }
 
-        if (cast.getExpression() instanceof MapExpressionTransformer.UntransformedMapExpr) {
-            final CastExpression newExp = new CastExpression(cast.getType(), ((MapExpressionTransformer.UntransformedMapExpr) cast.getExpression()).exp);
+        if (cast.getExpression() instanceof MapExpressionTransformer.Untransformed) {
+            final CastExpression newExp = new CastExpression(cast.getType(), ((MapExpressionTransformer.Untransformed) cast.getExpression()).exp);
             newExp.setSourcePosition(cast);
             cast = newExp;
         }
 
-        if (cast.getExpression() instanceof TernaryExpressionTransformer.UntransformedTernaryExpr) {
-            final TernaryExpression original = ((TernaryExpressionTransformer.UntransformedTernaryExpr) cast.getExpression()).exp;
+        if (cast.getExpression() instanceof MapWithListExpressionTransformer.Untransformed) {
+            final CastExpression newExp = new CastExpression(cast.getType(), ((MapWithListExpressionTransformer.Untransformed) cast.getExpression()).exp);
+            newExp.setSourcePosition(cast);
+            cast = newExp;
+        }
+
+        if (cast.getExpression() instanceof TernaryExpressionTransformer.Untransformed) {
+            final TernaryExpression original = ((TernaryExpressionTransformer.Untransformed) cast.getExpression()).exp;
 
             if (original instanceof ElvisOperatorExpression) {
                 final CastExpression newTrue = new CastExpression(cast.getType(), original.getTrueExpression());
@@ -270,7 +277,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
 
         final List<MapEntryExpression> list = exp.getMapEntryExpressions();
 
-        Expression superArgs = null;
+        Expression superArgs = exp instanceof MapWithListExpression ? ((MapWithListExpression)exp).listExpression : null;
 
         for (int i = 0; i != list.size(); ++i) {
             final MapEntryExpression me = list.get(i);
@@ -299,6 +306,11 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             Expression value = me.getValueExpression();
 
             if (keyName.equals("super")) {
+                if(superArgs != null) {
+                    compiler.addError( "<super> conflicts with already provided constructor arguments", me.getKeyExpression());
+                    return null;
+                }
+
                 if (objType == null)
                     objType = createNewType(type, exp, compiler);
                 superArgs = value;
@@ -352,18 +364,18 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             }
         }
 
-        if (objType != null) {
-            if (superArgs != null) {
-                if (superArgs instanceof ListExpression) {
-                    superArgs = new ArgumentListExpression(((ListExpression)superArgs).getExpressions());
-                }
-                else
-                    superArgs = new ArgumentListExpression(superArgs);
+        if (superArgs != null) {
+            if (superArgs instanceof ListExpression) {
+                superArgs = new ArgumentListExpression(((ListExpression)superArgs).getExpressions());
             }
             else
-                superArgs = new ArgumentListExpression();
-            final Expression finalSA = compiler.transform(superArgs);
+                superArgs = new ArgumentListExpression(superArgs);
+        }
+        else
+            superArgs = new ArgumentListExpression();
 
+        if (objType != null) {
+            final Expression finalSA = compiler.transform(superArgs);
             final MethodNode constructor = ConstructorCallExpressionTransformer.findConstructorWithClosureCoercion(objType.getSuperClass(), compiler.exprToTypeArray(finalSA), compiler, objType);
 
             if (constructor == null) {
@@ -432,7 +444,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             };
         }
         else {
-            final ConstructorCallExpression constr = new ConstructorCallExpression(type, new ArgumentListExpression());
+            final ConstructorCallExpression constr = new ConstructorCallExpression(type, superArgs);
             constr.setSourcePosition(exp);
             final BytecodeExpr transformendConstr = (BytecodeExpr) compiler.transform(constr);
             return new BytecodeExpr(exp, type) {

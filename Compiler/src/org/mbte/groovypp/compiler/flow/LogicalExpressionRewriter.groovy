@@ -25,6 +25,12 @@ import org.codehaus.groovy.ast.ClassCodeExpressionTransformer
 import org.codehaus.groovy.ast.expr.TernaryExpression
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.ast.ClassHelper
+import org.codehaus.groovy.ast.expr.MapExpression
+import org.codehaus.groovy.ast.expr.ListExpression
+import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.expr.MapEntryExpression
+import org.codehaus.groovy.ast.expr.ClassExpression
+import org.codehaus.groovy.ast.expr.CastExpression
 
 @Typed abstract class LogicalExpressionRewriter {
     private static final ClassCodeExpressionTransformer normalizer = [
@@ -103,6 +109,79 @@ import org.codehaus.groovy.ast.ClassHelper
         }
     ]
 
+    private static final ClassCodeExpressionTransformer multiPropertySetNormalizer = [
+        getSourceUnit: { null },
+
+        transform: { src ->
+            src = src?.transformExpression(this)
+
+            switch(src) {
+                case ListExpression:
+                    List<MapEntryExpression> list
+                    def iter = src.expressions.iterator()
+                    for( ; iter.hasNext(); ) {
+                        def e = iter.next ()
+
+                        if(e instanceof MapEntryExpression) {
+                            if(list == null)
+                                list = []
+                            list << e
+                            iter.remove()
+                        }
+                    }
+
+                    if(list == null)
+                        return src
+
+                    if(src.expressions.empty) {
+                        def res = new MapExpression(list)
+                        res.sourcePosition = src
+                        return res
+                    }
+                    else {
+                        def res = new MapWithListExpression(list, src)
+                        res.sourcePosition = src
+                        return res
+                    }
+
+                case BinaryExpression:
+                    switch (src.operation.type) {
+                        case Types.LEFT_SQUARE_BRACKET:
+                            switch(src.rightExpression) {
+                                case MapWithListExpression:
+                                    if(src.leftExpression instanceof ClassExpression) {
+                                        def res = new CastExpression(src.leftExpression.type, src.rightExpression)
+                                        res.sourcePosition = src
+                                        return res
+                                    }
+                                    return src
+
+                                case MapExpression:
+                                    return new MultiPropertySetExpression(src.leftExpression, (MapExpression)src.rightExpression)
+
+                                case ListExpression:
+                                    if(src.leftExpression instanceof ClassExpression) {
+                                        def res = new CastExpression(src.leftExpression.type, src.rightExpression)
+                                        res.sourcePosition = src
+                                        return res
+                                    }
+                                    return src
+
+                                default:
+                                    return src
+                            }
+
+                        default:
+                            return src
+                    }
+                break
+
+                default:
+                    return src
+            }
+        }
+    ]
+
     static void normalize(Statement src) {
         src.visit normalizer
     }
@@ -143,5 +222,9 @@ import org.codehaus.groovy.ast.ClassHelper
                 res.sourcePosition = src
                 return res
         }
+    }
+
+    static void rewriteMultiPropertySetExpressions (ClassNode classNode) {
+        classNode.visitContents multiPropertySetNormalizer
     }
 }

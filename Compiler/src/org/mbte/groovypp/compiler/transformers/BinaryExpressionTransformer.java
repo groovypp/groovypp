@@ -428,8 +428,8 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                 return new ResolvedArrayLikeBytecodeExpr(bin, object, indexExp, getter, compiler);
             }
 
-            if (indexExp instanceof ListExpressionTransformer.UntransformedListExpr) {
-                MethodCallExpression mce = new MethodCallExpression(object, "getAt", new ArgumentListExpression(((ListExpressionTransformer.UntransformedListExpr) indexExp).exp.getExpressions()));
+            if (indexExp instanceof ListExpressionTransformer.Untransformed) {
+                MethodCallExpression mce = new MethodCallExpression(object, "getAt", new ArgumentListExpression(((ListExpressionTransformer.Untransformed) indexExp).exp.getExpressions()));
                 mce.setSourcePosition(bin);
                 return compiler.transform(mce);
             }

@@ -34,6 +34,8 @@ import org.mbte.groovypp.compiler.flow.JumpIfExpression
 import org.mbte.groovypp.compiler.flow.AndExpression
 import org.mbte.groovypp.compiler.flow.ExpressionList
 import org.mbte.groovypp.compiler.flow.LabelExpression
+import org.mbte.groovypp.compiler.flow.MultiPropertySetExpression
+import org.mbte.groovypp.compiler.flow.MapWithListExpression
 
 @Typed public abstract class ExprTransformer<T extends Expression> implements Opcodes {
 
@@ -73,6 +75,8 @@ import org.mbte.groovypp.compiler.flow.LabelExpression
         transformers.put(OrExpression, new OrExpressionTransformer())
         transformers.put(ExpressionList, new ExpressionListTransformer())
         transformers.put(LabelExpression, new LabelExpressionTransformer())
+        transformers.put(MultiPropertySetExpression, new MultiPropertySetExpressionTransformer())
+        transformers.put(MapWithListExpression, new MapWithListExpressionTransformer())
 
         def bool = new BooleanExpressionTransformer()
         transformers.put(BooleanExpression, bool)

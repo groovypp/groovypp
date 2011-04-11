@@ -46,7 +46,7 @@ public class ExpressionList extends Expression {
         }
     }
 
-    ExpressionList leftShift(Expression exp) {
+    public ExpressionList leftShift(Expression exp) {
         if(exp instanceof ExpressionList) {
             expressions.addAll(((ExpressionList)exp).expressions);
         }

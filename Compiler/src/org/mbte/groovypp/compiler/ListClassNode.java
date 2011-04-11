@@ -16,21 +16,13 @@
 
 package org.mbte.groovypp.compiler;
 
-import org.codehaus.groovy.ast.ClassHelper;
 import org.codehaus.groovy.ast.ClassNode;
-import org.codehaus.groovy.ast.InnerClassNode;
 import org.codehaus.groovy.ast.MethodNode;
-import org.codehaus.groovy.ast.expr.ClosureExpression;
-import org.codehaus.groovy.ast.expr.Expression;
-import org.codehaus.groovy.ast.expr.ListExpression;
-import org.mbte.groovypp.compiler.TypeUtil;
-import org.mbte.groovypp.compiler.UncertainClassNode;
 import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
-import org.objectweb.asm.Opcodes;
 
-public class ListClassNode extends UncertainClassNode<ListExpressionTransformer.UntransformedListExpr> {
+public class ListClassNode extends UncertainClassNode<ListExpressionTransformer.Untransformed> {
 
-    public ListClassNode(ListExpressionTransformer.UntransformedListExpr ce, MethodNode owner, String name) {
+    public ListClassNode(ListExpressionTransformer.Untransformed ce, MethodNode owner, String name) {
         super(ce, owner, name);
         setInterfaces(new ClassNode[]{TypeUtil.TLIST});
     }

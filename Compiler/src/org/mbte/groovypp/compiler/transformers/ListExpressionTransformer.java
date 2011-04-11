@@ -18,7 +18,6 @@ package org.mbte.groovypp.compiler.transformers;
 
 import org.codehaus.groovy.ast.ClassHelper;
 import org.codehaus.groovy.ast.ClassNode;
-import org.codehaus.groovy.ast.InnerClassNode;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.ListExpression;
 import org.codehaus.groovy.classgen.BytecodeHelper;
@@ -33,13 +32,13 @@ import java.util.List;
 
 public class ListExpressionTransformer extends ExprTransformer<ListExpression> {
     public Expression transform(final ListExpression exp, final CompilerTransformer compiler) {
-        return new UntransformedListExpr(exp, compiler);
+        return new Untransformed(exp, compiler);
     }
 
-    public static class UntransformedListExpr extends BytecodeExpr {
+    public static class Untransformed extends BytecodeExpr {
         public final ListExpression exp;
 
-        public UntransformedListExpr(ListExpression exp, CompilerTransformer compiler) {
+        public Untransformed(ListExpression exp, CompilerTransformer compiler) {
             super(exp, ClassHelper.OBJECT_TYPE);
             setType(new ListClassNode(this, compiler.methodNode, compiler.getNextClosureName()));
             this.exp = exp;

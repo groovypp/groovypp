@@ -27,3 +27,5 @@ task deployGoogle(dependsOn:[':Compiler:sourcesJar', installZip]) << {
 }
 
 task uploadArchives(dependsOn: ':Compiler:uploadArchives')
+
+task compile(dependsOn: ':Compiler:compileGroovy')

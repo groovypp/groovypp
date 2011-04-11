@@ -80,6 +80,18 @@ public class CleaningVerifier extends Verifier {
         fieldVerifier.setAccessible(true);
     }
 
+    public static CompilationUnit getCompilationUnit () {
+        try {
+            return (CompilationUnit) fieldCompUnit.get(null);
+        }
+        catch (RuntimeException e) {
+            throw e;
+        }
+        catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
     public static CleaningVerifier getCleaningVerifier () {
         try {
             CompilationUnit cu = (CompilationUnit) fieldCompUnit.get(null);
