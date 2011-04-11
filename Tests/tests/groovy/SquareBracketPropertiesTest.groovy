@@ -69,4 +69,26 @@ class XPair {
             assert qq.toString () == 'first: 10, second: 238'
         """
     }
+
+    void testSample () {
+        shell.evaluate """
+            @Typed package p
+
+class X {
+   int a
+   String b
+   List c
+   float d
+}
+
+X var = []
+
+def u = var[ a : 10, b : 12][c:[0,1,2]][d: 239]
+assert u === var
+assert var.a == 10
+assert var.b == '12' // yes, we converted 12 to '12' automatically
+assert var.c == [0,1,2]
+assert var.d == 239
+        """
+    }
 }

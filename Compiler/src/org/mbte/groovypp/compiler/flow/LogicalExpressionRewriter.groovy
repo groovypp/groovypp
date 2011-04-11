@@ -159,6 +159,9 @@ import org.codehaus.groovy.ast.expr.CastExpression
                                 case MapExpression:
                                     return new MultiPropertySetExpression(src.leftExpression, (MapExpression)src.rightExpression)
 
+                                case MapEntryExpression:
+                                    return new MultiPropertySetExpression(src.leftExpression, new MapExpression([src.rightExpression]))
+
                                 case ListExpression:
                                     if(src.leftExpression instanceof ClassExpression) {
                                         def res = new CastExpression(src.leftExpression.type, src.rightExpression)
