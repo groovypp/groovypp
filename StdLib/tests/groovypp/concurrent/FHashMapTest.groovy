@@ -17,7 +17,7 @@
 package groovypp.concurrent
 
 @Typed
-public class FHashMapTest extends GroovyTestCase {
+public class FHashMapTest extends GroovyShellTestCase {
     void testInsert () {
         def map = FHashMap.emptyMap
         FHashMap m = map.put(10,-1).put(2,-2).put(2,-3)
@@ -29,7 +29,15 @@ public class FHashMapTest extends GroovyTestCase {
         assertEquals (-11,m [34])
         assertEquals (-3,m [2])
         assertEquals (-1,m [10])
+
+        assertNull m.get(1222)
+        assertEquals (17,m.get(1222,17))
+        assertEquals (177,m.getOr(1222){177})
+
         assertEquals 3, m.size()
+
+        m = m.put("mama", "papa")
+        assertEquals "papa", m.mama
     }
 
     static class Collision {
@@ -120,5 +128,54 @@ public class FHashMapTest extends GroovyTestCase {
         println("FMap remove: ${System.currentTimeMillis()-clock}")
         assertEquals 250000, map.size()
         assertEquals (-25,map [25])
+    }
+
+    void testSet () {
+        FHashMap map = FHashMap.emptyMap.put(11,-11).put(10,12).put(4,5)
+        assert map.keySet() == [4,10,11] as Set
+        assert map.values() as Set == [-11, 12, 5] as Set
+        assert map.entrySet().toString() == "[[4, 5], [10, 12], [11, -11]]"
+    }
+
+    void testIterations () {
+        FHashMap map = FHashMap.emptyMap.put(11,-11).put(10,12).put(4,5)
+        for(e in map)
+            println e
+
+        map.each { k, v ->
+            println "$k $v"
+        }
+    }
+
+    void testPlusMinus() {
+        FHashMap fmap = [a:10, b:12]
+        Map map = [c:13, d:12]
+
+        def fpm = fmap + map
+//        def mfp = map + fmap
+        assert fpm instanceof FHashMap
+        assert fpm == (FHashMap)[a:10, b:12, c:13, d:12]
+//        assert mfp instanceof Map
+    }
+
+
+    void testCompilation () {
+        shell.evaluate """
+@Typed package p
+
+FHashMap map = [10:12, 'a':45]
+assert map[10] == 12
+assert map.a== 45
+
+def map2 = (FHashMap)[10:12, 'a':45]
+assert map2[10] == 12
+assert map2.a== 45
+
+FHashMap mutate(FHashMap m) {
+    m.put(10, 11)
+}
+
+assert mutate([10:15])[10] == 11
+        """
     }
 }

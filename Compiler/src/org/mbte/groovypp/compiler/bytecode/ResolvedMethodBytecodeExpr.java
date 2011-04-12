@@ -282,7 +282,7 @@ public class ResolvedMethodBytecodeExpr extends BytecodeExpr {
         }
     }
 
-    public static ResolvedMethodBytecodeExpr create(ASTNode parent, MethodNode methodNode, BytecodeExpr object, TupleExpression bargs, CompilerTransformer compiler) {
+    public static BytecodeExpr create(ASTNode parent, MethodNode methodNode, BytecodeExpr object, TupleExpression bargs, CompilerTransformer compiler) {
         if ((methodNode.getModifiers() & Opcodes.ACC_PRIVATE) != 0 && methodNode.getDeclaringClass() != compiler.classNode) {
             MethodNode delegate = compiler.context.getMethodDelegate(methodNode);
             return new ResolvedMethodBytecodeExpr(parent, delegate, object, bargs, compiler);

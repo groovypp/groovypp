@@ -16,12 +16,16 @@
 
 package org.mbte.groovypp.compiler;
 
+import antlr.collections.AST;
+import org.codehaus.groovy.antlr.AntlrParserPlugin;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.Statement;
 import org.codehaus.groovy.control.CompilePhase;
+import org.codehaus.groovy.control.ParserPlugin;
+import org.codehaus.groovy.control.ParserPluginFactory;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.syntax.ASTHelper;
 import org.codehaus.groovy.syntax.SyntaxException;
@@ -31,6 +35,7 @@ import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.classgen.Verifier;
 import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.flow.MapWithListExpression;
 import org.objectweb.asm.Opcodes;
 
 import java.util.LinkedList;
@@ -41,12 +46,57 @@ import java.util.ArrayList;
 @GroovyASTTransformation(phase = CompilePhase.CONVERSION)
 public class TraitASTTransform implements ASTTransformation, Opcodes {
 
+    public TraitASTTransform() {
+        CleaningVerifier.getCompilationUnit().getConfiguration().setPluginFactory(new ParserPluginFactory() {
+            public ParserPlugin createParserPlugin() {
+                return new AntlrParserPlugin() {
+                    protected Expression mapExpression(AST mapNode) {
+                        List expressions = new ArrayList();
+                        ListExpression list = null;
+                        AST elist = mapNode.getFirstChild();
+                        if (elist != null) {  // totally empty in the case of [:]
+                            assertNodeType(ELIST, elist);
+                            for (AST node = elist.getFirstChild(); node != null; node = node.getNextSibling()) {
+                                switch (node.getType()) {
+                                    case LABELED_ARG:
+                                    case SPREAD_MAP_ARG:
+                                        expressions.add(mapEntryExpression(node));
+                                        break;  // legal cases
+                                    case SPREAD_ARG:
+                                        assertNodeType(SPREAD_MAP_ARG, node);
+                                        break;  // helpful error
+                                    default:
+                                        if(list == null)
+                                            list = new ListExpression();
+                                        list.addExpression(expression(node));
+                                        break;
+                                }
+                            }
+                        }
+                        if(list == null) {
+                            MapExpression mapExpression = new MapExpression(expressions);
+                            configureAST(mapExpression, mapNode);
+                            return mapExpression;
+                        }
+                        else {
+                            MapWithListExpression mapExpression = new MapWithListExpression(expressions, list);
+                            configureAST(mapExpression, mapNode);
+                            return mapExpression;
+                        }
+                    }
+                };
+            }
+        });
+    }
+
     public void visit(ASTNode[] nodes, final SourceUnit source) {
         ModuleNode module = (ModuleNode) nodes[0];
         List<ClassNode> toProcess = new LinkedList<ClassNode>();
         final boolean forceTyped = source.getName().endsWith(".gpp");
         AnnotationNode pkgTypedAnn = getTypedAnnotation(module.getPackage());
         for (ClassNode classNode : module.getClasses()) {
+            VolatileFieldUpdaterTransform.addUpdaterForVolatileFields(classNode);
+
             boolean process = false;
             boolean typed = false;
             for (AnnotationNode ann : classNode.getAnnotations()) {

@@ -31,14 +31,14 @@ public class TernaryExpressionTransformer extends ExprTransformer<TernaryExpress
     public Expression transform(TernaryExpression exp, CompilerTransformer compiler) {
         InnerClassNode newType = new InnerClassNode(compiler.classNode, compiler.getNextClosureName(), ACC_PUBLIC|ACC_SYNTHETIC, ClassHelper.OBJECT_TYPE);
         newType.setInterfaces(new ClassNode[] {TypeUtil.TTERNARY});
-        final UntransformedTernaryExpr untransformed = new UntransformedTernaryExpr(exp, newType);
+        final Untransformed untransformed = new Untransformed(exp, newType);
         return untransformed.improve(compiler);
     }
 
-    public static class UntransformedTernaryExpr extends BytecodeExpr {
+    public static class Untransformed extends BytecodeExpr {
         public TernaryExpression exp;
 
-        public UntransformedTernaryExpr(TernaryExpression exp, ClassNode type) {
+        public Untransformed(TernaryExpression exp, ClassNode type) {
             super(exp, type);
             this.exp = exp;
         }
@@ -110,12 +110,14 @@ public class TernaryExpressionTransformer extends ExprTransformer<TernaryExpress
             final BytecodeExpr trueE  = (BytecodeExpr) compiler.transform(exp.getTrueExpression());
             final BytecodeExpr falseE = (BytecodeExpr) compiler.transform(exp.getFalseExpression());
 
-            if(trueE instanceof MapExpressionTransformer.UntransformedMapExpr
-            || trueE instanceof ListExpressionTransformer.UntransformedListExpr
-            || trueE instanceof UntransformedTernaryExpr
-            || falseE instanceof MapExpressionTransformer.UntransformedMapExpr
-            || falseE instanceof ListExpressionTransformer.UntransformedListExpr
-            || falseE instanceof UntransformedTernaryExpr) {
+            if(trueE instanceof MapExpressionTransformer.Untransformed
+            || trueE instanceof MapWithListExpressionTransformer.Untransformed
+            || trueE instanceof ListExpressionTransformer.Untransformed
+            || trueE instanceof Untransformed
+            || falseE instanceof MapExpressionTransformer.Untransformed
+            || falseE instanceof MapWithListExpressionTransformer.Untransformed
+            || falseE instanceof ListExpressionTransformer.Untransformed
+            || falseE instanceof Untransformed) {
                 final TernaryExpression newExp = new TernaryExpression(exp.getBooleanExpression(), trueE, falseE);
                 newExp.setSourcePosition(exp);
                 exp = newExp;

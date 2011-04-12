@@ -20,12 +20,11 @@ import groovy.lang.TypePolicy;
 import groovy.lang.Typed;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.ast.stmt.BlockStatement;
-import org.codehaus.groovy.ast.stmt.EmptyStatement;
-import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.CompilePhase;
+import org.codehaus.groovy.control.ParserPlugin;
+import org.codehaus.groovy.control.ParserPluginFactory;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.syntax.SyntaxException;
@@ -96,7 +95,7 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
         SourceUnitContext context = new SourceUnitContext();
         for (Map.Entry<MethodNode, TypePolicy> entry : toProcess.entrySet()) {
-            final MethodNode mn = entry.getKey();
+            MethodNode mn = entry.getKey();
             final TypePolicy policy = entry.getValue();
 
             final List<AnnotationNode> anns = mn.getAnnotations(COMPILE_TYPE);
@@ -172,16 +171,12 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
     private static boolean checkOverride(MethodNode method, MethodNode baseMethod, ClassNode baseType) {
         class Mutation {
-            final Parameter p;
+            final int index;
             final ClassNode t;
 
-            public Mutation(ClassNode t, Parameter p) {
+            public Mutation(ClassNode t, int index) {
                 this.t = t;
-                this.p = p;
-            }
-
-            void mutate () {
-                p.setType(t);
+                this.index = index;
             }
         }
 
@@ -203,17 +198,25 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
                         parameterType = TypeUtil.withGenericTypes(parameterType, (GenericsType[]) null);
                         if (mutations == null)
                             mutations = new ArrayList<Mutation>();
-                        mutations.add(new Mutation(parameterType, closureParameter));
+                        mutations.add(new Mutation(parameterType, i));
                     } else {
                         return false;
                     }
                 }
             }
 
-            if (mutations != null)
-                for (Mutation mutation : mutations) {
-                    mutation.mutate();
+            if (mutations != null) {
+                Parameter[] newParams = closureParameters.clone();
+                for(Mutation m : mutations) {
+                    newParams[m.index] = new Parameter(m.t, closureParameters[m.index].getName());
                 }
+
+                MethodNode found = method.getDeclaringClass().getDeclaredMethod(method.getName(), newParams);
+                if(found != null) {
+                    return false;
+                }
+                method.setParameters(newParams);
+            }
             ClassNode returnType = TypeUtil.getSubstitutedType(baseMethod.getReturnType(), baseType.redirect(), baseType);
             method.setReturnType(returnType);
             return true;
@@ -280,7 +283,8 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
             TypePolicy innerClassPolicy = getPolicy(node, source, classPolicy);
 
-            allMethods(source, toProcess, node, innerClassPolicy);        }
+            allMethods(source, toProcess, node, innerClassPolicy);
+        }
     }
 
     public static TypePolicy getPolicy(AnnotatedNode ann, SourceUnit source, TypePolicy def) {

@@ -88,6 +88,8 @@ public class TypeUtil {
     public static final ClassNode SCRIPT_BYTECODE_ADAPTER = make(ScriptBytecodeAdapter.class);
     public static final ClassNode ASSERTION_RENDERER = make(AssertionRenderer.class);
     public static final ClassNode IMPROVE_TYPE = new ClassNode(Object.class);
+    public static final ClassNode FHASHMAP_TYPE = ClassHelper.make("groovypp.concurrent.FHashMap");
+    public static final ClassNode FLIST_TYPE = ClassHelper.make("groovypp.concurrent.FList");
 
     public TypeUtil() {
         RAW_CLASS = new ClassNode(RawMarker.class);
@@ -225,7 +227,7 @@ public class TypeUtil {
         return method;
     }
 
-    private static boolean isTransparentClass(ClassNode node) {
+    public static boolean isTransparentClass(ClassNode node) {
         for (String name : TRANSPARENT_DEREFERENCE_CLASSES) {
             if (node.getName().equals(name)) return true;
         }
@@ -311,6 +313,8 @@ public class TypeUtil {
         type2 = TypeUtil.wrapSafely(type2);
 
         if (isNumericalType(type1) && isNumericalType(type2)) {
+            if (type1.equals(Number_TYPE) || type2.equals(Number_TYPE))
+                return Number_TYPE;
             if (type1.equals(ClassHelper.Double_TYPE) || type2.equals(ClassHelper.Double_TYPE))
                 return ClassHelper.double_TYPE;
             if (type1.equals(ClassHelper.Float_TYPE) || type2.equals(ClassHelper.Float_TYPE))

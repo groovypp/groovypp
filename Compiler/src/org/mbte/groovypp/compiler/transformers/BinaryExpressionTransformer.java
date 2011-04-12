@@ -24,22 +24,18 @@ import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.syntax.Types;
-import org.mbte.groovypp.compiler.ClassNodeCache;
-import org.mbte.groovypp.compiler.CompilerTransformer;
-import org.mbte.groovypp.compiler.PresentationUtil;
-import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.bytecode.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedArrayBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedArrayLikeBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedLeftExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
-import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.codehaus.groovy.ast.ClassHelper.int_TYPE;
+import static org.mbte.groovypp.compiler.TypeUtil.isTransparentClass;
 
 public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpression> {
     private static final Token INTDIV = Token.newSymbol(Types.INTDIV, -1, -1);
@@ -143,7 +139,12 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             case Types.KEYWORD_IN: {
                 final BytecodeExpr left = (BytecodeExpr) compiler.transform(exp.getLeftExpression());
                 final BytecodeExpr right = (BytecodeExpr) compiler.transform(exp.getRightExpression());
-                return callMethod(exp, "isCase", compiler, right, left);
+                if(!right.getType().equals(ClassHelper.OBJECT_TYPE))
+                    return callMethod(exp, "isCase", compiler, right, left);
+                else {
+                    compiler.addError("Operator 'in' does not applicable to java.lang.Object", exp);
+                    return null;
+                }
             }
 
             default: {
@@ -199,15 +200,39 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
         }
     }
 
-    private BytecodeExpr evaluateInstanceof(BinaryExpression be, CompilerTransformer compiler, final Label label, final boolean onTrue) {
+    private BytecodeExpr evaluateInstanceof(final BinaryExpression be, final CompilerTransformer compiler, final Label label, final boolean onTrue) {
         final BytecodeExpr l = (BytecodeExpr) compiler.transform(be.getLeftExpression());
         final ClassNode type = be.getRightExpression().getType();
-        return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+        boolean weakInference = false;
+        if(be.getLeftExpression() instanceof VariableExpression) {
+            VariableExpression leftExpression = (VariableExpression) be.getLeftExpression();
+            if(leftExpression.getType() == ClassHelper.DYNAMIC_TYPE && !(leftExpression.getName().equals("this"))) {
+                if(onTrue) {
+                    compiler.addLocalVarInferenceType(label, leftExpression, type, ((ResolvedVarBytecodeExpr) l).var.getIndex());
+                }
+                else {
+                    weakInference = true;
+                }
+            }
+        }
+        final boolean finalWeakInference = weakInference;
+        return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
             protected void compile(MethodVisitor mv) {
                 l.visit(mv);
                 box(l.getType(), mv);
                 mv.visitTypeInsn(INSTANCEOF, BytecodeHelper.getClassInternalName(type));
                 mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
+                if(finalWeakInference) {
+                    VariableExpression leftExpression = (VariableExpression) be.getLeftExpression();
+                    compiler.getLocalVarInferenceTypes().add(leftExpression, type);
+
+                    Register var = compiler.compileStack.getRegister(leftExpression.getName(), true);
+
+                    // we do it in order to make JVM verifier happy and do not check cast on each use of variable
+                    mv.visitVarInsn(ALOAD, var.getIndex());
+                    mv.visitTypeInsn(CHECKCAST, BytecodeHelper.getClassInternalName(type));
+                    mv.visitVarInsn(ASTORE, var.getIndex());
+                }
             }
         };
     }
@@ -332,18 +357,27 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
         }
 
         BytecodeExpr right = (BytecodeExpr) compiler.transform(be.getRightExpression());
-        MethodNode boxing = TypeUtil.getReferenceBoxingMethod(left.getType(), right.getType());
-        if (boxing != null && !TypeUtil.isDirectlyAssignableFrom(left.getType(), right.getType())) {
-            return ResolvedMethodBytecodeExpr.create(be, boxing, left, new ArgumentListExpression(right), compiler);
-        } else {
-        	ResolvedLeftExpr leftExpr = (ResolvedLeftExpr) left;
-        	if(leftExpr.checkAssignment(false)) {
+        if(isTransparentClass(left.getType())) {
+            MethodNode boxing = TypeUtil.getReferenceBoxingMethod(left.getType(), right.getType());
+            if (boxing != null && !TypeUtil.isDirectlyAssignableFrom(left.getType(), right.getType())) {
+                return ResolvedMethodBytecodeExpr.create(be, boxing, left, new ArgumentListExpression(right), compiler);
+            } else {
+                ResolvedLeftExpr leftExpr = (ResolvedLeftExpr) left;
+                if(leftExpr.checkAssignment(false)) {
+                    return leftExpr.createAssign(be, right, compiler);
+                } else {
+                    compiler.addError("Invalid assignment: " + left.getType() + " is not assignable from " + right.getType(), be);
+                    return null;
+                }
+            }
+        }
+        else {
+            ResolvedLeftExpr leftExpr = (ResolvedLeftExpr) left;
+            if(leftExpr.checkAssignment(true)) {
                 return leftExpr.createAssign(be, right, compiler);
-        	} else {
-        		compiler.addError("Invalid assignment: " + left.getType() + " is not assignable from " +
-        			right.getType(), be);
-        		return null;
-        	}
+            } else {
+                return null;
+            }
         }
     }
 
@@ -359,7 +393,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
         MethodNode lunboxing = TypeUtil.getReferenceUnboxingMethod(left.getType());
         MethodNode rboxing = TypeUtil.getReferenceBoxingMethod(left.getType(), right.getType());
         if (lunboxing != null && rboxing != null) {
-            final ResolvedMethodBytecodeExpr oldValue = ResolvedMethodBytecodeExpr.create(be, lunboxing,
+            final BytecodeExpr oldValue = ResolvedMethodBytecodeExpr.create(be, lunboxing,
                     (BytecodeExpr) left, new ArgumentListExpression(), compiler);
             final BinaryExpression binary = new BinaryExpression(oldValue, op, right);
             binary.setSourcePosition(be);
@@ -394,8 +428,8 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                 return new ResolvedArrayLikeBytecodeExpr(bin, object, indexExp, getter, compiler);
             }
 
-            if (indexExp instanceof ListExpressionTransformer.UntransformedListExpr) {
-                MethodCallExpression mce = new MethodCallExpression(object, "getAt", new ArgumentListExpression(((ListExpressionTransformer.UntransformedListExpr) indexExp).exp.getExpressions()));
+            if (indexExp instanceof ListExpressionTransformer.Untransformed) {
+                MethodCallExpression mce = new MethodCallExpression(object, "getAt", new ArgumentListExpression(((ListExpressionTransformer.Untransformed) indexExp).exp.getExpressions()));
                 mce.setSourcePosition(bin);
                 return compiler.transform(mce);
             }
@@ -498,7 +532,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             final ClassNode mathType = TypeUtil.getMathType(l.getType(), r.getType());
             final BytecodeExpr l1 = l;
             final BytecodeExpr r1 = r;
-            return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+            return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                 public void compile(MethodVisitor mv) {
                     l1.visit(mv);
                     box(l1.getType(), mv);
@@ -568,7 +602,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
 
             final int opType = be.getOperation().getType();
             if ((leftNull || rightNull) && (opType == Types.COMPARE_EQUAL || opType == Types.COMPARE_NOT_EQUAL || opType == Types.COMPARE_IDENTICAL || opType == Types.COMPARE_NOT_IDENTICAL)) {
-                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                     public void compile(MethodVisitor mv) {
                         if (rightNull) {
                             l2.visit(mv);
@@ -605,7 +639,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                 return evaluateEqualNotEqual(be, compiler, label, l2, r2, opType1, false);
             }
 
-            return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+            return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                 public void compile(MethodVisitor mv) {
                     l2.visit(mv);
                     box(l2.getType(), mv);
@@ -659,7 +693,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
     private BytecodeExpr evaluateEqualNotEqual(final BinaryExpression be, CompilerTransformer compiler, final Label label, final BytecodeExpr left, final BytecodeExpr right, final int opType, final boolean swap) {
         if (left.getType().equals(ClassHelper.OBJECT_TYPE)) {
             if (right.getType().equals(ClassHelper.OBJECT_TYPE)) {
-                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                     public void compile(MethodVisitor mv) {
                         swapIfNeeded(mv, swap, right, left);
 
@@ -684,7 +718,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
 
         final ClassNode wrapper = ClassHelper.getWrapper(left.getType());
         if (wrapper.implementsInterface(TypeUtil.COMPARABLE) || wrapper.equals(TypeUtil.COMPARABLE)) {
-            return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+            return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                 public void compile(MethodVisitor mv) {
                     swapIfNeeded(mv, swap, right, left);
 
@@ -718,7 +752,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             final boolean defaultEquals = !staticEquals && call.getMethodNode().getParameters()[0].getType().equals(ClassHelper.OBJECT_TYPE);
 
             if(staticEquals || defaultEquals) {
-                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                     public void compile(MethodVisitor mv) {
                         swapIfNeeded(mv, swap, right, left);
 
@@ -742,7 +776,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
             }
             else {
                 // case of multi-method
-                return new BytecodeExpr(be, ClassHelper.boolean_TYPE) {
+                return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
                     public void compile(MethodVisitor mv) {
                         swapIfNeeded(mv, swap, right, left);
 

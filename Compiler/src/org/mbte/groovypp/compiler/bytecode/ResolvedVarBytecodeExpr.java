@@ -41,7 +41,7 @@ import static org.codehaus.groovy.ast.ClassHelper.long_TYPE;
 
 public class ResolvedVarBytecodeExpr extends ResolvedLeftExpr {
     private final VariableExpression ve;
-    private final Register var;
+    public final Register var;
     private final BytecodeExpr record;
 
     public ResolvedVarBytecodeExpr(ClassNode type, VariableExpression ve, CompilerTransformer compiler) {

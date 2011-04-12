@@ -16,8 +16,12 @@
 
 package org.mbte.groovypp.compiler.bytecode;
 
-import org.mbte.groovypp.compiler.bytecode.LocalVarInferenceTypes;
+import org.codehaus.groovy.ast.ClassNode;
+import org.codehaus.groovy.ast.expr.VariableExpression;
+import org.objectweb.asm.Label;
 
 public interface LocalVarTypeInferenceState {
     public LocalVarInferenceTypes getLocalVarInferenceTypes ();
+
+    public void addLocalVarInferenceType(Label label, VariableExpression ve, ClassNode type, int index);
 }

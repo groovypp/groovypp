@@ -1,206 +1,31 @@
-apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.157'
+version = '0.4.200'
 
-test {
-  maxHeapSize = '512m'
-  workingDir = '.'
-}
+task test(dependsOn: [':Tests:test', ':StdLib:test'])
 
-dependencies {
-    groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.6')
-
-    compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.6')
-    compile "junit:junit:4.8.1"
-
-    testRuntime(group: 'org.apache.ant', name: 'ant', version: '1.8.1')
-    testRuntime(group: 'commons-cli', name: 'commons-cli', version: '1.1')
-    testRuntime(group: 'org.apache.ivy', name: 'ivy', version: '2.2.0')
-    testRuntime(group: 'org.mortbay.jetty', name: 'servlet-api', version: '3.0.20100224')
-}
-
-repositories {
-    mavenCentral()
-}
-
-sourceSets {
-    compiler {
-        java {
-            srcDir "Compiler/src"
-        }
-        groovy {
-            srcDir "Compiler/src"
-        }
-        classesDir = file("build/classes/main")
-    }
-    stdlib {
-        groovy {
-            srcDir "StdLib/src"
-        }
-        classesDir = file("build/classes/main")
-        compileClasspath = compileClasspath + sourceSets.compiler.classes
-    }
-    testCompiler {
-        groovy {
-            srcDir 'Compiler/tests'
-            classesDir = file("build/classes/test")
-        }
-        compileClasspath = compileClasspath + sourceSets.compiler.classes + sourceSets.stdlib.classes
-    }
-    testStdlib {
-        groovy {
-            srcDir 'StdLib/tests'
-            classesDir = file("build/classes/test")
-        }
-        compileClasspath = compileClasspath + sourceSets.compiler.classes + sourceSets.stdlib.classes
-    }
-}
-
-task prepareMetaInf << {
-  def file = new File("build/classes/main/META-INF/groovypp-release-info.properties")
-
-  copy {
-    from 'Compiler/src/META-INF'
-    into 'build/classes/main/META-INF'
-  }
-
-  copy {
-      from 'StdLib/src/META-INF'
-      into 'build/classes/main/META-INF'
-  }
-
-  def src = file.text
-  src = src.replaceAll("##ImplementationVersion##", version)
-
-  def dateTime = new Date()
-  src = src.replaceAll("##BuildDate##", dateTime.format("dd-MMM-yyyy"))
-  src = src.replaceAll("##BuildTime##", dateTime.format("hh:mm aa"))
-
-  file.text = src
-}
-
-task cleanTest(dependsOn: [clean, test])
-
-task nodepJar(type:Jar, dependsOn:jar) {
-  appendix = 'nodep'
-}
-
-task nodepAllJar(type:Jar, dependsOn:nodepJar) {
-  appendix = 'all-nodep'
-}
-
-task sourcesJar(type: Jar) {
-     classifier = 'sources'
-     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
-}
-
-task allSourcesJar(type: Jar) {
-     classifier = 'sources'
-     appendix = 'all'
-     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
-}
-
-task nodepSourcesJar(type: Jar) {
-     classifier = 'sources'
-     appendix = 'nodep'
-     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
-}
-
-task allNodepSourcesJar(type: Jar) {
-     classifier = 'sources'
-     appendix = 'all-nodep'
-     from sourceSets.compiler.allSource + sourceSets.stdlib.allSource
-}
-
-task allJar(type:Jar, dependsOn:nodepAllJar) {
-    appendix = 'all'
-
-    doLast {
-      ant.taskdef(name:'jarjar', classname: 'com.tonicsystems.jarjar.JarJarTask', classpath: 'lib/jarjar-1.0.jar')
-
-      ant.jarjar(jarfile: "build/libs/groovypp-all-${version}.jar") {
-          zipfileset(dir: 'build/classes/main')
-          rule(pattern:"org.objectweb.**", result:"groovyjarjarasm.@1")
-      }
-
-      ant.copy(file: "build/libs/groovypp-${version}.jar", tofile:"build/libs/groovypp-nodep-${version}.jar")
-      ant.copy(file: "build/libs/groovypp-all-${version}.jar", tofile:"build/libs/groovypp-all-nodep-${version}.jar")
-    }
-}
-
-task installZip(dependsOn:[jar, allJar]) << {
+task installZip(dependsOn:[':Compiler:jar', ':Compiler:allJar']) << {
   ant.zip(destfile:"build/groovypp-${version}.zip",comment:"The Groovy++ binary distribution.") {
     zipfileset dir:"install", prefix=""
 
-    zipfileset file:"build/libs/groovypp-${version}.jar", prefix:"lib"
-    zipfileset file:"build/libs/groovypp-all-${version}.jar", prefix:"embeddable"
+    zipfileset file:"./Compiler/build/libs/groovypp-${version}.jar", prefix:"lib"
+    zipfileset file:"./Compiler/build/libs/groovypp-all-${version}.jar", prefix:"embeddable"
   }
 }
 
-task deployGoogle(dependsOn:[jar, allJar, sourcesJar, installZip]) << {
+task deployGoogle(dependsOn:[':Compiler:sourcesJar', installZip]) << {
   ant.taskdef(name:"gcupload", classname:"net.bluecow.googlecode.ant.GoogleCodeUploadTask", classpath:"lib/ant-googlecode-0.0.2.jar")
 
-  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/groovypp-${version}.zip", targetfilename:"groovypp-${version}.zip", summary:"Groovy 1.7.5 installation including Groovy++ ${version}", labels:"Featured", verbose:"true")
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/groovypp-${version}.zip", targetfilename:"groovypp-${version}.zip", summary:"Groovy 1.7.8 installation including Groovy++ ${version}", labels:"Featured", verbose:"true")
 
-  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}.jar", targetfilename:"groovypp-${version}.jar", summary:"Groovy++ Jar ${version} (use with groovy-1.7.5+.jar)", labels:"Featured", verbose:"true")
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"./Compiler/build/libs/groovypp-${version}.jar", targetfilename:"groovypp-${version}.jar", summary:"Groovy++ Jar ${version} (use with groovy-1.7.8+.jar)", labels:"Featured", verbose:"true")
 
-  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-all-${version}.jar", targetfilename:"groovypp-all-${version}.jar", summary:"Groovy++ Embeddable Jar ${version} (use with groovy-all-1.7.5.jar)", labels:"Featured", verbose:"true")
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"./Compiler/build/libs/groovypp-all-${version}.jar", targetfilename:"groovypp-all-${version}.jar", summary:"Groovy++ Embeddable Jar ${version} (use with groovy-all-1.7.8.jar)", labels:"Featured", verbose:"true")
 
-  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"build/libs/groovypp-${version}-sources.jar", targetfilename:"groovypp-${version}-sources.jar", summary:"Groovy++ Sources Jar", labels:"Featured", verbose:"true")
+  ant.gcupload(username:GOOGLE_USER, password:GOOGLE_PASSWORD, projectname:"groovypptest", filename:"./Compiler/build/libs/groovypp-${version}-sources.jar", targetfilename:"groovypp-${version}-sources.jar", summary:"Groovy++ Sources Jar", labels:"Featured", verbose:"true")
 }
 
+task uploadArchives(dependsOn: ':Compiler:uploadArchives')
 
-artifacts {
-    archives sourcesJar
-    archives nodepSourcesJar
-    archives allNodepSourcesJar
-    archives allSourcesJar
-    archives jar
-    archives allJar
-    archives nodepJar
-    archives nodepAllJar
-}
-
-uploadArchives {
-    repositories.mavenDeployer {
-//        repository(url: "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/") {
-        repository(url: "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath) {
-            authentication(userName: ARTIFACTORY_USER, password: ARTIFACTORY_PASSWORD)
-        }
-        addFilter('groovypp') {artifact, file ->
-            !artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
-        }
-        addFilter('groovypp-nodep') {artifact, file ->
-            !artifact.toString().contains('-all')  && artifact.toString().contains('-nodep')
-        }.whenConfigured { pom ->
-          pom.dependencies = []
-        }
-        addFilter('groovypp-all-nodep') {artifact, file ->
-            artifact.toString().contains('-all')  && artifact.toString().contains('-nodep')
-        }.whenConfigured { pom ->
-          pom.dependencies = []
-        }
-        addFilter('groovypp-all') {artifact, file ->
-            artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
-        }.whenConfigured { pom ->
-          pom.dependencies.each { dep ->
-            if(dep.artifactId == 'groovy') {
-              dep.artifactId = 'groovy-all'
-            }
-          }
-        }
-    }
-}
-
-
-compileStdlibGroovy.dependsOn << [compileCompilerGroovy, prepareMetaInf]
-
-compileGroovy.dependsOn << compileStdlibGroovy
-
-compileTestGroovy.dependsOn << [compileTestCompilerGroovy, compileTestStdlibGroovy]
-
-compileTestCompilerGroovy.dependsOn << compileStdlibGroovy
-
-compileTestStdlibGroovy.dependsOn   << compileStdlibGroovy
+task compile(dependsOn: ':Compiler:compileGroovy')

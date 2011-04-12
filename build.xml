@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!--
-  ~ Copyright 2009-2010 MBTE Sweden AB.
+  ~ Copyright 2009-2011 MBTE Sweden AB.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@
 
 
     <property name="compiler.src" location="Compiler/src" />
-    <property name="compiler.tests" location="Compiler/tests" />
+    <property name="compiler.tests" location="Tests/tests" />
     <property name="stdlib.src" location="${stdlib.module.name}/src" />
     <property name="gretty.src" location="${gretty.module.name}/src" />
     <property name="gretty.tests" location="${gretty.module.name}/tests" />

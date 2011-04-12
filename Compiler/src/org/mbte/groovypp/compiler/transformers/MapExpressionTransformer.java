@@ -36,13 +36,13 @@ public class MapExpressionTransformer extends ExprTransformer<MapExpression> {
         InnerClassNode newType = new InnerClassNode(compiler.classNode, compiler.getNextClosureName(), ACC_PUBLIC|ACC_SYNTHETIC, ClassHelper.OBJECT_TYPE);
         newType.setModule(compiler.classNode.getModule());
         newType.setInterfaces(new ClassNode[] {TypeUtil.TMAP});
-        return new UntransformedMapExpr(exp, newType);
+        return new Untransformed(exp, newType);
     }
 
-    public static class UntransformedMapExpr extends BytecodeExpr {
+    public static class Untransformed extends BytecodeExpr {
         public final MapExpression exp;
 
-        public UntransformedMapExpr(MapExpression exp, ClassNode type) {
+        public Untransformed(MapExpression exp, ClassNode type) {
             super(exp, type);
             this.exp = exp;
         }
@@ -57,7 +57,7 @@ public class MapExpressionTransformer extends ExprTransformer<MapExpression> {
     }
 
     public static class TransformedMapExpr extends BytecodeExpr {
-        private final MapExpression exp;
+        protected final MapExpression exp;
 
         public TransformedMapExpr(MapExpression exp, ClassNode type, CompilerTransformer compiler) {
             super(exp, type);
@@ -99,6 +99,27 @@ public class MapExpressionTransformer extends ExprTransformer<MapExpression> {
                 box(ve.getType(), mv);
                 mv.visitMethodInsn(INVOKEINTERFACE,"java/util/Map","put","(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
                 mv.visitInsn(POP);
+            }
+        }
+    }
+
+    public static class TransformedFMapExpr extends TransformedMapExpr {
+        public TransformedFMapExpr(MapExpression exp, ClassNode type, CompilerTransformer compiler) {
+            super(exp, type, compiler);
+        }
+
+        protected void compile(MethodVisitor mv) {
+            final List<MapEntryExpression> list = exp.getMapEntryExpressions();
+            mv.visitFieldInsn(GETSTATIC, "groovypp/concurrent/FHashMap", "emptyMap", "Lgroovypp/concurrent/FHashMap;");
+            for (int i = 0; i != list.size(); ++i) {
+                final MapEntryExpression me = list.get(i);
+                final BytecodeExpr ke = (BytecodeExpr) me.getKeyExpression();
+                ke.visit(mv);
+                box(ke.getType(), mv);
+                final BytecodeExpr ve = (BytecodeExpr) me.getValueExpression();
+                ve.visit(mv);
+                box(ve.getType(), mv);
+                mv.visitMethodInsn(INVOKEVIRTUAL, "groovypp/concurrent/FHashMap","put","(Ljava/lang/Object;Ljava/lang/Object;)Lgroovypp/concurrent/FHashMap;");
             }
         }
     }

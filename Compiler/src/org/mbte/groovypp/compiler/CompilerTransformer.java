@@ -32,10 +32,7 @@ import org.codehaus.groovy.util.FastArray;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.LocalVarTypeInferenceState;
 import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
-import org.mbte.groovypp.compiler.transformers.ExprTransformer;
-import org.mbte.groovypp.compiler.transformers.ListExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.MapExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.TernaryExpressionTransformer;
+import org.mbte.groovypp.compiler.transformers.*;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -112,7 +109,6 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         );
     }
 
-    @Override
     public Expression transform(Expression exp) {
         nestedLevel++;
         try {
@@ -138,12 +134,14 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     }
 
     public BytecodeExpr transformSynthetic(BytecodeExpr res) {
-        if (res instanceof ListExpressionTransformer.UntransformedListExpr)
-            return ((ListExpressionTransformer.UntransformedListExpr) res).transform(org.mbte.groovypp.compiler.TypeUtil.ARRAY_LIST_TYPE, this);
-        else if (res instanceof MapExpressionTransformer.UntransformedMapExpr)
-            return ((MapExpressionTransformer.UntransformedMapExpr) res).transform(this);
-        else if (res instanceof TernaryExpressionTransformer.UntransformedTernaryExpr)
-            return ((TernaryExpressionTransformer.UntransformedTernaryExpr) res).transform(this);
+        if (res instanceof ListExpressionTransformer.Untransformed)
+            return ((ListExpressionTransformer.Untransformed) res).transform(org.mbte.groovypp.compiler.TypeUtil.ARRAY_LIST_TYPE, this);
+        else if (res instanceof MapExpressionTransformer.Untransformed)
+            return ((MapExpressionTransformer.Untransformed) res).transform(this);
+        else if (res instanceof MapWithListExpressionTransformer.Untransformed)
+            return ((MapWithListExpressionTransformer.Untransformed) res).transform(this);
+        else if (res instanceof TernaryExpressionTransformer.Untransformed)
+            return ((TernaryExpressionTransformer.Untransformed) res).transform(this);
         else if (res.getType().declaresInterface(TypeUtil.TTHIS)) {
             res.setType(res.getType().getOuterClass());
         }

@@ -165,7 +165,7 @@ public class PropertyExpressionTransformer extends ExprTransformer<PropertyExpre
                 final MethodNode gd = compiler.findMethod(thisType, "getDelegate", ClassNode.EMPTY_ARRAY, false);
                 if (gd != null) {
                     final InnerThisBytecodeExpr innerThis = new InnerThisBytecodeExpr(exp, thisType, compiler);
-                    final ResolvedMethodBytecodeExpr delegate = ResolvedMethodBytecodeExpr.create(exp, gd, innerThis, ArgumentListExpression.EMPTY_ARGUMENTS, compiler);
+                    final BytecodeExpr delegate = ResolvedMethodBytecodeExpr.create(exp, gd, innerThis, ArgumentListExpression.EMPTY_ARGUMENTS, compiler);
                     prop = PropertyUtil.resolveGetProperty(delegate.getType(), propName, compiler, onlyStatic, false);
                     if (prop != null) {
                         boolean isStatic = PropertyUtil.isStatic(prop);

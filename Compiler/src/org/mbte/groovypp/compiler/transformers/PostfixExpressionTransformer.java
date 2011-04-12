@@ -46,7 +46,7 @@ public class PostfixExpressionTransformer extends ExprTransformer<PostfixExpress
                         compiler.compileStack.defineVariable(ref, true);
                         final BytecodeExpr refTransformed = (BytecodeExpr) compiler.transform(ref);
 
-                        final ResolvedMethodBytecodeExpr unboxingCall = ResolvedMethodBytecodeExpr.create(exp, unboxing, refTransformed, new ArgumentListExpression(),
+                        final BytecodeExpr unboxingCall = ResolvedMethodBytecodeExpr.create(exp, unboxing, refTransformed, new ArgumentListExpression(),
                                 compiler);
                         compiler.cast(unboxingCall, t).visit(mv);
 

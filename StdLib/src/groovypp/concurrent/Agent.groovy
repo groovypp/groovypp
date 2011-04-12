@@ -85,10 +85,10 @@ import java.util.concurrent.atomic.AtomicInteger
   private T checkError() {
     def currentValue = value
     if (currentValue instanceof ErrorValue) {
-      if (currentValue instanceof RuntimeException)
-        throw ((RuntimeException) currentValue)
+      if (currentValue.error instanceof RuntimeException)
+        throw currentValue.error
 
-      throw new IllegalStateException("Agent has failed and need reset", ((ErrorValue) currentValue).error)
+      throw new IllegalStateException("Agent has failed and need reset", currentValue.error)
     }
     currentValue
   }

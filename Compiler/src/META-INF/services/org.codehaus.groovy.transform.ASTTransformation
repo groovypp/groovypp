@@ -1,5 +1,10 @@
-# global annotation to handle @Trait annotation
 org.mbte.groovypp.compiler.TraitASTTransform
-
-# global annotation to handle verification on earlier stage
 org.mbte.groovypp.compiler.TraitASTTransformFinal
+
+org.mbte.groovypp.compiler.AsyncASTTransform
+org.mbte.groovypp.compiler.SerialASTTransform
+org.mbte.groovypp.compiler.CloneableASTTransform
+org.mbte.groovypp.compiler.StructASTTransform
+org.mbte.groovypp.compiler.GrunitASTTransform
+
+org.mbte.groovypp.compiler.languages.LanguageASTTransform$Conversion

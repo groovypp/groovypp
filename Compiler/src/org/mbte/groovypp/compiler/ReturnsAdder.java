@@ -24,6 +24,8 @@ import org.codehaus.groovy.ast.stmt.*;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.syntax.Types;
+import org.mbte.groovypp.compiler.flow.LogicalExpressionRewriter;
+import org.mbte.groovypp.compiler.flow.LogicalStatementRewriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,15 +46,6 @@ public abstract class ReturnsAdder extends ClassCodeExpressionTransformer  {
               setCode(addReturnsIfNeeded(statement, methodNode.getVariableScope()));
         }
         else if (!methodNode.isAbstract()) {
-//            BlockStatement newBlock = new BlockStatement();
-//            if (statement instanceof BlockStatement) {
-//                newBlock.addStatements(filterStatements(((BlockStatement)statement).getStatements()));
-//            } else {
-//                newBlock.addStatement(filterStatement(statement));
-//            }
-//            newBlock.addStatement(ReturnStatement.RETURN_NULL_OR_VOID);
-//            newBlock.setSourcePosition(statement);
-//            setClosureExpression(newBlock);
             setCode(addReturnsIfNeeded(statement, methodNode.getVariableScope()));
         }
     }

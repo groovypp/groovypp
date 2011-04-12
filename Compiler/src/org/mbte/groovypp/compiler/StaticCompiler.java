@@ -32,10 +32,8 @@ import org.codehaus.groovy.syntax.Types;
 import org.codehaus.groovy.transform.powerassert.SourceText;
 import org.codehaus.groovy.transform.powerassert.SourceTextNotAvailableException;
 import org.codehaus.groovy.util.FastArray;
-import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
-import org.mbte.groovypp.compiler.bytecode.LocalVarInferenceTypes;
-import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
-import org.mbte.groovypp.compiler.bytecode.StackAwareMethodAdapter;
+import org.mbte.groovypp.compiler.bytecode.*;
+import org.mbte.groovypp.compiler.flow.*;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -208,6 +206,24 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
 
                             @Override
                             public Expression transform(Expression exp) {
+                                if(exp instanceof AndExpression) {
+                                    AndExpression endExpr = (AndExpression) exp;
+                                    final Token token = endExpr.getOperation();
+                                    int column = finalSourceText.getNormalizedColumn(token.getStartLine(), token.getStartColumn());
+                                    final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(super.transform(exp), new ConstantExpression(column)));
+                                    res.setSourcePosition(exp);
+                                    return res;
+                                }
+
+                                if(exp instanceof OrExpression) {
+                                    OrExpression endExpr = (OrExpression) exp;
+                                    final Token token = endExpr.getOperation();
+                                    int column = finalSourceText.getNormalizedColumn(token.getStartLine(), token.getStartColumn());
+                                    final MethodCallExpression res = new MethodCallExpression(variable, "gppRecord", new ArgumentListExpression(super.transform(exp), new ConstantExpression(column)));
+                                    res.setSourcePosition(exp);
+                                    return res;
+                                }
+
                                 if(exp instanceof BinaryExpression) {
                                     BinaryExpression binExpr = (BinaryExpression) exp;
                                     final Token token = binExpr.getOperation();
@@ -355,8 +371,13 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         for (Statement statement : block.getStatements() ) {
             if (statement instanceof BytecodeSequence)
                 visitBytecodeSequence((BytecodeSequence) statement);
-            else
-                statement.visit(this);
+            else {
+                if(statement instanceof org.mbte.groovypp.compiler.flow.LabelStatement) {
+                    mv.visitLabel(((org.mbte.groovypp.compiler.flow.LabelStatement)statement).labelExpression.label);
+                }
+                else
+                    statement.visit(this);
+            }
         }
         compileStack.pop();
     }
@@ -1169,6 +1190,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
 
         // start finally
         mv.visitLabel(finallyStart);
+        mv.comeToLabel(dummyLabel);// restore the type inference info for use in catch blocks
         finallyStatement.visit(this);
         // goto end of finally
         Label afterFinally = new Label();
@@ -1200,6 +1222,10 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
     public void execute() {
         checkWeakerOverriding();
         addReturnIfNeeded();
+
+        setCode(LogicalStatementRewriter.rewrite(getCode(), new VariableScope()));
+        LogicalExpressionRewriter.normalize(getCode());
+
         compileStack.init(methodNode.getVariableScope(), methodNode.getParameters(), mv, methodNode.getDeclaringClass());
         getCode().visit(this);
         compileStack.clear();
@@ -1252,5 +1278,9 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
 
     public LocalVarInferenceTypes getLocalVarInferenceTypes() {
         return mv.getLocalVarInferenceTypes();
+    }
+
+    public void addLocalVarInferenceType(Label label, VariableExpression ve, ClassNode type, int index) {
+        mv.addLocalVarInferenceType(label, ve, type, index);
     }
 }

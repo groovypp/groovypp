@@ -22,6 +22,7 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import org.codehaus.groovy.runtime.DefaultGroovyMethods
+import groovypp.concurrent.FHashMap
 
 /**
  * Utility methods to iterate over objects of standard types.
@@ -37,7 +38,7 @@ abstract class Iterations {
      */
     @GrUnit({ assertEquals (8, [1,2,3].iterator().foldLeft(2){ sum, value -> sum + value }) })
     static <T, R> R foldLeft(Iterator<T> self, R init, Function2<T, R, R> op) {
-        self.hasNext() ? foldLeft(self, op.call(self.next(), init), op) : init
+        self?.hasNext() ? foldLeft(self, op.call(self.next(), init), op) : init
     }
 
     /**
@@ -49,12 +50,12 @@ abstract class Iterations {
      */
     @GrUnit({ assertEquals (8, [1,2,3].foldLeft(2){ sum, value -> sum + value }) })
     static <T, R> R foldLeft(Iterable<T> self, R init, Function2<T, R, R> op) {
-        foldLeft(self.iterator(), init, op)
+        foldLeft(self?.iterator(), init, op)
     }
 
     @GrUnit({ assertEquals (8, ([1,2,3] as Integer[]).iterator().foldLeft(2){ sum, value -> sum + value }) })
     static <T, R> R foldLeft(T[] self, R init, Function2<T, R, R> op) {
-        foldLeft(self.asList(), init, op)
+        foldLeft(self?.asList(), init, op)
     }
 
     /**
@@ -93,6 +94,7 @@ abstract class Iterations {
      * @param op function to be applied.
      */
     static <T> void each(Iterator<T> self, Function1<T, Object> op) {
+      if(self)
         while (self.hasNext()) op.call(self.next())
     }
 
@@ -148,6 +150,7 @@ abstract class Iterations {
      * @param op function to be applied.
      */
     static <T> void each(Iterable<T> self, Function1<T, Object> op) {
+      if(self)
         each(self.iterator(), op)
     }
 
@@ -177,6 +180,7 @@ abstract class Iterations {
      * @param op function to be applied.
      */
     static <T> void each(T[] self, Function1<T, Object> op) {
+      if(self)
         each(self.iterator(), op)
     }
 
@@ -204,6 +208,7 @@ abstract class Iterations {
      * @param op function to be applied.
      */
     static <T> void each(Enumeration<T> self, Function1<T, Object> op) {
+      if(self)
         each(self.iterator(), op)
     }
 
@@ -231,11 +236,23 @@ abstract class Iterations {
      * @param op function to be applied.
      */
     static <K, V> void each(Map<K, V> self, Function2<K, V, Object> op) {
+      if(self) {
         def it = self.entrySet().iterator()
         while (it.hasNext()) {
             def el = it.next()
             op.call(el.key, el.value)
         }
+      }
+    }
+
+    static <K, V> void each(FHashMap<K, V> self, Function2<K, V, Object> op) {
+      if(self) {
+        def it = self.entrySet().iterator()
+        while (it.hasNext()) {
+            def el = it.next()
+            op.call(el.key, el.value)
+        }
+      }
     }
 
     /**
@@ -301,4 +318,32 @@ abstract class Iterations {
             closure(i);
         }
     }
+//
+//    static abstract class FunctionWithIndex<T> {
+//        abstract void call(T obj, int index)
+//    }
+//
+//    static <T> T [] eachWithIndex(T [] self, FunctionWithIndex<T> op) {
+//        if(self) {
+//            for(int i = 0; i != self.length; ++i)
+//                op(self[i], i)
+//        }
+//        self
+//    }
+//
+//    static <T> Iterator<T> eachWithIndex(Iterator<T> self, FunctionWithIndex<T> op) {
+//        if(self != null) {
+//            for(int i = 0; ; ++i) {
+//                if(self.hasNext())
+//                    op(self.next(), i)
+//            }
+//        }
+//        self
+//    }
+//
+//    static <T,C extends Iterable<T>> C eachWithIndex(C self, FunctionWithIndex<T> op) {
+//        if(self)
+//            eachWithIndex(self.iterator(), op)
+//        self
+//    }
 }

@@ -1,0 +1,46 @@
+/*
+ * Copyright 2009-2010 MBTE Sweden AB.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+group = 'org.mbte.groovypp'
+version = '0.4.190'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    groovy(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.8')
+
+    compile(group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.8')
+
+    compile files('../Compiler/build/classes/main')
+
+    compile "junit:junit:4.8.1"
+}
+
+sourceSets {
+    test {
+        groovy {
+            srcDir file("../StdLib/tests")
+        }
+
+    }
+}
+
+compileJava.dependsOn << [':Compiler:compileGroovy']
+compileTestGroovy.dependsOn << [':Tests:compileTestGroovy']
