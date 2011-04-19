@@ -80,6 +80,7 @@ public class TypeUtil {
     public static final ClassNode ATOMIC_LONG_FIELD_UPDATER = make(AtomicLongFieldUpdater.class);
     public static final ClassNode DELEGATING = make(Delegating.class);
     public static final ClassNode THROWABLE = make(Throwable.class);
+    public static final ClassNode EXCEPTION = make(Exception.class);
     public static final ClassNode COMPARABLE = make(Comparable.class);
     public static final ClassNode STRING_BUILDER = make(StringBuilder.class);
     public static final ClassNode VALUE_RECORDER = make(ValueRecorder.class);

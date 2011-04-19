@@ -32,8 +32,6 @@ import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.syntax.SyntaxException;
-import org.mbte.groovypp.compiler.TypeUtil;
-import org.mbte.groovypp.compiler.VolatileFieldUpdaterTransform;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.flow.LogicalExpressionRewriter;
 import org.objectweb.asm.MethodVisitor;
@@ -64,7 +62,7 @@ public class TraitASTTransformFinal implements ASTTransformation, Opcodes {
             TypePolicy classPolicy = getClassPolicy(classNode, source, packagePolicy);
 
             if(classPolicy != TypePolicy.DYNAMIC)
-                LogicalExpressionRewriter.rewriteMultiPropertySetExpressions(classNode);
+                LogicalExpressionRewriter.rewriteMultiplePropertySetExpressions(classNode);
 
             VolatileFieldUpdaterTransform.addUpdaterForVolatileFields(classNode);
             try {

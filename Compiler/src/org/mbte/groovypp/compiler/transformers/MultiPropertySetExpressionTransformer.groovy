@@ -25,12 +25,15 @@ import org.codehaus.groovy.ast.expr.BinaryExpression
 import org.codehaus.groovy.syntax.Token
 import org.codehaus.groovy.syntax.Types
 import org.codehaus.groovy.ast.ClassHelper
+import org.mbte.groovypp.compiler.TypeUtil
 
 @Typed class MultiPropertySetExpressionTransformer extends ExprTransformer<MultiPropertySetExpression>{
 
     Expression transform(MultiPropertySetExpression exp, CompilerTransformer compiler) {
         def bobj = compiler.transform(exp.object)
         ExpressionList result = [exp, bobj.type]
+
+//        if(bobj.type.isDerivedFrom(TypeUtil.FOBJECT))
 
         result << bobj
         for(e in exp.properties.mapEntryExpressions) {

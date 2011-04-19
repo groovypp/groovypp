@@ -1158,6 +1158,9 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         for (CatchStatement catchStatement : statement.getCatchStatements()) {
         	mv.comeToLabel(dummyLabel);// restore the type inference info for use in catch blocks
             ClassNode exceptionType = catchStatement.getExceptionType();
+            if(exceptionType.getName().equals("java.lang.Exception") && catchStatement.getVariable().isDynamicTyped()) {
+                exceptionType = TypeUtil.THROWABLE;
+            }
             // start catch block, label needed for exception table
             final Label catchStart = new Label();
             mv.visitLabel(catchStart);

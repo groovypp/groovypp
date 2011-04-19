@@ -670,7 +670,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
         }
         ClassNode lastType = parameters[parameters.length - 1].getType();
         if (parameters.length == argTypes.length) {
-            paramTypes[paramTypes.length -1] = lastType;
+            paramTypes[paramTypes.length -1] = lastType.isArray() && argTypes[parameters.length-1] != null && TypeUtil.TCLOSURE_NULL.equals(argTypes[parameters.length-1]) ? lastType.getComponentType() : lastType;
         } else {
             if (!lastType.isArray()) return null;
             for (int i = parameters.length -1 ; i < paramTypes.length; i++) {

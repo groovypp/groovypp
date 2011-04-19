@@ -31,6 +31,7 @@ import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.expr.MapEntryExpression
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.CastExpression
+import org.codehaus.groovy.ast.expr.ClosureExpression
 
 @Typed abstract class LogicalExpressionRewriter {
     private static final ClassCodeExpressionTransformer normalizer = [
@@ -116,6 +117,10 @@ import org.codehaus.groovy.ast.expr.CastExpression
             src = src?.transformExpression(this)
 
             switch(src) {
+                case ClosureExpression:
+                    src.code.visit(this)
+                    return src
+
                 case ListExpression:
                     List<MapEntryExpression> list
                     def iter = src.expressions.iterator()
@@ -227,7 +232,7 @@ import org.codehaus.groovy.ast.expr.CastExpression
         }
     }
 
-    static void rewriteMultiPropertySetExpressions (ClassNode classNode) {
+    static void rewriteMultiplePropertySetExpressions(ClassNode classNode) {
         classNode.visitContents multiPropertySetNormalizer
     }
 }

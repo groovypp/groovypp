@@ -19,35 +19,61 @@
 package groovy.lang
 
 @Typed class StructTest extends GroovyShellTestCase {
+    void testSample () {
+        shell.evaluate """
+@Typed  package p
+
+@Struct class FPair<T1,T2> {
+    T1 first
+    T2 second
+}
+
+@Struct class FTrio<T1,T2,T3> extends FPair<T1,T2> {
+    T3 third
+}
+
+@Typed u () {
+    def immutable = new FTrio (first:1, second:2, third:3)
+    println immutable
+    def mutable = immutable.asMutable()
+    println mutable
+    println mutable[first:1, second:2, third:3]
+    //println mutable[first:1, second:2, third:3].asImmutable()
+}
+
+u ()
+"""
+    }
     void testMe () {
-//        shell.evaluate """
-//    @Typed package p
-//
-//    @Struct class TupleTest<A> {
-//        int x, y
-//        A inner
-//
-//        @Struct static class StringTupleTest extends TupleTest<String> {}
-//    }
-//
-//    def t = new TupleTest.StringTupleTest ()
-//    println t
-//
-//    def b = TupleTest.newBuilder()
-//    println b
-//
-//    b = t.newBuilder()
-//    println b
-//
-//    b.x = 1
-//    b.y = 2
-//    b.inner = "papa & "
-//    b.inner += "mama"
-//    println "\$b \${b.inner.toUpperCase()}"
-//
-//    def o = b.build()
-//    println o
-//        """
+        shell.evaluate """
+    @Typed package p
+
+    @Struct class TupleTest<A> {
+        int x, y
+        A inner
+
+    }
+
+    @Struct class StringTupleTest extends TupleTest<String> {}
+
+    def t = new StringTupleTest ()
+    println t
+
+    def b = new TupleTest().asMutable()
+    println b
+
+    b = t.asMutable()
+    println b
+
+    b.x = 1
+    b.y = 2
+    b.inner = "papa & "
+    b.inner += "mama"
+    println "\$b \${b.inner.toUpperCase()}"
+
+    def o = b.asImmutable()
+    println o
+        """
     }
 
     void testNested () {

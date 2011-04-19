@@ -196,6 +196,24 @@ class TryCatchTest extends GroovyShellTestCase {
 
   }
 
+    void testTryCatchWithUntyped2() {
+      shell.evaluate("""
+          @Typed
+          def u() {
+            try {
+              throw new Throwable();
+            } catch(e) {
+              assert true
+              return
+            }
+            assert false
+          }
+          u();
+        """
+      )
+
+    }
+
   void testTryCatchInConstructor() {
     // the super() call construction left an
     // element on the stack, causing an inconsistent

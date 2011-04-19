@@ -3,7 +3,7 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 
 group = 'org.mbte.groovypp'
-version = '0.4.200'
+version = '0.4.213'
 
 repositories {
     mavenCentral()
@@ -144,6 +144,16 @@ uploadArchives.doFirst {
   ant.copy(file: "build/libs/groovypp-${version}.jar", tofile:"build/libs/groovypp-nodep-${version}.jar")
 }
 
+def improveDependencies(pom) {
+    pom.dependencies = pom.dependencies.findAll { dep ->
+        dep.artifactId != 'groovypp'
+    }
+    pom.dependencies.each { dep ->
+        println dep
+    }
+    println()
+}
+
 uploadArchives {
     repositories.mavenDeployer {
         def repo = "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/"
@@ -156,6 +166,8 @@ uploadArchives {
 
         addFilter('groovypp') {artifact, file ->
             !artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
+        }.whenConfigured { pom ->
+            improveDependencies pom
         }
         addFilter('groovypp-nodep') {artifact, file ->
             !artifact.toString().contains('-all')  && artifact.toString().contains('-nodep')
@@ -170,11 +182,12 @@ uploadArchives {
         addFilter('groovypp-all') {artifact, file ->
             artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
         }.whenConfigured { pom ->
-          pom.dependencies.each { dep ->
-            if(dep.artifactId == 'groovy') {
-              dep.artifactId = 'groovy-all'
+            pom.dependencies.each { dep ->
+                if(dep.artifactId == 'groovy') {
+                  dep.artifactId = 'groovy-all'
+                }
             }
-          }
+            improveDependencies pom
         }
     }
 }

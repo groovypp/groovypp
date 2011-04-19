@@ -351,4 +351,29 @@ m ()
      println o
      """
   }
+
+    void testClosureArrayType () {
+        shell.evaluate """
+@Typed package p
+
+abstract class Module {
+    abstract doSomething ()
+}
+
+def m(Module [] arr){
+    for(a in arr)
+        a.doSomething ()
+}
+
+m {
+    println "lalala"
+}
+
+m {
+    println "lalala"
+}{
+    println "ohohoho"
+}
+        """
+    }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,25 +18,25 @@
 
 package groovy.lang
 
-@Typed abstract class AbstractStruct implements Cloneable, Externalizable {
-    static class Builder<T extends AbstractStruct>  {
-        protected T obj
+@Typed abstract class FObject implements Cloneable, Externalizable {
+     static class Builder  {
+        protected FObject obj
 
-        protected Builder(T obj) {
+        protected Builder(FObject obj) {
             this.obj = obj
         }
 
-        final T build () {
-            def r = obj
+        protected final FObject getAndForget () {
+            def res = obj
             obj = null
-            r
+            res
         }
 
         String toString() { obj.toString() }
 
-        int hasCode () { obj.hashCode() }
+        final int hasCode () { obj.hashCode() }
 
-        boolean equals (Object other) { obj.equals(other) }
+        final boolean equals (Object other) { obj.equals(other) }
     }
 
     def clone () {
@@ -52,8 +52,4 @@ package groovy.lang
     }
 
     void toString(StringBuilder sb) {}
-
-    abstract static class ApplyOp<B extends Builder> implements Delegating<B> {
-        abstract void call ()
-    }
 }
