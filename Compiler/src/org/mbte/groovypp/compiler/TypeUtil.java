@@ -16,10 +16,7 @@
 
 package org.mbte.groovypp.compiler;
 
-import groovy.lang.Delegating;
-import groovy.lang.IntRange;
-import groovy.lang.Trait;
-import groovy.lang.Typed;
+import groovy.lang.*;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.runtime.ScriptBytecodeAdapter;
@@ -53,6 +50,7 @@ public class TypeUtil {
     public static final ClassNode RANGE_OF_INTEGERS_TYPE = TypeUtil.withGenericTypes(ClassHelper.RANGE_TYPE, ClassHelper.Integer_TYPE);
     public static final ClassNode TYPED = make(Typed.class);
     public static final ClassNode TRAIT = make(Trait.class);
+    public static final ClassNode USE = ClassHelper.make(Use.class);
     public static final ClassNode HAS_DEFAULT_IMPLEMENTATION = make(HasDefaultImplementation.class);
     public static final ClassNode NO_EXTERNAL_INITIALIZATION = make(NoExternalInitialization.class);
     public static final ClassNode OBJECT_ARRAY = OBJECT_TYPE.makeArray();
