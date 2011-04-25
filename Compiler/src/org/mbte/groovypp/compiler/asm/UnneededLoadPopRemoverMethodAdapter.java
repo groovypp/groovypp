@@ -20,7 +20,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.mbte.groovypp.compiler.CompilerStack;
 
-public class UneededLoadPopRemoverMethodAdapter extends UneededDupXStoreRemoverMethodAdapter {
+public class UnneededLoadPopRemoverMethodAdapter extends UnneededDupXStoreRemoverMethodAdapter {
     private Load load;
 
     static abstract class Load {
@@ -35,7 +35,7 @@ public class UneededLoadPopRemoverMethodAdapter extends UneededDupXStoreRemoverM
         }
 
         void execute() {
-            UneededLoadPopRemoverMethodAdapter.super.visitLabel(label);
+            UnneededLoadPopRemoverMethodAdapter.super.visitLabel(label);
         }
     }
 
@@ -49,7 +49,7 @@ public class UneededLoadPopRemoverMethodAdapter extends UneededDupXStoreRemoverM
         }
 
         public void execute() {
-            UneededLoadPopRemoverMethodAdapter.super.visitVarInsn(opcode, var);
+            UnneededLoadPopRemoverMethodAdapter.super.visitVarInsn(opcode, var);
         }
     }
 
@@ -65,8 +65,8 @@ public class UneededLoadPopRemoverMethodAdapter extends UneededDupXStoreRemoverM
         }
 
         public void execute() {
-            UneededLoadPopRemoverMethodAdapter.super.visitVarInsn(opcode, var);
-            UneededLoadPopRemoverMethodAdapter.super.visitIincInsn(var, increment);
+            UnneededLoadPopRemoverMethodAdapter.super.visitVarInsn(opcode, var);
+            UnneededLoadPopRemoverMethodAdapter.super.visitIincInsn(var, increment);
         }
     }
 
@@ -78,7 +78,7 @@ public class UneededLoadPopRemoverMethodAdapter extends UneededDupXStoreRemoverM
         }
 
         public void execute() {
-            UneededLoadPopRemoverMethodAdapter.super.visitLdcInsn(constant);
+            UnneededLoadPopRemoverMethodAdapter.super.visitLdcInsn(constant);
         }
     }
 
@@ -90,11 +90,11 @@ public class UneededLoadPopRemoverMethodAdapter extends UneededDupXStoreRemoverM
         }
 
         public void execute() {
-            UneededLoadPopRemoverMethodAdapter.super.visitTypeInsn(CHECKCAST, descr);
+            UnneededLoadPopRemoverMethodAdapter.super.visitTypeInsn(CHECKCAST, descr);
         }
     }
 
-    public UneededLoadPopRemoverMethodAdapter(MethodVisitor mv) {
+    public UnneededLoadPopRemoverMethodAdapter(MethodVisitor mv) {
         super(mv);
     }
 

@@ -16,20 +16,20 @@
 
 package org.mbte.groovypp.compiler.asm;
 
-import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.codehaus.groovy.ast.ClassHelper;
+import org.mbte.groovypp.compiler.BytecodeHelper;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.mbte.groovypp.runtime.DefaultGroovyPPMethods;
 
-public class UneededBoxingRemoverMethodAdapter extends LdcImproverMethodAdapter implements Opcodes {
+public class UnneededBoxingRemoverMethodAdapter extends LdcImproverMethodAdapter implements Opcodes {
     private String boxingDesc = null;
     private static final String DTT  = BytecodeHelper.getClassInternalName(DefaultTypeTransformation.class.getName());
     private static final String DGPP = BytecodeHelper.getClassInternalName(DefaultGroovyPPMethods.class.getName());
 
-    public UneededBoxingRemoverMethodAdapter(MethodVisitor mv) {
+    public UnneededBoxingRemoverMethodAdapter(MethodVisitor mv) {
         super(mv);
     }
 

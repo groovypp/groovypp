@@ -19,7 +19,7 @@ package org.mbte.groovypp.compiler.asm;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-public class UneededDupXStoreRemoverMethodAdapter extends UneededDupStoreRemoverMethodAdapter {
+public class UnneededDupXStoreRemoverMethodAdapter extends UnneededDupStoreRemoverMethodAdapter {
     private int dupCode;
 
     private Store store;
@@ -40,7 +40,7 @@ public class UneededDupXStoreRemoverMethodAdapter extends UneededDupStoreRemover
         }
 
         void execute (MethodVisitor mv) {
-            UneededDupXStoreRemoverMethodAdapter.super.visitFieldInsn(opcode, owner, name, desc);
+            UnneededDupXStoreRemoverMethodAdapter.super.visitFieldInsn(opcode, owner, name, desc);
         }
     }
 
@@ -52,11 +52,11 @@ public class UneededDupXStoreRemoverMethodAdapter extends UneededDupStoreRemover
         }
 
         void execute (MethodVisitor mv) {
-            UneededDupXStoreRemoverMethodAdapter.super.visitInsn(opcode);
+            UnneededDupXStoreRemoverMethodAdapter.super.visitInsn(opcode);
         }
     }
 
-    public UneededDupXStoreRemoverMethodAdapter(MethodVisitor mv) {
+    public UnneededDupXStoreRemoverMethodAdapter(MethodVisitor mv) {
         super(mv);
     }
 

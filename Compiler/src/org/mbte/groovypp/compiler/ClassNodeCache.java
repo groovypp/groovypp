@@ -21,7 +21,6 @@ import org.codehaus.groovy.ast.expr.ClassExpression;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.ListExpression;
 import org.codehaus.groovy.ast.stmt.Statement;
-import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.runtime.*;
 import org.codehaus.groovy.util.FastArray;
 import org.codehaus.groovy.vmplugin.v5.PluginDefaultGroovyMethods;

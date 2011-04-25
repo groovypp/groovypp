@@ -18,7 +18,6 @@ package org.mbte.groovypp.compiler;
 
 import groovy.lang.*;
 import org.codehaus.groovy.ast.*;
-import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.runtime.ScriptBytecodeAdapter;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.codehaus.groovy.transform.powerassert.AssertionRenderer;

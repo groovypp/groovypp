@@ -21,7 +21,6 @@ import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.*;
-import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeInstruction;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.Janitor;

@@ -22,7 +22,7 @@
 
     <property file="build.properties"/>
     <property name="output.dir" location="out" />
-	<property name="deploy.lib.dir" location="install/lib" />
+	<property name="deploy.lib.dir" location="G17X/install/lib" />
 	<property name="stagingDirectory" value="${output.dir}/staging"/>
 	<property name="output.instrumented.dir" value="${output.dir}/instrumented"/>
 
@@ -77,7 +77,7 @@
     <!--<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>-->
 
     <path id="libs">
-		<fileset dir="install/lib" includes="*.jar"/>
+		<fileset dir="G17X/install/lib" includes="*.jar"/>
 	</path>
 
     <path id="grails.libs">
@@ -162,7 +162,7 @@
 
 	<path id="groovypp.runtime.classpath">
 		<pathelement location="${jar.name}"/>
-		<fileset dir="install/lib">
+		<fileset dir="G17X/install/lib">
 			<include name="antlr*.jar"/>
 			<include name="asm*.jar"/>
 			<include name="netty-*.jar"/>
@@ -361,7 +361,7 @@
 				    <fileset dir="lib/cobertura"/>
                     <pathelement location="${output.instrumented.dir}"/>
                     <path>
-                        <fileset dir="install/lib" includes="*.jar"/>
+                        <fileset dir="G17X/install/lib" includes="*.jar"/>
                     </path>
                     <pathelement location="${stdlib.prod.output}"/>
                     <pathelement location="${compiler.prod.output}"/>
@@ -419,7 +419,7 @@
     <target name="make.install" depends="test.stdlib" description="Build installation">
         <zip destfile="${install.zip}"
              comment="The Groovy++ binary distribution.">
-	        <zipfileset dir="install" prefix="" />
+	        <zipfileset dir="G17X/install" prefix="" />
 
             <zipfileset file="${jar.name}" prefix="lib"/>
 			<zipfileset file="${embeddable.jar.name}" prefix="embeddable"/>

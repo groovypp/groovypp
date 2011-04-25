@@ -18,7 +18,7 @@ package org.mbte.groovypp.compiler.bytecode;
 
 import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.expr.VariableExpression;
-import org.codehaus.groovy.classgen.BytecodeHelper;
+import org.mbte.groovypp.compiler.BytecodeHelper;
 import org.mbte.groovypp.compiler.asm.LineNumberLabelSwitcherMethodAdapter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

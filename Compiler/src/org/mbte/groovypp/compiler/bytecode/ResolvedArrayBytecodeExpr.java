@@ -25,7 +25,7 @@ import org.codehaus.groovy.ast.expr.MethodCallExpression;
 import org.codehaus.groovy.ast.expr.ArgumentListExpression;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.syntax.Types;
-import org.codehaus.groovy.classgen.BytecodeHelper;
+import org.mbte.groovypp.compiler.BytecodeHelper;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.PresentationUtil;
 import org.mbte.groovypp.compiler.TypeUtil;
@@ -83,7 +83,7 @@ public class ResolvedArrayBytecodeExpr extends ResolvedLeftExpr {
         }
         else {
             if (ClassHelper.isPrimitiveType(getType()))
-                mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "getAt", "("+BytecodeHelper.getTypeDescription(array.getType()) + "I)" + BytecodeHelper.getTypeDescription(getType()));
+                mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "getAt", "("+ BytecodeHelper.getTypeDescription(array.getType()) + "I)" + BytecodeHelper.getTypeDescription(getType()));
             else {
                 mv.visitMethodInsn(INVOKESTATIC, "org/mbte/groovypp/runtime/ArraysMethods", "getAt", "([Ljava/lang/Object;I)Ljava/lang/Object;");
                 checkCast(getType(), mv);

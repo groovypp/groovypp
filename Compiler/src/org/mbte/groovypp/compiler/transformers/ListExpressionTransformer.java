@@ -20,7 +20,7 @@ import org.codehaus.groovy.ast.ClassHelper;
 import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.ListExpression;
-import org.codehaus.groovy.classgen.BytecodeHelper;
+import org.mbte.groovypp.compiler.BytecodeHelper;
 import org.mbte.groovypp.compiler.CompilerTransformer;
 import org.mbte.groovypp.compiler.ListClassNode;
 import org.mbte.groovypp.compiler.TypeUtil;
