@@ -37,6 +37,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -679,6 +680,12 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     private boolean checkNotExist (String name) {
         for (ClassNode node : classNode.getModule().getClasses()) {
             if (name.equals(node.getName())) {
+                return false;
+            }
+        }
+        for(Iterator<InnerClassNode> it = classNode.getInnerClasses(); it.hasNext(); ) {
+            final InnerClassNode next = it.next();
+            if (name.equals(next.getName())) {
                 return false;
             }
         }
