@@ -1,6 +1,6 @@
 apply plugin: 'maven'
 
-gppVer = '0.4.226'
+gppVer = '0.4.230'
 
 def improveDependencies(pom) {
     pom.dependencies = pom.dependencies.findAll { dep ->
@@ -12,7 +12,7 @@ def improveDependencies(pom) {
     println()
 }
 
-[':G17X' : '1.7.10', ':G18X' : '1.8.0-rc-4'].each { prj, groovyVer ->
+[':G17X' : '1.7.10', ':G18X' : '1.8.0'].each { prj, groovyVer ->
 
     project("Test${prj.substring(1)}") {
         apply plugin: 'groovy'
@@ -20,6 +20,8 @@ def improveDependencies(pom) {
 
         repositories {
             mavenCentral()
+            mavenRepo urls: 'http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/'
+            mavenRepo urls: 'http://repository.codehaus.org/'
         }
 
         dependencies {
@@ -64,13 +66,14 @@ def improveDependencies(pom) {
             mavenRepo urls: new File("${System.getProperty('user.home')}/.m2/repository").toURL().toString()
 
             mavenRepo urls: 'http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/'
+            mavenRepo urls: 'http://repository.codehaus.org/'
         }
 
         dependencies {
             groovy(group: 'org.codehaus.groovy', name: 'groovy', version: groovyVer)
 
             compile(group: 'org.codehaus.groovy', name: 'groovy', version: groovyVer)
-            compile(group: 'org.mbte.groovypp', name: 'groovypp-nodep', version: "0.4.225_${groovyVer}")
+            compile(group: 'org.mbte.groovypp', name: 'groovypp-nodep', version: "0.4.225_${groovyVer}${groovyVer == '1.8.0' ? '-rc-4': ''}")
             compile "junit:junit:4.8.1"
         }
 
