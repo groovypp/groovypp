@@ -31,7 +31,7 @@ class Issue46Test extends GroovyShellTestCase {
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-    static class MyThread extends Thread
+    class MyThread extends Thread
     {
         MyThread ( Runnable target )
         {

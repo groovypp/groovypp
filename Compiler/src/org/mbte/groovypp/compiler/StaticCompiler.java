@@ -28,11 +28,11 @@ import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.syntax.Types;
-import org.codehaus.groovy.transform.powerassert.SourceText;
-import org.codehaus.groovy.transform.powerassert.SourceTextNotAvailableException;
 import org.codehaus.groovy.util.FastArray;
 import org.mbte.groovypp.compiler.bytecode.*;
 import org.mbte.groovypp.compiler.flow.*;
+import org.mbte.groovypp.runtime.powerassert.SourceText;
+import org.mbte.groovypp.runtime.powerassert.SourceTextNotAvailableException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -1080,6 +1080,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         finallyPart.run();
         mv.visitInsn(ATHROW);
         mv.visitLabel(synchronizedEnd);
+        mv.visitInsn(NOP);
 
         compileStack.popFinallyBlock();
         exceptionBlocks.add(new Runnable() {

@@ -1,10 +1,10 @@
 apply plugin: 'maven'
 
-gppVer = '0.4.219'
+gppVer = '0.4.226'
 
 def improveDependencies(pom) {
     pom.dependencies = pom.dependencies.findAll { dep ->
-        dep.artifactId != 'groovypp'
+        !(dep.artifactId in ['groovypp', 'groovypp-all', 'groovypp-nodep', 'groovypp-all-nodep'])
     }
     pom.dependencies.each { dep ->
         println dep
@@ -70,7 +70,7 @@ def improveDependencies(pom) {
             groovy(group: 'org.codehaus.groovy', name: 'groovy', version: groovyVer)
 
             compile(group: 'org.codehaus.groovy', name: 'groovy', version: groovyVer)
-            compile(group: 'org.mbte.groovypp', name: 'groovypp-nodep', version: '0.4.218_1.7.10')
+            compile(group: 'org.mbte.groovypp', name: 'groovypp-nodep', version: "0.4.225_${groovyVer}")
             compile "junit:junit:4.8.1"
         }
 
@@ -258,9 +258,9 @@ def improveDependencies(pom) {
     }
 }
 
-task test(dependsOn: [':TestG17X:test', ':StdLib:test'])
+task test(dependsOn: [':TestG17X:test', ':TestG18X:test'])
 
-task uploadArchives(dependsOn: ':G17X:uploadArchives')
+task uploadArchives(dependsOn: [':G17X:uploadArchives', ':G18X:uploadArchives'])
 
 task compile(dependsOn: ':Compiler:compileGroovy')
 

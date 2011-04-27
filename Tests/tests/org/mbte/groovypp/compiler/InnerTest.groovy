@@ -46,6 +46,6 @@ class A {
      def u (i) { println i }
    }}
 
-   static class D { def u () { field = field + 12 } } """
+   class D { def u () { field = field + 12 } } """
     }
 }
