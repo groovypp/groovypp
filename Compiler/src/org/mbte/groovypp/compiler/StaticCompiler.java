@@ -715,18 +715,17 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         visitStatement(statement);
 
         Expression returnExpression = statement.getExpression();
-        if (!methodNode.getReturnType().equals(ClassHelper.VOID_TYPE)) {
+        if (!methodNode.getReturnType().equals(ClassHelper.VOID_TYPE) && 
+        		!methodNode.getReturnType().equals(ClassHelper.DYNAMIC_TYPE)) {
             if (!shouldImproveReturnType) {
                 CastExpression castExpression = new CastExpression(methodNode.getReturnType(), returnExpression);
                 castExpression.setSourcePosition(returnExpression);
                 returnExpression = castExpression;
             }
             else {
-                if (!methodNode.getReturnType().equals(ClassHelper.OBJECT_TYPE)) {
-                    CastExpression castExpression = new CastExpression(methodNode.getReturnType(), returnExpression);
-                    castExpression.setSourcePosition(returnExpression);
-                    returnExpression = castExpression;
-                }
+                CastExpression castExpression = new CastExpression(methodNode.getReturnType(), returnExpression);
+                castExpression.setSourcePosition(returnExpression);
+                returnExpression = castExpression;
             }
         }
 

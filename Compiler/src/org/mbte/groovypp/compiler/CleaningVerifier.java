@@ -168,12 +168,6 @@ public class CleaningVerifier extends Verifier {
             );
         }
         if (!node.hasMethod("invokeMethod",INVOKE_METHOD_PARAMS)) {
-            VariableExpression vMethods = new VariableExpression("method");
-            VariableExpression vArguments = new VariableExpression("arguments");
-            VariableScope blockScope = new VariableScope();
-            blockScope.putReferencedLocalVariable(vMethods);
-            blockScope.putReferencedLocalVariable(vArguments);
-
             addMethod(node,!Modifier.isAbstract(node.getModifiers()),
                     "invokeMethod",
                     ACC_PUBLIC,

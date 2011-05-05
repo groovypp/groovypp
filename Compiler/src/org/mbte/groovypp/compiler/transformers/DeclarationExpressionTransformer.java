@@ -34,7 +34,7 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
         if (ve.getOriginType() != ve.getType())
             ve.setType(ve.getOriginType());
 
-        if (ve.getType() != ClassHelper.DYNAMIC_TYPE) {
+        if (!ve.getType().equals(ClassHelper.DYNAMIC_TYPE)) {
             if (ClassHelper.isPrimitiveType(ve.getType()) && (exp.getRightExpression() instanceof ConstantExpression)) {
                 ConstantExpression constantExpression = (ConstantExpression) exp.getRightExpression();
                 if (constantExpression.getValue() == null) {
@@ -55,7 +55,7 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
 
         if (hasFieldAnnotation(ve)) {
             ClassNode type;
-            if (ve.getType() != ClassHelper.DYNAMIC_TYPE) {
+            if (!ve.getType().equals(ClassHelper.DYNAMIC_TYPE)) {
                 type = ve.getType();
             } else {
                 type = right.getType();
@@ -76,7 +76,7 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
             };
         }
         else {
-            if (ve.getType() != ClassHelper.DYNAMIC_TYPE) {
+            if (!ve.getType().equals(ClassHelper.DYNAMIC_TYPE)) {
                 if (ve.getType().equals(right.getType().redirect()) &&
                         ve.getType().getGenericsTypes() == null) {
                     ve.setType(right.getType());   //this is safe as long as generics are variant in type parameter.
