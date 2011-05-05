@@ -6,3 +6,8 @@ junit*.properties
 tempbin
 .gradle
 Compiler/build
+G17X
+G18X
+TestG17X
+TestG18X
+build
