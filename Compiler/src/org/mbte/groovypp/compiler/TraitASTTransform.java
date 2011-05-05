@@ -50,6 +50,15 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
         CleaningVerifier.getCompilationUnit().getConfiguration().setPluginFactory(new ParserPluginFactory() {
             public ParserPlugin createParserPlugin() {
                 return new AntlrParserPlugin() {
+                    protected Expression declarationExpression(AST variableDef) {
+                        final DeclarationExpression expression = (DeclarationExpression) super.declarationExpression(variableDef);
+                        final VariableExpression variableExpression = expression.getVariableExpression();
+                        if(!ClassHelper.isPrimitiveType(variableExpression.getOriginType())) {
+                            variableExpression.setType(variableExpression.getOriginType());
+                        }
+                        return expression;
+                    }
+
                     protected Expression mapExpression(AST mapNode) {
                         List expressions = new ArrayList();
                         ListExpression list = null;

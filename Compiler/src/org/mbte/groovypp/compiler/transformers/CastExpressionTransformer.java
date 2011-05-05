@@ -67,7 +67,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             return compiler.cast(cast.getExpression(), cast.getType());
         }
 
-        if (cast.getExpression() instanceof ClassExpression && !cast.getType().equals(ClassHelper.CLASS_Type)) {
+        if (cast.getExpression() instanceof ClassExpression && !cast.getType().equals(ClassHelper.CLASS_Type) && !cast.getType().equals(ClassHelper.OBJECT_TYPE)) {
             ClassExpression exp = (ClassExpression) cast.getExpression();
             ConstructorCallExpression newCall = new ConstructorCallExpression(exp.getType(), new ArgumentListExpression());
             newCall.setSourcePosition(exp);

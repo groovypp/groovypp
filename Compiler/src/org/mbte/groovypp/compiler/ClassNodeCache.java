@@ -160,7 +160,7 @@ public class ClassNodeCache {
         ClassNode cn = classNode;
         while (cn.isArray())
             cn = cn.getComponentType();
-        moduleNode = cn.getModule();
+        moduleNode = cn.redirect().getModule();
 
         if (moduleNode != null) {
             final CompileUnit compileUnit = classNode.getCompileUnit();
