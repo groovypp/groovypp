@@ -26,4 +26,19 @@ class Issue366Test extends GroovyShellTestCase {
   assert foo().contains(Integer)
     """
   }
+
+  void test367 () {
+    shell.evaluate """
+@Typed package p
+
+def classes = [Integer]
+assert classes.contains(Integer)
+
+def interfaces = [List]
+assert interfaces[0] == List
+
+def more = [Vector]
+assert more.remove(0) == Vector
+    """
+  }
 }
