@@ -17,8 +17,10 @@
 package org.mbte.groovypp.compiler;
 
 import org.codehaus.groovy.ast.*;
+import org.codehaus.groovy.ast.expr.ClassExpression;
+import org.codehaus.groovy.ast.expr.Expression;
+import org.codehaus.groovy.ast.expr.ListExpression;
 import org.codehaus.groovy.ast.stmt.Statement;
-import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.runtime.*;
 import org.codehaus.groovy.util.FastArray;
 import org.codehaus.groovy.vmplugin.v5.PluginDefaultGroovyMethods;
@@ -271,13 +273,15 @@ public class ClassNodeCache {
             addMethods(methodsMap, staticMethodsMap, superMethodsMap, node.getMethods(), true, type);
         }
 
-        for (ClassNode cn : getSuperClassesAndSelf(type)) {
-            addMethods(methodsMap, staticMethodsMap, superMethodsMap, cn.getMethods(), cn == type, type);
+        for (ClassNode node : getSuperClassesAndSelf(type)) {
+            addMethods(methodsMap, staticMethodsMap, superMethodsMap, node.getMethods(), node == type, type);
 
-            final List<MethodNode> list = dgmMethods.get(cn);
+            final List<MethodNode> list = dgmMethods.get(node);
             if (list != null) {
                 addMethods(methodsMap, staticMethodsMap, superMethodsMap, list, true, type);
             }
+
+            addCategoryMethods(staticMethodsMap, staticMethodsMap, superMethodsMap, node);
         }
 
         for (ClassNode node : ifaces) {
@@ -285,6 +289,7 @@ public class ClassNodeCache {
             if (list != null) {
                 addMethods(methodsMap, staticMethodsMap, superMethodsMap, list, true, type);
             }
+            addCategoryMethods(methodsMap, staticMethodsMap, superMethodsMap, node);
         }
 
         if (type.isArray()) {
@@ -295,6 +300,39 @@ public class ClassNodeCache {
         info.methods = methodsMap;
         info.staticMethods = staticMethodsMap;
         info.superMethods = superMethodsMap;
+    }
+
+    private static void addCategoryMethods(Map<String, Object> methodsMap, Map<String, Object> staticMethodsMap, Map<String, Object> superMethodsMap, ClassNode node) {
+        final List<AnnotationNode> annotations = node.getAnnotations(TypeUtil.USE);
+        if(annotations != null) {
+            for (AnnotationNode annotation : annotations) {
+                final Expression value = annotation.getMember("value");
+                if(value instanceof ListExpression) {
+                    final ListExpression listExpression = (ListExpression) value;
+                    for (Expression expression : listExpression.getExpressions()) {
+                        if(expression instanceof ClassExpression) {
+                            final ClassExpression classExpression = (ClassExpression) expression;
+                            for (MethodNode methodNode : classExpression.getType().getMethods()) {
+                                if(methodNode.isStatic() && methodNode.isPublic()) {
+                                    staticMethodsMap.put(methodNode.getName(), addMethodToList(staticMethodsMap.get(methodNode.getName()), methodNode, classExpression.getType()));
+                                }
+                            }
+                        }
+                    }
+                    continue;
+                }
+
+                if(value instanceof ClassExpression) {
+                    final ClassExpression classExpression = (ClassExpression) value;
+                    for (MethodNode methodNode : classExpression.getType().getMethods()) {
+                        if(methodNode.isStatic() && methodNode.isPublic()) {
+                            staticMethodsMap.put(methodNode.getName(), addMethodToList(staticMethodsMap.get(methodNode.getName()), methodNode, classExpression.getType()));
+                        }
+                    }
+                    continue;
+                }
+            }
+        }
     }
 
     private static List<ClassNode> getSuperClassesAndSelf(ClassNode classNode) {

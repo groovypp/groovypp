@@ -20,7 +20,7 @@ package groovypp.concurrent
  * Simple implementation of one-directional immutable functional list
  */
 @Typed
-abstract static class FList<T> implements Iterable<T>, Serializable {
+abstract class FList<T> implements Iterable<T>, Serializable {
     /**
      * Singleton for empty list
      */

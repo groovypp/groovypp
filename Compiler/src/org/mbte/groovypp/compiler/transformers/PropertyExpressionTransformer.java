@@ -179,6 +179,10 @@ public class PropertyExpressionTransformer extends ExprTransformer<PropertyExpre
 
             onlyStatic |= (thisType.getModifiers() & Opcodes.ACC_STATIC) != 0;
             thisType = thisType.getOuterClass();
+
+            if(thisType != null && thisType.getName().endsWith("$TraitImpl")) {
+                thisType = thisType.getOuterClass();
+            }
         }
 
         if (compiler.policy == TypePolicy.STATIC) {

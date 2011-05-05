@@ -67,12 +67,14 @@ class DivideAndConquerProblemSolver {
 
     void setResult(Object result) {
       this.result = result
-      assert parent != this
+      if(parent === this)
+         throw new AssertionError("parent != this")
       if (parent) {
         synchronized (parent) {
           def children = parent.children
           if (children != null) {
-            assert !children.isEmpty()
+            if(children.isEmpty())
+              throw new AssertionError("!children.isEmpty()")
             if (!children.any{it.result == null}) {
               parent.setResult(problem.combine(children.map{it.result}))
               parent.children = null

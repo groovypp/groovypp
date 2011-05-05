@@ -61,7 +61,7 @@ public class ResolvedVarBytecodeExpr extends ResolvedLeftExpr {
                     mv.visitInsn(Opcodes.DUP_X1);
                     mv.visitInsn(POP);
                     mv.visitLdcInsn(recordingVariableExpression.getColumn());
-                    mv.visitMethodInsn(INVOKEVIRTUAL, "org/codehaus/groovy/transform/powerassert/ValueRecorder", "record", "(Ljava/lang/Object;I)Ljava/lang/Object;");
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "org/mbte/groovypp/runtime/powerassert/ValueRecorder", "record", "(Ljava/lang/Object;I)Ljava/lang/Object;");
                     mv.visitInsn(POP);
                 }
             };

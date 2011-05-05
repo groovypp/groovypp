@@ -170,11 +170,7 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
 
             classNode.getModule().addClass(innerClassNode);
 
-//            innerClassNode.addMethod("getMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.METACLASS_TYPE, Parameter.EMPTY_ARRAY, ClassNode.EMPTY_ARRAY, null);
-//            innerClassNode.addMethod("setMetaClass", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.METACLASS_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
-//            innerClassNode.addMethod("getProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name")}, ClassNode.EMPTY_ARRAY, null);
-//            innerClassNode.addMethod("setProperty", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "value")}, ClassNode.EMPTY_ARRAY, null);
-//            innerClassNode.addMethod("invokeMethod", ACC_PUBLIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new Parameter[]{new Parameter(ClassHelper.STRING_TYPE, "name"), new Parameter(ClassHelper.OBJECT_TYPE, "args")}, ClassNode.EMPTY_ARRAY, null);
+            InnerClassNode categoryClassNode = null;
 
             for (FieldNode fieldNode : classNode.getFields()) {
                 if (fieldNode.isStatic()) {
@@ -230,12 +226,42 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
             classNode.getFields().clear();
             classNode.getProperties().clear();
 
+            ArrayList<MethodNode> toRemove = null;
             for (MethodNode methodNode : classNode.getMethods()) {
                 if (methodNode.getCode() == null)
                     continue;
 
                 if (methodNode.isStatic()) {
-                    source.addError(new SyntaxException("Static methods are not allowed in traits", methodNode.getLineNumber(), methodNode.getColumnNumber()));
+                    if(categoryClassNode == null) {
+                        name = classNode.getNameWithoutPackage() + "$TraitCategory";
+                        fullName = ASTHelper.dot(classNode.getPackageName(), name);
+
+                        categoryClassNode = new InnerClassNode(classNode, fullName, ACC_PUBLIC|ACC_STATIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, ClassNode.EMPTY_ARRAY, null);
+                        categoryClassNode.addAnnotation(typedAnn);
+
+                        classNode.getModule().addClass(categoryClassNode);
+
+                        toRemove = new ArrayList<MethodNode>();
+
+                        final List<AnnotationNode> annotations = classNode.getAnnotations(TypeUtil.USE);
+                        AnnotationNode useAnnotation;
+                        if(annotations == null || annotations.isEmpty()) {
+                            useAnnotation = new AnnotationNode(TypeUtil.USE);
+                            final ListExpression value = new ListExpression();
+                            classNode.addAnnotation(useAnnotation);
+                            useAnnotation.addMember("value", value);
+                        }
+                        else {
+                            useAnnotation = annotations.get(0);
+                        }
+
+                        ListExpression expr = (ListExpression) useAnnotation.getMember("value");
+                        expr.addExpression(new ClassExpression(categoryClassNode));
+                    }
+
+                    categoryClassNode.addMethod(methodNode);
+                    toRemove.add(methodNode);
+                    continue;
                 }
 
                 if (!methodNode.isPublic()) {
@@ -275,6 +301,12 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
                 methodNode.addAnnotation(annotationNode);
 
                 methodNode.setCode(null);
+            }
+
+            if(toRemove != null) {
+                for(MethodNode methodNode : toRemove) {
+                    classNode.getMethods().remove(methodNode);
+                }
             }
         }
     }

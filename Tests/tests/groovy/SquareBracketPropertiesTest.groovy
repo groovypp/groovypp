@@ -70,6 +70,28 @@ class XPair {
         """
     }
 
+    void testFromGretty () {
+        shell.evaluate """
+@Typed package p
+class User {
+String userName, password
+}
+
+class UserService {
+    User newUser () { [] }
+}
+UserService userService = []
+
+Map cmd = [userName:'alex', password:'secret']
+
+Function1 f = {
+    def user = userService.newUser()[userName:cmd.userName, password:cmd.password]
+    assert user.password == 'secret'
+    assert user.userName == 'alex'
+}
+"""
+    }
+
     void testSample () {
         shell.evaluate """
             @Typed package p

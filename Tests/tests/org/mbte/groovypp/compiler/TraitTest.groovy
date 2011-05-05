@@ -130,4 +130,97 @@ def x(int a, Der d){
 assert x(10) { a -> def b = 2*a; prop << b } == [20]
         """
     }
+
+    void testStaticMethod () {
+        shell.evaluate """
+@Typed package p
+
+@Trait class Tr {
+    static def doIt(Object self){ self?.toString()?.toUpperCase() }
+}
+
+class Der implements Tr {
+    def a () {
+        "oh my god".doIt ()
+    }
+}
+
+assert new Der ().a() == "OH MY GOD"
+assert Der.doIt("mama mia") == "MAMA MIA"
+assert Tr.doIt("mama mia") == "MAMA MIA"
+        """
+    }
+
+    void testForDoc () {
+        shell.evaluate """
+@Typed package p
+
+@Trait class NonRemovingIteraror<T> implements Iterator<T>{
+    void remove () {
+        throw new UnsupportedOperationException("remove() does not supported by iterator")
+    }
+}
+
+@Trait abstract class Indexable<T> implements Iterable<T> {
+      abstract int size ()
+
+      abstract T get(int index)
+      abstract void set(int index, T value)
+
+      T getAt(int index) { get(index) }
+
+      int getLength () { size() }
+
+      void putAt(int index, T value) { set(index, value) }
+
+      Iterator<T> iterator (){
+        (NonRemovingIteraror)[
+            curIndex: 0,
+            hasNext: { curIndex < length },
+            next: { get(curIndex++) }
+        ]
+      }
+}
+
+class ArrayWrapper<T> implements Indexable<T>{
+    private T [] array
+
+    ArrayWrapper(T[] array){
+        this.array = array
+    }
+
+    T get(int index){ array[index] }
+
+    void set(int index, T value){ array[index] = value }
+
+    int size () { array.length }
+}
+
+def wrapper = new ArrayWrapper (new String[5])
+wrapper [3] = "mama mia"
+assert wrapper[3] == "mama mia"
+
+for(e in wrapper){
+    println e?.toUpperCase ()
+}
+
+class ListWrapper<T> implements Indexable<T> {
+    private List<T> list
+
+    ListWrapper(List<T> list){
+        this.list = list
+    }
+
+    T get(int index){ list[index] }
+
+    void set(int index, T value){ list[index] = value }
+
+    int size () { list.size() }
+}
+
+def lwrapper = new ListWrapper (['mama mia'])
+wrapper [0] = "mama mia"
+assert wrapper[0] == "mama mia"
+        """
+    }
 }

@@ -16,22 +16,18 @@
 
 package org.mbte.groovypp.compiler;
 
-import groovy.lang.Delegating;
-import groovy.lang.IntRange;
-import groovy.lang.Trait;
-import groovy.lang.Typed;
+import groovy.lang.*;
 import org.codehaus.groovy.ast.*;
-import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.runtime.ScriptBytecodeAdapter;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
-import org.codehaus.groovy.transform.powerassert.AssertionRenderer;
-import org.codehaus.groovy.transform.powerassert.PowerAssertionError;
-import org.codehaus.groovy.transform.powerassert.ValueRecorder;
 import org.mbte.groovypp.compiler.ClosureClassNode;
 import org.mbte.groovypp.compiler.MethodSelection;
 import org.mbte.groovypp.runtime.HasDefaultImplementation;
 import org.mbte.groovypp.runtime.LinkedHashMapEx;
 import org.mbte.groovypp.runtime.NoExternalInitialization;
+import org.mbte.groovypp.runtime.powerassert.AssertionRenderer;
+import org.mbte.groovypp.runtime.powerassert.PowerAssertionError;
+import org.mbte.groovypp.runtime.powerassert.ValueRecorder;
 import org.objectweb.asm.Opcodes;
 
 import java.util.*;
@@ -53,6 +49,7 @@ public class TypeUtil {
     public static final ClassNode RANGE_OF_INTEGERS_TYPE = TypeUtil.withGenericTypes(ClassHelper.RANGE_TYPE, ClassHelper.Integer_TYPE);
     public static final ClassNode TYPED = make(Typed.class);
     public static final ClassNode TRAIT = make(Trait.class);
+    public static final ClassNode USE = ClassHelper.make(Use.class);
     public static final ClassNode HAS_DEFAULT_IMPLEMENTATION = make(HasDefaultImplementation.class);
     public static final ClassNode NO_EXTERNAL_INITIALIZATION = make(NoExternalInitialization.class);
     public static final ClassNode OBJECT_ARRAY = OBJECT_TYPE.makeArray();
@@ -80,12 +77,12 @@ public class TypeUtil {
     public static final ClassNode ATOMIC_LONG_FIELD_UPDATER = make(AtomicLongFieldUpdater.class);
     public static final ClassNode DELEGATING = make(Delegating.class);
     public static final ClassNode THROWABLE = make(Throwable.class);
+    public static final ClassNode EXCEPTION = make(Exception.class);
     public static final ClassNode COMPARABLE = make(Comparable.class);
     public static final ClassNode STRING_BUILDER = make(StringBuilder.class);
-    public static final ClassNode VALUE_RECORDER = make(ValueRecorder.class);
-    public static final ClassNode ASSERTION_ERROR = make(AssertionError.class);
-    public static final ClassNode POWER_ASSERT_ERROR = make(PowerAssertionError.class);
     public static final ClassNode SCRIPT_BYTECODE_ADAPTER = make(ScriptBytecodeAdapter.class);
+    public static final ClassNode VALUE_RECORDER = make(ValueRecorder.class);
+    public static final ClassNode POWER_ASSERT_ERROR = make(PowerAssertionError.class);
     public static final ClassNode ASSERTION_RENDERER = make(AssertionRenderer.class);
     public static final ClassNode IMPROVE_TYPE = new ClassNode(Object.class);
     public static final ClassNode FHASHMAP_TYPE = ClassHelper.make("groovypp.concurrent.FHashMap");

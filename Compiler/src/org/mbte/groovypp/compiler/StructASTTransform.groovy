@@ -13,40 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
-
-
 package org.mbte.groovypp.compiler
 
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
-import org.codehaus.groovy.syntax.SyntaxException
+
 import org.codehaus.groovy.syntax.Token
 import org.codehaus.groovy.syntax.Types
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
-import org.mbte.groovypp.compiler.TypeUtil
+
 import org.objectweb.asm.Opcodes
 import org.codehaus.groovy.ast.*
 import static org.codehaus.groovy.ast.ClassHelper.make
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.syntax.ASTHelper
-import org.codehaus.groovy.classgen.BytecodeSequence
-import org.codehaus.groovy.classgen.BytecodeInstruction
+
 import org.codehaus.groovy.classgen.Verifier
 
 @Typed
 @GroovyASTTransformation (phase = CompilePhase.CANONICALIZATION)
 class StructASTTransform implements ASTTransformation, Opcodes {
 
-    static final ClassNode ASTRUCT = make(AbstractStruct)
-    static final ClassNode ABUILDER = make(AbstractStruct.Builder)
+    static final ClassNode ASTRUCT = make(FObject)
+    static final ClassNode ABUILDER = make(FObject.Builder)
     static final ClassNode STRING_BUILDER = make(StringBuilder)
-    static final ClassNode APPLYOP = make(AbstractStruct.ApplyOp)
 
     void visit(ASTNode[] nodes, SourceUnit source) {
         ModuleNode module = nodes[0]
@@ -78,14 +71,14 @@ class StructASTTransform implements ASTTransformation, Opcodes {
             if (!typed)
                 classNode.addAnnotation(new AnnotationNode(TypeUtil.TYPED))
 
-            ClassNode superClass = classNode.getSuperClass();
+            ClassNode superClass = classNode.getUnresolvedSuperClass(false);
             if (ClassHelper.OBJECT_TYPE.equals(superClass)) {
-                classNode.setSuperClass(ASTRUCT)
-                superClass = ASTRUCT
+                superClass = TypeUtil.withGenericTypes(ASTRUCT, (GenericsType[])null)
+                classNode.setSuperClass(superClass)
             }
 
             ClassNode superBuilder
-            for(ClassNode bc : superClass.getInnerClasses()) {
+            for(ClassNode bc : superClass.redirect().getInnerClasses()) {
                 if (bc.getName().endsWith("\$Builder")) {
                     superBuilder = bc
                     break;
@@ -108,8 +101,8 @@ class StructASTTransform implements ASTTransformation, Opcodes {
                 typedAnn.addMember("debug", ConstantExpression.TRUE)
             builderClassNode.addAnnotation(typedAnn)
 
-            builderClassNode.genericsTypes = builderGenericTypes(classNode)
-            builderClassNode.superClass = TypeUtil.withGenericTypes(superBuilder, builderSuperclassTypes(classNode, builderClassNode))
+            builderClassNode.genericsTypes = classNode.genericsTypes
+            builderClassNode.superClass = TypeUtil.withGenericTypes(superBuilder.redirect(), superClass.genericsTypes);
 
             classNode.getModule().addClass(builderClassNode);
 
@@ -127,145 +120,58 @@ class StructASTTransform implements ASTTransformation, Opcodes {
             }
 
             addToString (classNode)
-
-            addApplyMethod(builderClassNode, classNode)
         }
 
         for( c in classNode.innerClasses)
             processClass(c, source)
     }
 
-    private void addApplyMethod(InnerClassNode builderClassNode, ClassNode classNode) {
-//    static T apply (T $self = null, ApplyOp<B> op) {
-//        def builder = T.newBuilder(this)
-//        op.delegate = builder
-//        op.call ()
-//        builder.build ()
+    def addFactoryMethods(ClassNode classNode, ClassNode builderClass) {
+//    static Builder asMutable(StructTest<A> self = null) {
+//        new Builder(self)
 //    }
-//
-        def code = new BlockStatement()
-        code.addStatement(
-                new ExpressionStatement(
-                        new DeclarationExpression(
-                                new VariableExpression("\$builder"),
-                                Token.newSymbol(Types.ASSIGN,-1,-1),
-                                new StaticMethodCallExpression(
+        classNode.addMethod(
+                "asMutable",
+                Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC,
+                builderClass,
+                [[classNode, "obj"]],
+                [], new ExpressionStatement(
+                        new ConstructorCallExpression(
+                                builderClass,
+                                new CastExpression(
                                         classNode,
-                                        "newBuilder",
-                                        new ArgumentListExpression(new VariableExpression("\$self"))
+                                        new MethodCallExpression(new VariableExpression("obj"), "clone", new ArgumentListExpression())
                                 )
                         )
                 )
         )
-        code.addStatement(
-                new ExpressionStatement(
-                        new BinaryExpression(
-                                new PropertyExpression(new VariableExpression("\$op"), "delegate"),
-                                Token.newSymbol(Types.ASSIGN,-1,-1),
-                                new VariableExpression("\$builder")
-                        )
-                )
-        )
-        code.addStatement(
-                new ExpressionStatement(
-                        new MethodCallExpression(
-                                new VariableExpression("\$op"),
-                                "call",
-                                new ArgumentListExpression()
-                        )
-                )
-        )
-        code.addStatement(
-                new ExpressionStatement(
-                        new MethodCallExpression(
-                                new VariableExpression("\$builder"),
-                                "build",
-                                new ArgumentListExpression()
-                        )
-                )
-        )
 
-        classNode.addMethod(
-                "apply",
+        builderClass.addMethod(
+                "asImmutable",
                 Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC,
                 classNode,
-                [[classNode, "\$self", ConstantExpression.NULL], [TypeUtil.withGenericTypes(APPLYOP, builderClassNode), "\$op"]],
-                [],
-                code
-        )
-    }
-
-    GenericsType [] builderGenericTypes(ClassNode classNode) {
-        def gt = classNode.getGenericsTypes()
-        if (!gt)
-            gt = new GenericsType[0]
-
-        def builderGt = new GenericsType[gt.length + 1]
-        ClassNode varT = ClassHelper.make("T")
-        varT.setRedirect(classNode)
-        varT.genericsPlaceHolder = true
-        builderGt[0] = new GenericsType(varT, [classNode], null)
-        for (i in 0..<gt.length)
-            builderGt[i + 1] = gt[i]
-        return builderGt
-    }
-
-    GenericsType [] builderSuperclassTypes(ClassNode classNode, ClassNode builderClassNode) {
-        def gt = classNode.getUnresolvedSuperClass(false).genericsTypes
-        if (!gt)
-            gt = new GenericsType[0]
-
-        def builderGt = new GenericsType[gt.length+1]
-        builderGt[0] = new GenericsType(classNode)
-        for (i in 0..<gt.length)
-            builderGt[i+1] = gt[i]
-        return builderGt
-    }
-
-    def addFactoryMethods(ClassNode classNode, ClassNode innerClass) {
-//    static Builder newBuilder(StructTest<A> self = null) {
-//        new Builder(self)
-//    }
-        classNode.addMethod(
-                "newBuilder",
-                Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC,
-                innerClass,
-                [[classNode, "obj", ConstantExpression.NULL]],
+                [[builderClass, "self"]],
                 [], new ExpressionStatement(
-                        new ConstructorCallExpression(
-                                innerClass,
-                                new VariableExpression("obj")
+                        new CastExpression(
+                                classNode,
+                                new MethodCallExpression(new VariableExpression("self"), "getAndForget", new ArgumentListExpression())
                         )
                 )
         )
 
-//    static class Builder<T extends StructTest,A> extends AbstractStruct.Builder<T> {
-//        Builder (T obj = null) {
-//            super(obj != null ? (T)obj.clone() : new StructTest())
+//    static class Builder<A> extends FObject.Builder {
+//        Builder (T obj) {
+//            super(obj)
 //        }
-        innerClass.addConstructor(
-            Opcodes.ACC_PUBLIC,
-            [[classNode, "obj", ConstantExpression.NULL]],
+        builderClass.addConstructor(
+            Opcodes.ACC_PROTECTED,
+            [[classNode, "obj"]],
             [],
             new ExpressionStatement(
                 new ConstructorCallExpression(
                     ClassNode.SUPER,
                     new ArgumentListExpression(
-                        new TernaryExpression(
-                            new BooleanExpression(new VariableExpression("obj")),
-                            new CastExpression(
-                                classNode,
-                                new MethodCallExpression(
-                                    new VariableExpression("obj"),
-                                    "clone",
-                                    new ArgumentListExpression()
-                                )
-                            ),
-                            new ConstructorCallExpression(
-                                classNode,
-                                new ArgumentListExpression()
-                            )
-                        )
+                        new VariableExpression("obj")
                     )
                 )
             )
@@ -273,6 +179,9 @@ class StructASTTransform implements ASTTransformation, Opcodes {
     }
 
     void addFieldMethods(FieldNode fieldNode, ClassNode classNode, InnerClassNode innerClassNode) {
+        fieldNode.modifiers &= ~(Opcodes.ACC_PUBLIC|Opcodes.ACC_PROTECTED)
+        fieldNode.modifiers |= Opcodes.ACC_PRIVATE
+
         classNode.addMethod(
             "get" + Verifier.capitalize(fieldNode.name),
             Opcodes.ACC_PUBLIC,
@@ -293,7 +202,10 @@ class StructASTTransform implements ASTTransformation, Opcodes {
             [],
             [], new ExpressionStatement(
                 new PropertyExpression(
-                    new PropertyExpression(VariableExpression.THIS_EXPRESSION,"obj"),
+                    new CastExpression(
+                        classNode,
+                        new PropertyExpression(VariableExpression.THIS_EXPRESSION,"obj")
+                    ),
                     fieldNode.name
                 )
             )
@@ -308,7 +220,10 @@ class StructASTTransform implements ASTTransformation, Opcodes {
                 [], new ExpressionStatement(
                     new BinaryExpression(
                         new PropertyExpression(
-                            new PropertyExpression(VariableExpression.THIS_EXPRESSION,"obj"),
+                            new CastExpression(
+                                    classNode,
+                                    new PropertyExpression(VariableExpression.THIS_EXPRESSION,"obj"),
+                            ),
                             fieldNode.name
                         ),
                         Token.newSymbol(Types.ASSIGN,-1,-1),
@@ -385,7 +300,7 @@ class StructASTTransform implements ASTTransformation, Opcodes {
     }
 }
 
-//class StructTest<A> extends AbstractStruct {
+//class StructTest<A> extends FObject {
 //    private int x, y
 //    private A inner
 //
@@ -422,7 +337,7 @@ class StructASTTransform implements ASTTransformation, Opcodes {
 //        }
 //    }
 //
-//    static class Builder<T extends StructTest,A> extends AbstractStruct.Builder<T> {
+//    static class Builder<T extends StructTest,A> extends FObject.Builder<T> {
 //        Builder (T obj = null) {
 //            super(obj != null ? (T)obj.clone() : new StructTest())
 //        }

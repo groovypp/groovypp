@@ -20,16 +20,7 @@ import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.stmt.ReturnStatement;
 import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.classgen.BytecodeHelper;
-import org.mbte.groovypp.compiler.AccessibilityCheck;
-import org.mbte.groovypp.compiler.ClosureClassNode;
-import org.mbte.groovypp.compiler.ClosureUtil;
-import org.mbte.groovypp.compiler.CompiledClosureBytecodeExpr;
-import org.mbte.groovypp.compiler.CompilerTransformer;
-import org.mbte.groovypp.compiler.PresentationUtil;
-import org.mbte.groovypp.compiler.StaticMethodBytecode;
-import org.mbte.groovypp.compiler.TypeUnification;
-import org.mbte.groovypp.compiler.TypeUtil;
+import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
@@ -670,7 +661,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
         }
         ClassNode lastType = parameters[parameters.length - 1].getType();
         if (parameters.length == argTypes.length) {
-            paramTypes[paramTypes.length -1] = lastType;
+            paramTypes[paramTypes.length -1] = lastType.isArray() && argTypes[parameters.length-1] != null && TypeUtil.TCLOSURE_NULL.equals(argTypes[parameters.length-1]) ? lastType.getComponentType() : lastType;
         } else {
             if (!lastType.isArray()) return null;
             for (int i = parameters.length -1 ; i < paramTypes.length; i++) {

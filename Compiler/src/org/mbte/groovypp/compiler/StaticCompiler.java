@@ -21,7 +21,6 @@ import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.*;
-import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeInstruction;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.Janitor;
@@ -29,11 +28,11 @@ import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.codehaus.groovy.syntax.Token;
 import org.codehaus.groovy.syntax.Types;
-import org.codehaus.groovy.transform.powerassert.SourceText;
-import org.codehaus.groovy.transform.powerassert.SourceTextNotAvailableException;
 import org.codehaus.groovy.util.FastArray;
 import org.mbte.groovypp.compiler.bytecode.*;
 import org.mbte.groovypp.compiler.flow.*;
+import org.mbte.groovypp.runtime.powerassert.SourceText;
+import org.mbte.groovypp.runtime.powerassert.SourceTextNotAvailableException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -1081,6 +1080,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         finallyPart.run();
         mv.visitInsn(ATHROW);
         mv.visitLabel(synchronizedEnd);
+        mv.visitInsn(NOP);
 
         compileStack.popFinallyBlock();
         exceptionBlocks.add(new Runnable() {
@@ -1158,6 +1158,9 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         for (CatchStatement catchStatement : statement.getCatchStatements()) {
         	mv.comeToLabel(dummyLabel);// restore the type inference info for use in catch blocks
             ClassNode exceptionType = catchStatement.getExceptionType();
+            if(exceptionType.getName().equals("java.lang.Exception") && catchStatement.getVariable().isDynamicTyped()) {
+                exceptionType = TypeUtil.THROWABLE;
+            }
             // start catch block, label needed for exception table
             final Label catchStart = new Label();
             mv.visitLabel(catchStart);

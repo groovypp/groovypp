@@ -21,7 +21,6 @@ import groovy.lang.Use;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.Statement;
-import org.codehaus.groovy.classgen.BytecodeHelper;
 import org.codehaus.groovy.classgen.BytecodeSequence;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.codehaus.groovy.control.SourceUnit;
@@ -37,6 +36,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,7 +50,6 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     public final int debug;
     public final boolean fastArrays;
     public final TypePolicy policy;
-    private static final ClassNode USE = ClassHelper.make(Use.class);
     private int nestedLevel;
     LinkedList<CompiledClosureBytecodeExpr> pendingClosures = new LinkedList<CompiledClosureBytecodeExpr> ();
     private int nextClosureIndex = 1;
@@ -219,34 +218,30 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     }
 
     private Object findCategoryMethod(ClassNode category, String methodName, ClassNode objectType, ClassNode [] args, Object candidates) {
-        final Object o = ClassNodeCache.getMethods(category, methodName);
+        final Object o = ClassNodeCache.getStaticMethods(category, methodName);
         if (o instanceof MethodNode) {
             MethodNode mn = (MethodNode) o;
-            if (mn.isStatic()) {
-                final Parameter[] parameters = mn.getParameters();
-                if (parameters.length > 0 && TypeUtil.isDirectlyAssignableFrom(parameters[0].getType(), objectType)) {
-                    candidates = ClassNodeCache.createDGM(mn);
-                }
+            final Parameter[] parameters = mn.getParameters();
+            if (parameters.length > 0 && TypeUtil.isDirectlyAssignableFrom(parameters[0].getType(), objectType)) {
+                candidates = ClassNodeCache.createDGM(mn);
             }
         } else {
             FastArray ms = (FastArray) o;
             if (ms == null) return candidates;
             for (int i = 0; i != ms.size(); ++i) {
                 MethodNode mn = (MethodNode) ms.get(i);
-                if (mn.isStatic()) {
-                    final Parameter[] parameters = mn.getParameters();
-                    if (parameters.length > 0) {
-                        if (TypeUtil.isDirectlyAssignableFrom(parameters[0].getType(), objectType)) {
-                            if (candidates == null)
-                                candidates = ClassNodeCache.createDGM(mn);
-                            else if (candidates instanceof FastArray) {
-                                ((FastArray) candidates).add(ClassNodeCache.createDGM(mn));
-                            } else {
-                                MethodNode _1st = (MethodNode) candidates;
-                                candidates = new FastArray(2);
-                                ((FastArray) candidates).add(_1st);
-                                ((FastArray) candidates).add(ClassNodeCache.createDGM(mn));
-                            }
+                final Parameter[] parameters = mn.getParameters();
+                if (parameters.length > 0) {
+                    if (TypeUtil.isDirectlyAssignableFrom(parameters[0].getType(), objectType)) {
+                        if (candidates == null)
+                            candidates = ClassNodeCache.createDGM(mn);
+                        else if (candidates instanceof FastArray) {
+                            ((FastArray) candidates).add(ClassNodeCache.createDGM(mn));
+                        } else {
+                            MethodNode _1st = (MethodNode) candidates;
+                            candidates = new FastArray(2);
+                            ((FastArray) candidates).add(_1st);
+                            ((FastArray) candidates).add(ClassNodeCache.createDGM(mn));
                         }
                     }
                 }
@@ -266,9 +261,23 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         if (!staticOnly) {
             Object candidates = findCategoryMethod(type, methodName, type, args, null);
 
+            ClassNode ctype = type;
+            while(candidates == null && ctype instanceof InnerClassNode) {
+                ctype = ctype.getOuterClass();
+                candidates = findCategoryMethod(ctype, methodName, type, args, null);
+            }
+
+            if (candidates == null) {
+                ctype = classNode;
+                while(candidates == null && ctype instanceof InnerClassNode) {
+                    ctype = ctype.getOuterClass();
+                    candidates = findCategoryMethod(ctype, methodName, type, args, null);
+                }
+            }
+
             if (candidates == null) {
                 candidates = findCategoryMethod(classNode, methodName, type, args, candidates);
-                final List<AnnotationNode> list = classNode.getAnnotations(USE);
+                final List<AnnotationNode> list = classNode.getAnnotations(TypeUtil.USE);
                 for (AnnotationNode annotationNode : list) {
                     final Expression member = annotationNode.getMember("value");
                     if (member instanceof ClassExpression) {
@@ -277,16 +286,6 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
                         candidates = findCategoryMethod(category, methodName, type, args, candidates);
                     }
                 }
-            }
-
-            if (candidates == null) {
-                final CompileUnit compileUnit = classNode.getCompileUnit();
-                if (compileUnit != null)
-                    for (ModuleNode moduleNode : compileUnit.getModules()) {
-                        for (ClassNode category : moduleNode.getClasses()) {
-                            candidates = findCategoryMethod(category, methodName, type, args, candidates);
-                        }
-                    }
             }
 
             if (candidates != null) {
@@ -680,6 +679,12 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     private boolean checkNotExist (String name) {
         for (ClassNode node : classNode.getModule().getClasses()) {
             if (name.equals(node.getName())) {
+                return false;
+            }
+        }
+        for(Iterator<InnerClassNode> it = classNode.getInnerClasses(); it.hasNext(); ) {
+            final InnerClassNode next = it.next();
+            if (name.equals(next.getName())) {
                 return false;
             }
         }
