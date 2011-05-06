@@ -1,6 +1,6 @@
 apply plugin: 'maven'
 
-gppVer = '0.4.231'
+gppVer = '0.4.232'
 
 def improveDependencies(pom) {
     pom.dependencies = pom.dependencies.findAll { dep ->
