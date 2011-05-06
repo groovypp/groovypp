@@ -153,4 +153,20 @@ new Category.Tester().doTest ()
 //new Category2().doTest ()
 //        """
     }
+
+
+    void testUseTime () {
+      shell.evaluate """
+@Typed package p
+import groovy.time.TimeCategory
+import groovy.time.TimeDuration
+@Use(TimeCategory)
+class A{
+  void doIt () {
+    assert 10.millisecond instanceof TimeDuration
+  }
+}
+  new A().doIt ()
+      """
+    }
 }

@@ -218,6 +218,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     }
 
     private Object findCategoryMethod(ClassNode category, String methodName, ClassNode objectType, ClassNode [] args, Object candidates) {
+        objectType = ClassHelper.getWrapper(objectType);
         final Object o = ClassNodeCache.getStaticMethods(category, methodName);
         if (o instanceof MethodNode) {
             MethodNode mn = (MethodNode) o;
