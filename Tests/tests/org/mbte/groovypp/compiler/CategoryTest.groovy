@@ -163,6 +163,8 @@ import groovy.time.TimeDuration
 @Use(TimeCategory)
 class A{
   void doIt () {
+    def now = new Date()
+    def twoMonthsAgo = now - (new Integer(2)).months
     assert 10.millisecond instanceof TimeDuration
   }
 }

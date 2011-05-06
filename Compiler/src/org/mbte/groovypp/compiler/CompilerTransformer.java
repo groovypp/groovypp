@@ -278,6 +278,9 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
 
             if (candidates == null) {
                 candidates = findCategoryMethod(classNode, methodName, type, args, candidates);
+            }
+
+            if(candidates == null) {
                 final List<AnnotationNode> list = classNode.getAnnotations(TypeUtil.USE);
                 for (AnnotationNode annotationNode : list) {
                     final Expression member = annotationNode.getMember("value");
