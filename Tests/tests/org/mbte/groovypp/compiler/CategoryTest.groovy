@@ -171,4 +171,21 @@ class A{
   new A().doIt ()
       """
     }
+
+  void testUseTime2 () {
+    shell.evaluate """
+    import groovy.time.TimeCategory
+
+    @Typed
+    @Use(TimeCategory)
+    class MyClass {
+        def twoMonthsAgo() {
+            return new Date() - 2.months
+        }
+    }
+
+    new MyClass().twoMonthsAgo()
+    """
+  }
+
 }

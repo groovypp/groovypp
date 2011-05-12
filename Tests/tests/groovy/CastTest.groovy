@@ -202,4 +202,47 @@ class CastTest extends GroovyShellTestCase {
                 assert a.b == 1
               """
     }
+
+
+     void testForArticle () {
+      shell.evaluate """
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+
+@Typed String foo() {
+   // typeof(res) == List<String> inferred
+   def res = Executors.newFixedThreadPool(2).submit(
+     (Callable) { // Callable<List<String>> inferred
+       def substring = 'y' // typeof(substring) == String inferred
+
+       def results = ['']  // typeof(results) === List<String>  inferred
+       results << substring.toUpperCase()
+       assert results[1].toLowerCase() == substring
+
+       results << 1 // implicit cast to String inserted
+       assert results[2] instanceof String
+
+       for(el in ['yellow', 'red', 'blue']) { // typeof(el) == String inferred
+           if (el.toUpperCase ().contains(substring.toUpperCase())) {
+              results << (el != 'yellow' ? el : 239)
+           }
+       }
+       assert results[3] == '239'
+
+        // implicit return here, which effects typeof closure to become Callable<List<String>>
+       results
+     }
+   ).get()
+
+   res.each{ // typeof(it) == String inferred
+      println it.toUpperCase ()
+   }
+
+   // implicit return and implicit cast to String
+   res
+}
+println foo()
+assert foo() == '[, Y, 1, 239]'
+      """
+    }
 }

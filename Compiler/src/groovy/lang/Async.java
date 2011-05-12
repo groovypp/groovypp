@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
 /**
- * Methods annotated by @Async will lead to creating another one, which can be called asynchroniously
+ * Methods annotated by @Async will lead to creating another one, which can be called asynchronously
  * New method will always return void and have same parameters plus one additional parameter of type 
  */
 @Retention(RetentionPolicy.SOURCE)
