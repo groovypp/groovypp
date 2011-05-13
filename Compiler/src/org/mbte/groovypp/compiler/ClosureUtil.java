@@ -153,10 +153,18 @@ public class ClosureUtil {
 
                 improveClosureType(closureType, baseType);
                 if(!missing.getReturnType().equals(ClassHelper.VOID_TYPE)) {
+                    ClassNode returnType = TypeUtil.wrapSafely(missing.getReturnType());
+                    ClassNode ret = TypeUtil.getSubstitutedType(returnType, missing.getDeclaringClass(), baseType);
+                    if ((returnType.equals(ret) || !returnType.isDerivedFrom(ret)) && !returnType.implementsInterface(ret)) {
+                        returnType = ret;
+                    }
+
+                    if(returnType.equals(ClassHelper.OBJECT_TYPE))
+                        returnType = TypeUtil.wrapSafely(missing.getReturnType());
                     if (method instanceof ClosureMethodNode.Dependent)
-                        ((ClosureMethodNode.Dependent)method).getMaster().setReturnType(TypeUtil.wrapSafely(missing.getReturnType()));
+                        ((ClosureMethodNode.Dependent)method).getMaster().setReturnType(returnType);
                     else
-                        method.setReturnType(TypeUtil.wrapSafely(missing.getReturnType()));
+                        method.setReturnType(returnType);
                 }
                 compiler.replaceMethodCode(closureType, method);
                 makeOneMethodClass(one, closureType, baseType, compiler, method);

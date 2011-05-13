@@ -168,7 +168,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
           <root url="jar://$USER_HOME$/.gradle/cache/org.mbte.groovypp/groovypp-nodep/jars/groovypp-nodep-0.4.225_1.7.10.jar!/" />
