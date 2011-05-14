@@ -28,7 +28,7 @@ import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 import org.objectweb.asm.Opcodes;
 
 public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpression> {
-    public Expression transform(ClosureExpression ce, CompilerTransformer compiler) {
+    public Expression transform(ClosureExpression ce, final CompilerTransformer compiler) {
 
         if (ce.getParameters() != null && ce.getParameters().length == 0) {
             final VariableScope scope = ce.getVariableScope();
@@ -50,8 +50,11 @@ public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpress
                 ce.getCode());
 
 
+        newType.setModule(compiler.classNode.getModule());
+
         _doCallMethod.getCode().visit(new LabeledClosureExtractor(compiler.su, newType) {
             protected void onExtractedMethod(MethodNode methodNode) {
+                // we are not ready to compile here because super class not set yet
             }
         });
 

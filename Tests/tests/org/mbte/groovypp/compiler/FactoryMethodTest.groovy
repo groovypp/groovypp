@@ -33,7 +33,10 @@ static UActor u(Creator<UActor> factory) {
 }
 
 def res = []
-u{{ msg -> res << msg }}.doIt ('lala')
+u{{ msg ->
+    transform: { x -> x.toString() }
+    res << transform(msg)
+}}.doIt ('lala')
 
 assert res == ['lala']
         """

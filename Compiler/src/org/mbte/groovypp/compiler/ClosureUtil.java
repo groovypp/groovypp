@@ -166,6 +166,11 @@ public class ClosureUtil {
                     else
                         method.setReturnType(returnType);
                 }
+                for(MethodNode mn: closureType.getMethods()) {
+                    if(mn.getReturnType().equals(TypeUtil.IMPROVE_TYPE)) {
+                        compiler.replaceMethodCode(closureType, mn);
+                    }
+                }
                 compiler.replaceMethodCode(closureType, method);
                 makeOneMethodClass(one, closureType, baseType, compiler, method);
                 return method;
