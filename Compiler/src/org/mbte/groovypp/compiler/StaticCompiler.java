@@ -78,7 +78,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         final ClosureMethodNode _doCallMethod = new ClosureMethodNode(
                 keyName,
                 Opcodes.ACC_PUBLIC|Opcodes.ACC_FINAL,
-                OBJECT_TYPE,
+                TypeUtil.IMPROVE_TYPE,
                 ce.getParameters() == null ? Parameter.EMPTY_ARRAY : ce.getParameters(),
                 ce.getCode());
 
@@ -365,17 +365,24 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         mv.visitJumpInsn(op, label);
     }
 
-    public void visitBlockStatement(BlockStatement block) {
-        compileStack.pushVariableScope(block.getVariableScope());
-        for (Statement statement : block.getStatements() ) {
-            if (statement instanceof BytecodeSequence)
-                visitBytecodeSequence((BytecodeSequence) statement);
+    public void visitBlockStatement(BlockStatement statement) {
+        if(statement.getStatementLabel() != null) {
+            ClosureExpression closureExpression = new ClosureExpression(null, statement);
+            closureExpression.setSourcePosition(statement);
+            closureToMethod(classNode, this, classNode, statement.getStatementLabel(), closureExpression);
+            return;
+        }
+
+        compileStack.pushVariableScope(statement.getVariableScope());
+        for (Statement st : statement.getStatements() ) {
+            if (st instanceof BytecodeSequence)
+                visitBytecodeSequence((BytecodeSequence) st);
             else {
-                if(statement instanceof org.mbte.groovypp.compiler.flow.LabelStatement) {
-                    mv.visitLabel(((org.mbte.groovypp.compiler.flow.LabelStatement)statement).labelExpression.label);
+                if(st instanceof org.mbte.groovypp.compiler.flow.LabelStatement) {
+                    mv.visitLabel(((org.mbte.groovypp.compiler.flow.LabelStatement)st).labelExpression.label);
                 }
                 else
-                    statement.visit(this);
+                    st.visit(this);
             }
         }
         compileStack.pop();
@@ -396,13 +403,13 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
     }
 
     public void visitExpressionStatement(ExpressionStatement statement) {
-//        if(statement.getStatementLabel() != null) {
-//            if(statement.getExpression() instanceof ClosureExpression) {
-//                closureToMethod(classNode, this, classNode, statement.getStatementLabel(), (ClosureExpression)statement.getExpression());
-//                return;
-//            }
-//        }
-//
+        if(statement.getStatementLabel() != null) {
+            if(statement.getExpression() instanceof ClosureExpression) {
+                closureToMethod(classNode, this, classNode, statement.getStatementLabel(), (ClosureExpression)statement.getExpression());
+                return;
+            }
+        }
+
         visitStatement(statement);
 
         super.visitExpressionStatement(statement);

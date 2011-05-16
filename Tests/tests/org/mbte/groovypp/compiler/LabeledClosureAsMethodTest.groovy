@@ -55,10 +55,6 @@ assert l.doIt() == 50
 @Typed package p
 
 sqrt: {
-  16
-}
-
-sqrt: {
   64
 }
 
@@ -76,4 +72,26 @@ assert var1 == 8
 
     """
   }
+
+
+    void testFieldInClosure () {
+        shell.evaluate """
+    @Typed package p
+
+    Callable u = {
+        @Field def f1, f2
+
+        preStart: {
+            f1 = "aaa"
+        }
+        postStop: {
+            f2 = "bbb"
+        }
+
+        "\${preStart ()} \${postStop()} \$f1 \$f2"
+    }
+
+    assert u() == 'aaa bbb aaa bbb'
+            """
+    }
 }

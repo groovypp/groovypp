@@ -238,6 +238,12 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             if (doCall != null) {
                 return expr;
             }
+            else {
+                if(cast.getType().equals(ClassHelper.CLOSURE_TYPE)) {
+                    compiler.processPendingClosure((CompiledClosureBytecodeExpr) expr);
+                    return expr;
+                }
+            }
         }
 
         if (cast.getType().equals(ClassHelper.STRING_TYPE)) {

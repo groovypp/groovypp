@@ -147,7 +147,7 @@ u()
 
     void testFoldLeftWithMap () {
         shell.evaluate """
-            @Typed(debug=true) package p
+            @Typed package p
 
             def res = [1,2,3,3,2,1].foldLeft (new HashMap<?,Integer>()) { el, map ->
                 map[el] = map.get(el,0) + 1

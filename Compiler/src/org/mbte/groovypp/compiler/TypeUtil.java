@@ -22,6 +22,7 @@ import org.codehaus.groovy.runtime.ScriptBytecodeAdapter;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.mbte.groovypp.compiler.ClosureClassNode;
 import org.mbte.groovypp.compiler.MethodSelection;
+import org.mbte.groovypp.runtime.CompilerImprovedTypes;
 import org.mbte.groovypp.runtime.HasDefaultImplementation;
 import org.mbte.groovypp.runtime.LinkedHashMapEx;
 import org.mbte.groovypp.runtime.NoExternalInitialization;
@@ -87,6 +88,7 @@ public class TypeUtil {
     public static final ClassNode IMPROVE_TYPE = new ClassNode(Object.class);
     public static final ClassNode FHASHMAP_TYPE = ClassHelper.make("groovypp.concurrent.FHashMap");
     public static final ClassNode FLIST_TYPE = ClassHelper.make("groovypp.concurrent.FList");
+    public static final ClassNode IMPROVED_TYPES = ClassHelper.make(CompilerImprovedTypes.class);
 
     public TypeUtil() {
         RAW_CLASS = new ClassNode(RawMarker.class);

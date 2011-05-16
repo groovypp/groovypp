@@ -32,7 +32,9 @@ public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpress
 
         if (ce.getParameters() != null && ce.getParameters().length == 0) {
             final VariableScope scope = ce.getVariableScope();
+            ClosureExpression old = ce;
             ce = new ClosureExpression(new Parameter[1], ce.getCode());
+            ce.setSourcePosition(old);
             ce.setVariableScope(scope);
             ce.getParameters()[0] = new Parameter(ClassHelper.OBJECT_TYPE, "it", new ConstantExpression(null));
         }

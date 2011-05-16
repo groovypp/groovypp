@@ -34,7 +34,6 @@ import org.codehaus.groovy.syntax.Types;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.classgen.Verifier;
-import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.flow.MapWithListExpression;
 import org.objectweb.asm.Opcodes;
 
@@ -47,62 +46,17 @@ import java.util.ArrayList;
 public class TraitASTTransform implements ASTTransformation, Opcodes {
 
     public TraitASTTransform() {
-        CleaningVerifier.getCompilationUnit().getConfiguration().setPluginFactory(new ParserPluginFactory() {
-            public ParserPlugin createParserPlugin() {
-                return new AntlrParserPlugin() {
-                    protected Expression declarationExpression(AST variableDef) {
-                        final DeclarationExpression expression = (DeclarationExpression) super.declarationExpression(variableDef);
-                        final VariableExpression variableExpression = expression.getVariableExpression();
-                        if(!ClassHelper.isPrimitiveType(variableExpression.getOriginType())) {
-                            variableExpression.setType(variableExpression.getOriginType());
-                        }
-                        return expression;
-                    }
-
-                    protected Expression mapExpression(AST mapNode) {
-                        List expressions = new ArrayList();
-                        ListExpression list = null;
-                        AST elist = mapNode.getFirstChild();
-                        if (elist != null) {  // totally empty in the case of [:]
-                            assertNodeType(ELIST, elist);
-                            for (AST node = elist.getFirstChild(); node != null; node = node.getNextSibling()) {
-                                switch (node.getType()) {
-                                    case LABELED_ARG:
-                                    case SPREAD_MAP_ARG:
-                                        expressions.add(mapEntryExpression(node));
-                                        break;  // legal cases
-                                    case SPREAD_ARG:
-                                        assertNodeType(SPREAD_MAP_ARG, node);
-                                        break;  // helpful error
-                                    default:
-                                        if(list == null)
-                                            list = new ListExpression();
-                                        list.addExpression(expression(node));
-                                        break;
-                                }
-                            }
-                        }
-                        if(list == null) {
-                            MapExpression mapExpression = new MapExpression(expressions);
-                            configureAST(mapExpression, mapNode);
-                            return mapExpression;
-                        }
-                        else {
-                            MapWithListExpression mapExpression = new MapWithListExpression(expressions, list);
-                            configureAST(mapExpression, mapNode);
-                            return mapExpression;
-                        }
-                    }
-                };
-            }
-        });
+        CleaningVerifier.getCompilationUnit().getConfiguration().setPluginFactory(new GppParserPluginFactory());
     }
 
     public void visit(ASTNode[] nodes, final SourceUnit source) {
         ModuleNode module = (ModuleNode) nodes[0];
         List<ClassNode> toProcess = new LinkedList<ClassNode>();
         final boolean forceTyped = source.getName().endsWith(".gpp");
-        AnnotationNode pkgTypedAnn = getTypedAnnotation(module.getPackage());
+
+        processPackageLevelUseAnnotation(module);
+
+        AnnotationNode pkgTypedAnn = getAnnotation(module.getPackage(), "Typed");
         for (ClassNode classNode : module.getClasses()) {
             VolatileFieldUpdaterTransform.addUpdaterForVolatileFields(classNode);
 
@@ -160,7 +114,7 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
 
             InnerClassNode innerClassNode = new InnerClassNode(classNode, fullName, ACC_PUBLIC|ACC_STATIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new ClassNode[]{classNode}, null);
             AnnotationNode typedAnn = new AnnotationNode(TypeUtil.TYPED);
-            final Expression member = getTypedAnnotation(classNode).getMember("debug");
+            final Expression member = getAnnotation(classNode, "Typed").getMember("debug");
             if (member != null && member instanceof ConstantExpression && ((ConstantExpression)member).getValue().equals(Boolean.TRUE))
                 typedAnn.addMember("debug", ConstantExpression.TRUE);
             innerClassNode.addAnnotation(typedAnn);
@@ -320,12 +274,46 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
         }
     }
 
-    private AnnotationNode getTypedAnnotation(AnnotatedNode node) {
+    private void processPackageLevelUseAnnotation(ModuleNode module) {
+        AnnotationNode pkgUseAnn = getAnnotation(module.getPackage(), "Use");
+        if(pkgUseAnn != null) {
+            final Expression member = pkgUseAnn.getMember("value");
+            if(member != null) {
+                for (ClassNode classNode : module.getClasses()) {
+                    final AnnotationNode use = getAnnotation(classNode, "Use");
+                    if(use != null) {
+                        final Expression value = use.getMember("value");
+                        final ListExpression listExpression = new ListExpression();
+                        if(value instanceof ListExpression) {
+                            listExpression.getExpressions().addAll(((ListExpression)value).getExpressions());
+                        }
+                        else {
+                            listExpression.getExpressions().add(value);
+                        }
+                        if(member instanceof ListExpression) {
+                            listExpression.getExpressions().addAll(((ListExpression)member).getExpressions());
+                        }
+                        else {
+                            listExpression.getExpressions().add(member);
+                        }
+                        use.setMember("value", listExpression);
+                    }
+                    else {
+                        final AnnotationNode annotationNode = new AnnotationNode(TypeUtil.USE);
+                        annotationNode.addMember("value", member);
+                        classNode.addAnnotation(annotationNode);
+                    }
+                }
+            }
+        }
+    }
+
+    private AnnotationNode getAnnotation(AnnotatedNode node, String annName) {
     	AnnotationNode pkgTyped = null;
     	if(node != null) {
         	for (AnnotationNode ann : node.getAnnotations()) {
                 final String withoutPackage = ann.getClassNode().getNameWithoutPackage();
-                if (withoutPackage.equals("Typed")) {
+                if (withoutPackage.equals(annName)) {
                 	pkgTyped = ann;
                 }
         	}
@@ -338,5 +326,55 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
         value.addMember("value", new ClassExpression(innerClassNode));
         value.addMember("fieldName", new ConstantExpression(fieldNode.getName()));
         getter.addAnnotation(value);
+    }
+
+    private static class GppParserPluginFactory extends ParserPluginFactory {
+        public ParserPlugin createParserPlugin() {
+            return new AntlrParserPlugin() {
+                protected Expression declarationExpression(AST variableDef) {
+                    final DeclarationExpression expression = (DeclarationExpression) super.declarationExpression(variableDef);
+                    final VariableExpression variableExpression = expression.getVariableExpression();
+                    if(!ClassHelper.isPrimitiveType(variableExpression.getOriginType())) {
+                        variableExpression.setType(variableExpression.getOriginType());
+                    }
+                    return expression;
+                }
+
+                protected Expression mapExpression(AST mapNode) {
+                    List expressions = new ArrayList();
+                    ListExpression list = null;
+                    AST elist = mapNode.getFirstChild();
+                    if (elist != null) {  // totally empty in the case of [:]
+                        assertNodeType(ELIST, elist);
+                        for (AST node = elist.getFirstChild(); node != null; node = node.getNextSibling()) {
+                            switch (node.getType()) {
+                                case LABELED_ARG:
+                                case SPREAD_MAP_ARG:
+                                    expressions.add(mapEntryExpression(node));
+                                    break;  // legal cases
+                                case SPREAD_ARG:
+                                    assertNodeType(SPREAD_MAP_ARG, node);
+                                    break;  // helpful error
+                                default:
+                                    if(list == null)
+                                        list = new ListExpression();
+                                    list.addExpression(expression(node));
+                                    break;
+                            }
+                        }
+                    }
+                    if(list == null) {
+                        MapExpression mapExpression = new MapExpression(expressions);
+                        configureAST(mapExpression, mapNode);
+                        return mapExpression;
+                    }
+                    else {
+                        MapWithListExpression mapExpression = new MapWithListExpression(expressions, list);
+                        configureAST(mapExpression, mapNode);
+                        return mapExpression;
+                    }
+                }
+            };
+        }
     }
 }

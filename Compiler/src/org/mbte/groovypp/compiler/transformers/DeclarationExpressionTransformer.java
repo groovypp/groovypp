@@ -47,21 +47,26 @@ public class DeclarationExpressionTransformer extends ExprTransformer<Declaratio
         }
 
         BytecodeExpr right = (BytecodeExpr) compiler.transformToGround(exp.getRightExpression());
-        if (right.getType() == TypeUtil.NULL_TYPE && ClassHelper.isPrimitiveType(ve.getType())) {
+        if (right.getType() == TypeUtil.NULL_TYPE && ClassHelper.isPrimitiveType(ve.getOriginType())) {
             final ConstantExpression cnst = new ConstantExpression(0);
             cnst.setSourcePosition(exp);
             right = (BytecodeExpr) compiler.transform(cnst);
         }
 
         if (hasFieldAnnotation(ve)) {
+            if(compiler.classNode.getDeclaredField(ve.getName()) != null) {
+                compiler.addError("Duplicated field " + ve.getName() + " in class " + compiler.classNode.getName(), ve);
+                return null;
+            }
+
             ClassNode type;
             if (!ve.getType().equals(ClassHelper.DYNAMIC_TYPE)) {
                 type = ve.getType();
             } else {
-                type = right.getType();
+                type = right.getType().equals(TypeUtil.NULL_TYPE) ? ClassHelper.DYNAMIC_TYPE : right.getType();
             }
 
-            FieldNode fieldNode = compiler.classNode.addField(compiler.classNode.isScript() && compiler.methodNode.getName().equals("run") ? ve.getName() : compiler.methodNode.getName() + "$" + ve.getName(), ACC_PRIVATE, type, exp.getRightExpression());
+            FieldNode fieldNode = compiler.classNode.addField(ve.getName(), ACC_PRIVATE, type, right);
             ClassNodeCache.clearCache(compiler.classNode);
             if(compiler.classNode instanceof ClosureClassNode)
                 fieldNode.addAnnotation(new AnnotationNode(TypeUtil.NO_EXTERNAL_INITIALIZATION));

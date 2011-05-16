@@ -164,8 +164,10 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
                 }
             }
 
-            if(changed)
+            if(changed) {
+                mn.addAnnotation(new AnnotationNode(TypeUtil.IMPROVED_TYPES));
                 ClassNodeCache.clearCache (mn.getDeclaringClass());
+            }
         }
     }
 

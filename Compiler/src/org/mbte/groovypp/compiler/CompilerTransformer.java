@@ -144,6 +144,9 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         else if (res.getType().declaresInterface(TypeUtil.TTHIS)) {
             res.setType(res.getType().getOuterClass());
         }
+        else if (res instanceof CompiledClosureBytecodeExpr) {
+            processPendingClosure((CompiledClosureBytecodeExpr) res);
+        }
         return res;
     }
 
@@ -347,7 +350,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         return nodes;
     }
 
-    public void mathOp(ClassNode type, Token op, BinaryExpression be) {
+    public void mathOp(MethodVisitor mv, ClassNode type, Token op, BinaryExpression be) {
         switch (op.getType()) {
             case Types.PLUS:
                 if (type == ClassHelper.int_TYPE)

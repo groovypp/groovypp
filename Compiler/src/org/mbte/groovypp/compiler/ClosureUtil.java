@@ -166,10 +166,20 @@ public class ClosureUtil {
                     else
                         method.setReturnType(returnType);
                 }
+
+                ArrayList<MethodNode> toCompile = new ArrayList<MethodNode>();
                 for(MethodNode mn: closureType.getMethods()) {
                     if(mn.getReturnType().equals(TypeUtil.IMPROVE_TYPE)) {
-                        compiler.replaceMethodCode(closureType, mn);
+                        toCompile.add(mn);
                     }
+                    else {
+                        if(!mn.getAnnotations(TypeUtil.IMPROVED_TYPES).isEmpty()) {
+                            toCompile.add(mn);
+                        }
+                    }
+                }
+                for(MethodNode mn : toCompile) {
+                    compiler.replaceMethodCode(closureType, mn);
                 }
                 compiler.replaceMethodCode(closureType, method);
                 makeOneMethodClass(one, closureType, baseType, compiler, method);
@@ -431,7 +441,7 @@ public class ClosureUtil {
             }
             else {
                 if (astVar instanceof VariableExpression && ((VariableExpression)astVar).getAccessedVariable() instanceof FieldNode) {
-                    vtype = ((FieldNode)((VariableExpression)astVar).getAccessedVariable()).getType();
+                    continue;
                 }
                 else
                     vtype = compiler.methodNode.getDeclaringClass().getField(astVar.getName()).getType();

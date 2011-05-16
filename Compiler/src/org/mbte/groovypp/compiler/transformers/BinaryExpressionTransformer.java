@@ -314,7 +314,7 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
                     if (ClassHelper.isPrimitiveType(mathType))
                         unbox(mathType, mv);
 
-                    compiler.mathOp(mathType, be.getOperation(), be);
+                    compiler.mathOp(mv, mathType, be.getOperation(), be);
                 }
             };
         } else if (l.getType() == ClassHelper.STRING_TYPE && tokenType == Types.PLUS) {

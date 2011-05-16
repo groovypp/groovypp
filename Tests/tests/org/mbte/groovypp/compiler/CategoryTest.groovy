@@ -188,4 +188,32 @@ class A{
     """
   }
 
+    void testPackageUse () {
+        shell.evaluate """
+@Typed @Use([Arrays,Collections]) package p
+
+try {
+    [].unmodifiableCollection() << 'lala'
+    assert false
+}
+catch(UnsupportedOperationException e){
+}
+
+@Use(Object)
+class A{
+    static void test () {
+        try {
+            [[]].each {
+                it.unmodifiableCollection() << 'lala'
+            }
+            assert false
+        }
+        catch(UnsupportedOperationException e){
+        }
+    }
+}
+
+A.test()
+        """
+    }
 }
