@@ -54,12 +54,6 @@ public class ClosureExpressionTransformer extends ExprTransformer<ClosureExpress
 
         newType.setModule(compiler.classNode.getModule());
 
-        _doCallMethod.getCode().visit(new LabeledClosureExtractor(compiler.su, newType) {
-            protected void onExtractedMethod(MethodNode methodNode) {
-                // we are not ready to compile here because super class not set yet
-            }
-        });
-
         newType.addMethod(_doCallMethod);
         newType.setDoCallMethod(_doCallMethod);
 

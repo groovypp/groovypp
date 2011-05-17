@@ -232,13 +232,6 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
         if (code == null)
             return;
 
-        code.visit(new LabeledClosureExtractor(source, mn.getDeclaringClass()) {
-            protected void onExtractedMethod(MethodNode methodNode) {
-                addMethodToProcessingQueue(source, toProcess, methodPolicy, methodNode, methods);
-                methods.addLast(methodNode);
-            }
-        });
-
         toProcess.put(mn, methodPolicy);
 
         code.visit(new CodeVisitorSupport(){
