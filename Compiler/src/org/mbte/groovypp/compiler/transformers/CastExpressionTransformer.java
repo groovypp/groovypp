@@ -25,6 +25,7 @@ import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
 import org.mbte.groovypp.compiler.flow.MapWithListExpression;
+import org.mbte.groovypp.compiler.flow.MultiPropertySetExpression;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -61,6 +62,13 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             if(cast.getType().equals(constant.getType())) {
                 return constant;
             }
+        }
+
+        if(cast.getExpression() instanceof MultiPropertySetExpression) {
+            final MultiPropertySetExpression multiPropertySetExpression = (MultiPropertySetExpression) cast.getExpression();
+            final MultiPropertySetExpression exp = new MultiPropertySetExpression( compiler.cast(multiPropertySetExpression.getObject(), cast.getType()), multiPropertySetExpression.getProperties());
+            exp.setSourcePosition(multiPropertySetExpression);
+            return (BytecodeExpr) compiler.transform(exp);
         }
 
         if (cast.getExpression() instanceof TernaryExpression) {
