@@ -1,107 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <module relativePaths="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager">
-    <exclude-output/>
-    <orderEntry type="inheritedJdk"/>
-    <content url="file://$MODULE_DIR$/">
-      <sourceFolder url="file://$MODULE_DIR$/src/main/groovy" isTestSource="false"/>
-      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false"/>
-      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false"/>
-      <sourceFolder url="file://$MODULE_DIR$/src/test/groovy" isTestSource="true"/>
-      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" isTestSource="true"/>
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true"/>
-      <excludeFolder url="file://$MODULE_DIR$/build"/>
-      <excludeFolder url="file://$MODULE_DIR$/.gradle"/>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/build/classes/main" />
+    <output-test url="file://$MODULE_DIR$/build/classes/test" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../Compiler/src">
+      <sourceFolder url="file://$MODULE_DIR$/../Compiler/src" isTestSource="false" />
     </content>
-    <orderEntry type="sourceFolder" forTests="false"/>
-    <output url="file://$MODULE_DIR$/build/classes/main"/>
-    <output-test url="file://$MODULE_DIR$/build/classes/test"/>
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/install" />
+    </content>
+    <content url="file://$MODULE_DIR$/../StdLib/src" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar:///Users/ait/.gradle/cache/org.codehaus.groovy/groovy/jars/groovy-1.8.0-rc-4.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/org.codehaus.groovy/groovy/jars/groovy-1.8.0.jar!/" />
         </CLASSES>
-        <JAVADOC/>
+        <JAVADOC />
         <SOURCES>
-          <root url="jar:///Users/ait/.gradle/cache/org.codehaus.groovy/groovy/sources/groovy-1.8.0-rc-4-sources.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/org.codehaus.groovy/groovy/sources/groovy-1.8.0-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar:///Users/ait/.gradle/cache/antlr/antlr/jars/antlr-2.7.7.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/antlr/antlr/jars/antlr-2.7.7.jar!/" />
         </CLASSES>
-        <JAVADOC/>
-        <SOURCES/>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar:///Users/ait/.gradle/cache/asm/asm/jars/asm-3.2.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/asm/asm/jars/asm-3.2.jar!/" />
         </CLASSES>
-        <JAVADOC/>
-        <SOURCES/>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar:///Users/ait/.gradle/cache/asm/asm-commons/jars/asm-commons-3.2.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/asm/asm-commons/jars/asm-commons-3.2.jar!/" />
         </CLASSES>
-        <JAVADOC/>
-        <SOURCES/>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar:///Users/ait/.gradle/cache/asm/asm-tree/jars/asm-tree-3.2.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/asm/asm-tree/jars/asm-tree-3.2.jar!/" />
         </CLASSES>
-        <JAVADOC/>
-        <SOURCES/>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar:///Users/ait/.gradle/cache/asm/asm-util/jars/asm-util-3.2.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/asm/asm-util/jars/asm-util-3.2.jar!/" />
         </CLASSES>
-        <JAVADOC/>
-        <SOURCES/>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar:///Users/ait/.gradle/cache/asm/asm-analysis/jars/asm-analysis-3.2.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/asm/asm-analysis/jars/asm-analysis-3.2.jar!/" />
         </CLASSES>
-        <JAVADOC/>
-        <SOURCES/>
+        <JAVADOC />
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar:///Users/ait/.gradle/cache/org.mbte.groovypp/groovypp-nodep/jars/groovypp-nodep-0.4.225_1.8.0-rc-4.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/junit/junit/jars/junit-4.8.1.jar!/" />
         </CLASSES>
-        <JAVADOC/>
+        <JAVADOC />
         <SOURCES>
-          <root url="jar:///Users/ait/.gradle/cache/org.mbte.groovypp/groovypp-nodep/sources/groovypp-nodep-0.4.225_1.8.0-rc-4-sources.jar!/"/>
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar:///Users/ait/.gradle/cache/junit/junit/jars/junit-4.8.1.jar!/"/>
-        </CLASSES>
-        <JAVADOC/>
-        <SOURCES>
-          <root url="jar:///Users/ait/.gradle/cache/junit/junit/sources/junit-4.8.1-sources.jar!/"/>
+          <root url="jar://$USER_HOME$/.gradle/cache/junit/junit/sources/junit-4.8.1-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
   </component>
-  <component name="ModuleRootManager"/>
 </module>
+

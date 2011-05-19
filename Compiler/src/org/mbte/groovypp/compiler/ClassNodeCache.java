@@ -178,7 +178,7 @@ public class ClassNodeCache {
             }
             return info;
         } else {
-            Class typeClass = classNode.getTypeClass();
+            Class typeClass = TypeUtil.getTypeClassSafely(classNode, CleaningVerifier.getCompilationUnit().getClassLoader());
             final SoftReference<ClassNodeInfo> ref = loadedClassesCache.get(typeClass);
             ClassNodeInfo cni;
             if (ref == null || (cni = ref.get()) == null) {

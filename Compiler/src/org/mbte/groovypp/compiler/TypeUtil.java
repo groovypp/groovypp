@@ -17,6 +17,7 @@
 package org.mbte.groovypp.compiler;
 
 import groovy.lang.*;
+import org.codehaus.groovy.GroovyBugError;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.runtime.ScriptBytecodeAdapter;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
@@ -31,6 +32,8 @@ import org.mbte.groovypp.runtime.powerassert.PowerAssertionError;
 import org.mbte.groovypp.runtime.powerassert.ValueRecorder;
 import org.objectweb.asm.Opcodes;
 
+import java.lang.reflect.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
@@ -641,5 +644,27 @@ public class TypeUtil {
     public static ClassNode wrapSafely(ClassNode type) {
         if (ClassHelper.isPrimitiveType(type)) return ClassHelper.getWrapper(type);
         else return type;
+    }
+
+    public static Class getTypeClassSafely(ClassNode classNode, ClassLoader loader) {
+        try {
+            return classNode.getTypeClass();
+        }
+        catch (GroovyBugError e) {
+            try {
+                final Class<?> aClass = loader.loadClass(classNode.getName());
+                try {
+                    final Field isPrimaryNode = ClassNode.class.getDeclaredField("isPrimaryNode");
+                    isPrimaryNode.setAccessible(true);
+                    isPrimaryNode.set(classNode, false);
+                    classNode.setRedirect(ClassHelper.make(aClass));
+                    return aClass;
+                } catch (NoSuchFieldException e1) {
+                } catch (IllegalAccessException e1) {
+                }
+            } catch (ClassNotFoundException e1) {
+            }
+            throw e;
+        }
     }
 }
