@@ -46,6 +46,11 @@ import org.codehaus.groovy.ast.expr.ClosureExpression
                     res.sourcePosition = src
                     return res
 
+                case BooleanExpression:
+                    BooleanExpression res = [normalize(src.expression)]
+                    res.sourcePosition = src
+                    return res
+
                 case BinaryExpression:
                     switch (src.operation.type) {
                         case Types.LOGICAL_AND:
@@ -66,42 +71,50 @@ import org.codehaus.groovy.ast.expr.ClosureExpression
                 case JumpIfExpression:
                     def condition = src.condition
                     switch(condition) {
-                        case AndExpression:
-                            // jif a && b, L =>
-                            //
-                            // jif !a, end
-                            // jif b, L
-                            // end:
-                            LabelExpression end = [src]
-                            ExpressionList res = [src, ClassHelper.VOID_TYPE]
-
-                            JumpIfExpression na = [end, negate(condition.left)]
-                            na.sourcePosition = condition.left
-
-                            JumpIfExpression  b = [src.targetExpression, condition.right]
-                            b.sourcePosition = condition.right
-
-                            // @todo probably unneded recursion here
-                            return res << normalize(na) << b << end
-
-                        case OrExpression:
-                            // jif a || b, L =>
-                            //
-                            // jif a, L
-                            // jif b, L
-                            ExpressionList res = [src, ClassHelper.VOID_TYPE]
-
-                            JumpIfExpression a = [src.targetExpression, condition.left]
-                            a.sourcePosition = condition.left
-
-                            JumpIfExpression  b = [src.targetExpression, condition.right]
-                            b.sourcePosition = condition.right
-
-                            return res << a << b
-
-                        default:
+                        case NotExpression:
                             return src
+
+                        case BooleanExpression:
+                            def expr = condition.expression
+                            switch(expr) {
+                                case AndExpression:
+                                    // jif a && b, L =>
+                                    //
+                                    // jif !a, end
+                                    // jif b, L
+                                    // end:
+                                    LabelExpression end = [src]
+                                    ExpressionList res = [src, ClassHelper.VOID_TYPE]
+
+                                    JumpIfExpression na = [end, negate(expr.left)]
+                                    na.sourcePosition = expr.left
+
+                                    JumpIfExpression  b = [src.targetExpression, expr.right]
+                                    b.sourcePosition = expr.right
+
+                                    return new BooleanExpression(res << normalize(na) << b << end)[sourcePosition: src]
+
+                                case OrExpression:
+                                    // jif a || b, L =>
+                                    //
+                                    // jif a, L
+                                    // jif b, L
+                                    ExpressionList res = [src, ClassHelper.VOID_TYPE]
+
+                                    JumpIfExpression a = [src.targetExpression, expr.left]
+                                    a.sourcePosition = expr.left
+
+                                    JumpIfExpression  b = [src.targetExpression, expr.right]
+                                    b.sourcePosition = expr.right
+
+                                    return new BooleanExpression(res << a << b)[sourcePosition: src]
+
+                                default:
+                                    return src
+
+                            }
                     }
+                    return src
                 break
 
                 default:
@@ -214,6 +227,22 @@ import org.codehaus.groovy.ast.expr.ClosureExpression
                 BooleanExpression res = [negate(src.expression)]
                 res.sourcePosition = src
                 return res
+
+            case BinaryExpression:
+                switch (src.operation.type) {
+                    case Types.LOGICAL_AND:
+                        def res = new OrExpression(negate(src.leftExpression), negate(src.rightExpression), src.operation)
+                        res.sourcePosition = src
+                        return res
+
+                    case Types.LOGICAL_OR:
+                        def res = new AndExpression(negate(src.leftExpression), negate(src.rightExpression), src.operation)
+                        res.sourcePosition = src
+                        return res
+
+                    default:
+                        return new NotExpression(src)
+                }
 
             case AndExpression:
                 OrExpression res = [negate(src.left), negate(src.right), src.operation]

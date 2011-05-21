@@ -11,7 +11,9 @@
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/install" />
     </content>
-    <content url="file://$MODULE_DIR$/../StdLib/src" />
+    <content url="file://$MODULE_DIR$/../StdLib/src">
+      <sourceFolder url="file://$MODULE_DIR$/../StdLib/src" isTestSource="false" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library" exported="">

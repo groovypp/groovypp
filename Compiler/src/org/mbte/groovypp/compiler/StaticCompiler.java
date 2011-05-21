@@ -335,35 +335,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
         mv.visitLabel(noError);
     }
 
-    private static final String DTT = BytecodeHelper.getClassInternalName(DefaultTypeTransformation.class.getName());
-
-    public static void branch(BytecodeExpr be, int op, Label label, MethodVisitor mv) {
-        // type non-primitive
-        final ClassNode type = be.getType();
-
-        if (type == ClassHelper.Boolean_TYPE) {
-            BytecodeExpr.unbox(ClassHelper.boolean_TYPE, mv);
-        } else {
-            if (ClassHelper.isPrimitiveType(type)) {
-                // unwrapper - primitive
-                if (type == ClassHelper.byte_TYPE
-                        || type == ClassHelper.short_TYPE
-                        || type == ClassHelper.char_TYPE
-                        || type == ClassHelper.int_TYPE) {
-                } else if (type == ClassHelper.long_TYPE) {
-                    mv.visitInsn(L2I);
-                } else if (type == ClassHelper.float_TYPE) {
-                    mv.visitInsn(F2I);
-                } else if (type == ClassHelper.double_TYPE) {
-                    mv.visitInsn(D2I);
-                }
-            } else {
-
-                mv.visitMethodInsn(INVOKESTATIC, DTT, "castToBoolean", "(Ljava/lang/Object;)Z");
-            }
-        }
-        mv.visitJumpInsn(op, label);
-    }
+    public static final String DTT = BytecodeHelper.getClassInternalName(DefaultTypeTransformation.class.getName());
 
     public void visitBlockStatement(BlockStatement statement) {
         if(statement.getStatementLabel() != null) {

@@ -202,36 +202,51 @@ public class BinaryExpressionTransformer extends ExprTransformer<BinaryExpressio
     private BytecodeExpr evaluateInstanceof(final BinaryExpression be, final CompilerTransformer compiler, final Label label, final boolean onTrue) {
         final BytecodeExpr l = (BytecodeExpr) compiler.transform(be.getLeftExpression());
         final ClassNode type = be.getRightExpression().getType();
-        boolean weakInference = false;
         if(be.getLeftExpression() instanceof VariableExpression) {
-            VariableExpression leftExpression = (VariableExpression) be.getLeftExpression();
+            final VariableExpression leftExpression = (VariableExpression) be.getLeftExpression();
             if(leftExpression.getType() == ClassHelper.DYNAMIC_TYPE && !(leftExpression.getName().equals("this"))) {
                 if(onTrue) {
                     compiler.addLocalVarInferenceType(label, leftExpression, type, ((ResolvedVarBytecodeExpr) l).var.getIndex());
+                    return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
+                        protected void compile(MethodVisitor mv) {
+                            l.visit(mv);
+                            box(l.getType(), mv);
+                            mv.visitTypeInsn(INSTANCEOF, BytecodeHelper.getClassInternalName(type));
+                            mv.visitJumpInsn(IFNE, label);
+                        }
+                    };
                 }
                 else {
-                    weakInference = true;
+                    final LocalVarInferenceTypes inferenceTypes = compiler.getLocalVarInferenceTypes();
+                    final ClassNode saved = inferenceTypes.get(leftExpression);
+                    inferenceTypes.add(leftExpression, type);
+                    return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
+                        protected void compile(MethodVisitor mv) {
+                            inferenceTypes.add(leftExpression, saved);
+                            l.visit(mv);
+                            box(l.getType(), mv);
+                            mv.visitTypeInsn(INSTANCEOF, BytecodeHelper.getClassInternalName(type));
+                            mv.visitJumpInsn(IFEQ, label);
+                            VariableExpression leftExpression = (VariableExpression) be.getLeftExpression();
+                            inferenceTypes.add(leftExpression, type);
+
+                            Register var = compiler.compileStack.getRegister(leftExpression.getName(), true);
+
+                            // we do it in order to make JVM verifier happy and do not check cast on each use of variable
+                            mv.visitVarInsn(ALOAD, var.getIndex());
+                            mv.visitTypeInsn(CHECKCAST, BytecodeHelper.getClassInternalName(type));
+                            mv.visitVarInsn(ASTORE, var.getIndex());
+                        }
+                    };
                 }
             }
         }
-        final boolean finalWeakInference = weakInference;
         return new BytecodeExpr(be, ClassHelper.VOID_TYPE) {
             protected void compile(MethodVisitor mv) {
                 l.visit(mv);
                 box(l.getType(), mv);
                 mv.visitTypeInsn(INSTANCEOF, BytecodeHelper.getClassInternalName(type));
                 mv.visitJumpInsn(onTrue ? IFNE : IFEQ, label);
-                if(finalWeakInference) {
-                    VariableExpression leftExpression = (VariableExpression) be.getLeftExpression();
-                    compiler.getLocalVarInferenceTypes().add(leftExpression, type);
-
-                    Register var = compiler.compileStack.getRegister(leftExpression.getName(), true);
-
-                    // we do it in order to make JVM verifier happy and do not check cast on each use of variable
-                    mv.visitVarInsn(ALOAD, var.getIndex());
-                    mv.visitTypeInsn(CHECKCAST, BytecodeHelper.getClassInternalName(type));
-                    mv.visitVarInsn(ASTORE, var.getIndex());
-                }
             }
         };
     }

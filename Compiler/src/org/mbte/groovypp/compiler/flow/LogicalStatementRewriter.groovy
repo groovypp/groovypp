@@ -47,15 +47,13 @@ import org.codehaus.groovy.ast.stmt.*
                         ExpressionStatement jis1 = [new JumpIfExpression(_false.labelExpression, (BooleanExpression)notExpression)]
                         jis1.expression.sourcePosition = condition
                         jis1.sourcePosition = statement
-                        list.add(jis1);
+                        list << jis1
 
                         list.add(rewrite(statement.ifBlock, scope));
                         ExpressionStatement jis2 = [new JumpIfExpression(end.labelExpression, null)];
                         jis1.expression.sourcePosition = statement.elseBlock
                         jis1.sourcePosition = statement.elseBlock
-                        list.add(jis2);
-                        list.add(_false);
-                        list.add(rewrite(statement.elseBlock, scope));
+                        list << jis2 << _false << rewrite(statement.elseBlock, scope)
                     }
                     else {
                         // if(C) {} else F =>
@@ -66,8 +64,7 @@ import org.codehaus.groovy.ast.stmt.*
                         final ExpressionStatement jis = [new JumpIfExpression(end.labelExpression, condition)]
                         jis.expression.sourcePosition = condition
                         jis.sourcePosition = statement
-                        list.add(jis);
-                        list.add(rewrite(statement.elseBlock, scope));
+                        list << jis << rewrite(statement.elseBlock, scope)
                     }
                 } else {
                     // if(C) T =>
@@ -78,8 +75,7 @@ import org.codehaus.groovy.ast.stmt.*
                     final ExpressionStatement jis = [new JumpIfExpression(end.labelExpression, (BooleanExpression)notExpression)]
                     jis.expression.sourcePosition = condition
                     jis.sourcePosition = statement
-                    list.add(jis);
-                    list.add(rewrite(statement.ifBlock, scope));
+                    list << jis << rewrite(statement.ifBlock, scope)
                 }
                 list.add(end);
 

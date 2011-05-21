@@ -44,14 +44,20 @@ public class LocalVarInferenceTypes extends BytecodeLabelInfo {
             defVars = FHashMap.emptyMap;
 
         if (ve.getAccessedVariable() != null) {
-            defVars = defVars.put(ve.getAccessedVariable(), type);
+            if(type != null)
+                defVars = defVars.put(ve.getAccessedVariable(), type);
+            else
+                defVars = defVars.remove(ve.getAccessedVariable());
 //            dumpMap(ve);
         }
         else {
             boolean done = false;
             for (Map.Entry<Variable,ClassNode> variable : defVars.entrySet()) {
                 if (variable.getKey().getName().equals(ve.getName())) {
-                    defVars = defVars.put(variable.getKey(), type);
+                    if(type != null)
+                        defVars = defVars.put(variable.getKey(), type);
+                    else
+                        defVars = defVars.remove(variable.getKey());
 //                    dumpMap(ve);
                     done = true;
                     break;
@@ -59,12 +65,15 @@ public class LocalVarInferenceTypes extends BytecodeLabelInfo {
             }
 
             if (!done) {
-                defVars = defVars.put(ve, type);
+                if(type != null)
+                    defVars = defVars.put(ve, type);
+                else
+                    defVars = defVars.remove(ve);
 //                dumpMap(ve);
             }
         }
 
-        if (parentScopeInference != null && parentScopeInference.defVars != null) {
+        if (type != null && parentScopeInference != null && parentScopeInference.defVars != null) {
             final ClassNode oldType = parentScopeInference.defVars.get(ve.getAccessedVariable());
             if (oldType != null) {
                 if (!TypeUtil.isDirectlyAssignableFrom(oldType, type)) {
