@@ -30,6 +30,7 @@ public class CompiledClosureBytecodeExpr extends BytecodeExpr {
     public CompiledClosureBytecodeExpr(CompilerTransformer compiler, ClosureExpression ce, ClassNode newType) {
         super(ce, newType);
         this.compiler = compiler;
+        setSourcePosition(ce);
 
         ClosureUtil.addFields(ce, newType, compiler);
 

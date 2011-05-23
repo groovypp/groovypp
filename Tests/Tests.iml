@@ -68,7 +68,7 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="Compiler" />
+    <orderEntry type="module" module-name="Compiler" exported="" />
   </component>
 </module>
 

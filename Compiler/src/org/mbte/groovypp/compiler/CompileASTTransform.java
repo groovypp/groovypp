@@ -164,8 +164,10 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
                 }
             }
 
-            if(changed)
+            if(changed) {
+                mn.addAnnotation(new AnnotationNode(TypeUtil.IMPROVED_TYPES));
                 ClassNodeCache.clearCache (mn.getDeclaringClass());
+            }
         }
     }
 
@@ -229,13 +231,6 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
         final Statement code = mn.getCode();
         if (code == null)
             return;
-
-        code.visit(new LabeledClosureExtractor(source, mn.getDeclaringClass()) {
-            protected void onExtractedMethod(MethodNode methodNode) {
-                addMethodToProcessingQueue(source, toProcess, methodPolicy, methodNode, methods);
-                methods.addLast(methodNode);
-            }
-        });
 
         toProcess.put(mn, methodPolicy);
 

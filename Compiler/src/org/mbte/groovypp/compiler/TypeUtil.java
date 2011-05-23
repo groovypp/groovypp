@@ -17,11 +17,13 @@
 package org.mbte.groovypp.compiler;
 
 import groovy.lang.*;
+import org.codehaus.groovy.GroovyBugError;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.runtime.ScriptBytecodeAdapter;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.mbte.groovypp.compiler.ClosureClassNode;
 import org.mbte.groovypp.compiler.MethodSelection;
+import org.mbte.groovypp.runtime.CompilerImprovedTypes;
 import org.mbte.groovypp.runtime.HasDefaultImplementation;
 import org.mbte.groovypp.runtime.LinkedHashMapEx;
 import org.mbte.groovypp.runtime.NoExternalInitialization;
@@ -30,6 +32,8 @@ import org.mbte.groovypp.runtime.powerassert.PowerAssertionError;
 import org.mbte.groovypp.runtime.powerassert.ValueRecorder;
 import org.objectweb.asm.Opcodes;
 
+import java.lang.reflect.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
@@ -87,6 +91,7 @@ public class TypeUtil {
     public static final ClassNode IMPROVE_TYPE = new ClassNode(Object.class);
     public static final ClassNode FHASHMAP_TYPE = ClassHelper.make("groovypp.concurrent.FHashMap");
     public static final ClassNode FLIST_TYPE = ClassHelper.make("groovypp.concurrent.FList");
+    public static final ClassNode IMPROVED_TYPES = ClassHelper.make(CompilerImprovedTypes.class);
 
     public TypeUtil() {
         RAW_CLASS = new ClassNode(RawMarker.class);
@@ -639,5 +644,27 @@ public class TypeUtil {
     public static ClassNode wrapSafely(ClassNode type) {
         if (ClassHelper.isPrimitiveType(type)) return ClassHelper.getWrapper(type);
         else return type;
+    }
+
+    public static Class getTypeClassSafely(ClassNode classNode, ClassLoader loader) {
+        try {
+            return classNode.getTypeClass();
+        }
+        catch (GroovyBugError e) {
+            try {
+                final Class<?> aClass = loader.loadClass(classNode.getName());
+                try {
+                    final Field isPrimaryNode = ClassNode.class.getDeclaredField("isPrimaryNode");
+                    isPrimaryNode.setAccessible(true);
+                    isPrimaryNode.set(classNode, false);
+                    classNode.setRedirect(ClassHelper.make(aClass));
+                    return aClass;
+                } catch (NoSuchFieldException e1) {
+                } catch (IllegalAccessException e1) {
+                }
+            } catch (ClassNotFoundException e1) {
+            }
+            throw e;
+        }
     }
 }

@@ -94,7 +94,7 @@ public class GStringExpressionTransformer extends ExprTransformer<GStringExpress
                 acc.setSourcePosition(exp);
 
                 if (i < values.size()) {
-                    acc = new StaticMethodCallExpression(FORMAT, "toString", new ArgumentListExpression(values.get(i), acc));
+                    acc = new StaticMethodCallExpression(FORMAT, "formatAndAppend", new ArgumentListExpression(acc, values.get(i)));
                     acc.setSourcePosition(exp);
                 }
             }

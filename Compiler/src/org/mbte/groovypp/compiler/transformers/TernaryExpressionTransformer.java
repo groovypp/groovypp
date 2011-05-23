@@ -107,6 +107,7 @@ public class TernaryExpressionTransformer extends ExprTransformer<TernaryExpress
             if (exp instanceof ElvisOperatorExpression)
                 return transform(compiler);
 
+            final BytecodeExpr boolE  = (BytecodeExpr) compiler.transform(exp.getBooleanExpression());
             final BytecodeExpr trueE  = (BytecodeExpr) compiler.transform(exp.getTrueExpression());
             final BytecodeExpr falseE = (BytecodeExpr) compiler.transform(exp.getFalseExpression());
 

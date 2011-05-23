@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.groovypp.compiler.Issues
+package org.mbte.groovypp.compiler
 
-class Issue372Test extends GroovyShellTestCase {
-    void testCastExpressionInReturnStmtWithObjectType () {
+class FactoryMethodTest extends GroovyShellTestCase {
+    void testMe () {
         shell.evaluate """
-            @Typed def foo() { 
-                Object a = Integer
-                assert a instanceof Class
-            }
-            foo()
-        """
-    }
-    void testCastExpressionBeforeReturnStmtWithObjectType () {
-        shell.evaluate """
-            @Typed def foo() { 
-                Object a = Integer
-            }
-            foo()
+@Typed package p
+
+abstract class UActor {
+    abstract def doIt (msg)
+}
+
+abstract class Creator<T>{
+    abstract T create ()
+}
+
+static UActor u(Creator<UActor> factory) {
+    factory.create()
+}
+
+def res = []
+u{{ msg ->
+    transform: { x -> x.toString() }
+    res << transform(msg)
+}}.doIt ('lala')
+
+assert res == ['lala']
         """
     }
 }

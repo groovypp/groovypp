@@ -153,4 +153,67 @@ new Category.Tester().doTest ()
 //new Category2().doTest ()
 //        """
     }
+
+
+    void testUseTime () {
+      shell.evaluate """
+@Typed package p
+import groovy.time.TimeCategory
+import groovy.time.TimeDuration
+@Use(TimeCategory)
+class A{
+  void doIt () {
+    def now = new Date()
+    def twoMonthsAgo = now - (new Integer(2)).months
+    assert 10.millisecond instanceof TimeDuration
+  }
+}
+  new A().doIt ()
+      """
+    }
+
+  void testUseTime2 () {
+    shell.evaluate """
+    import groovy.time.TimeCategory
+
+    @Typed
+    @Use(TimeCategory)
+    class MyClass {
+        def twoMonthsAgo() {
+            return new Date() - 2.months
+        }
+    }
+
+    new MyClass().twoMonthsAgo()
+    """
+  }
+
+    void testPackageUse () {
+        shell.evaluate """
+@Typed @Use([Arrays,Collections]) package p
+
+try {
+    [].unmodifiableCollection() << 'lala'
+    assert false
+}
+catch(UnsupportedOperationException e){
+}
+
+@Use(Object)
+class A{
+    static void test () {
+        try {
+            [[]].each {
+                it.unmodifiableCollection() << 'lala'
+            }
+            assert false
+        }
+        catch(UnsupportedOperationException e){
+        }
+    }
+}
+
+A.test()
+        """
+    }
 }

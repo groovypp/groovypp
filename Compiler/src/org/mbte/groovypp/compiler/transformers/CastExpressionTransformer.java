@@ -25,6 +25,7 @@ import org.mbte.groovypp.compiler.bytecode.InnerThisBytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.PropertyUtil;
 import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
 import org.mbte.groovypp.compiler.flow.MapWithListExpression;
+import org.mbte.groovypp.compiler.flow.MultiPropertySetExpression;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -63,11 +64,18 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             }
         }
 
+        if(cast.getExpression() instanceof MultiPropertySetExpression) {
+            final MultiPropertySetExpression multiPropertySetExpression = (MultiPropertySetExpression) cast.getExpression();
+            final MultiPropertySetExpression exp = new MultiPropertySetExpression( compiler.cast(multiPropertySetExpression.getObject(), cast.getType()), multiPropertySetExpression.getProperties());
+            exp.setSourcePosition(multiPropertySetExpression);
+            return (BytecodeExpr) compiler.transform(exp);
+        }
+
         if (cast.getExpression() instanceof TernaryExpression) {
             return compiler.cast(cast.getExpression(), cast.getType());
         }
 
-        if (cast.getExpression() instanceof ClassExpression && !cast.getType().equals(ClassHelper.CLASS_Type)) {
+        if (cast.getExpression() instanceof ClassExpression && !cast.getType().equals(ClassHelper.CLASS_Type) && !cast.getType().equals(ClassHelper.OBJECT_TYPE)) {
             ClassExpression exp = (ClassExpression) cast.getExpression();
             ConstructorCallExpression newCall = new ConstructorCallExpression(exp.getType(), new ArgumentListExpression());
             newCall.setSourcePosition(exp);
@@ -237,6 +245,12 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             MethodNode doCall = ClosureUtil.isMatch(one, (ClosureClassNode) expr.getType(), cast.getType(), compiler);
             if (doCall != null) {
                 return expr;
+            }
+            else {
+                if(cast.getType().equals(ClassHelper.CLOSURE_TYPE)) {
+                    compiler.processPendingClosure((CompiledClosureBytecodeExpr) expr);
+                    return expr;
+                }
             }
         }
 

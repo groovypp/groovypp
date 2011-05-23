@@ -144,6 +144,9 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         else if (res.getType().declaresInterface(TypeUtil.TTHIS)) {
             res.setType(res.getType().getOuterClass());
         }
+        else if (res instanceof CompiledClosureBytecodeExpr) {
+            processPendingClosure((CompiledClosureBytecodeExpr) res);
+        }
         return res;
     }
 
@@ -218,6 +221,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     }
 
     private Object findCategoryMethod(ClassNode category, String methodName, ClassNode objectType, ClassNode [] args, Object candidates) {
+        objectType = ClassHelper.getWrapper(objectType);
         final Object o = ClassNodeCache.getStaticMethods(category, methodName);
         if (o instanceof MethodNode) {
             MethodNode mn = (MethodNode) o;
@@ -277,6 +281,9 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
 
             if (candidates == null) {
                 candidates = findCategoryMethod(classNode, methodName, type, args, candidates);
+            }
+
+            if(candidates == null) {
                 final List<AnnotationNode> list = classNode.getAnnotations(TypeUtil.USE);
                 for (AnnotationNode annotationNode : list) {
                     final Expression member = annotationNode.getMember("value");
@@ -343,7 +350,7 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
         return nodes;
     }
 
-    public void mathOp(ClassNode type, Token op, BinaryExpression be) {
+    public void mathOp(MethodVisitor mv, ClassNode type, Token op, BinaryExpression be) {
         switch (op.getType()) {
             case Types.PLUS:
                 if (type == ClassHelper.int_TYPE)

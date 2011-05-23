@@ -17,6 +17,7 @@
 package org.mbte.groovypp.compiler.transformers;
 
 import org.codehaus.groovy.ast.ClassHelper;
+import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.expr.BooleanExpression;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.NotExpression;
@@ -37,13 +38,7 @@ public class BooleanExpressionTransformer extends ExprTransformer<BooleanExpress
             return transformNotExpression((NotExpression) exp, compiler);
         }
         else {
-            final Expression texp = compiler.transform(exp.getExpression());
-            if (texp instanceof BooleanExpression)
-               return texp;
-
-            BooleanExpression res = new BooleanExpression(texp);
-            res.setSourcePosition(exp);
-            return res;
+            return compiler.transform(exp.getExpression());
         }
     }
 
@@ -73,7 +68,31 @@ public class BooleanExpressionTransformer extends ExprTransformer<BooleanExpress
             mv.visitInsn(ICONST_0);
             internal.visit(mv);
             Label ok = new Label();
-            StaticCompiler.branch(internal, IFNE, ok, mv);
+            // type non-primitive
+            final ClassNode type = internal.getType();
+
+            if (type == ClassHelper.Boolean_TYPE) {
+                unbox(ClassHelper.boolean_TYPE, mv);
+            } else {
+                if (ClassHelper.isPrimitiveType(type)) {
+                    // unwrapper - primitive
+                    if (type == ClassHelper.byte_TYPE
+                            || type == ClassHelper.short_TYPE
+                            || type == ClassHelper.char_TYPE
+                            || type == ClassHelper.int_TYPE) {
+                    } else if (type == ClassHelper.long_TYPE) {
+                        mv.visitInsn(L2I);
+                    } else if (type == ClassHelper.float_TYPE) {
+                        mv.visitInsn(F2I);
+                    } else if (type == ClassHelper.double_TYPE) {
+                        mv.visitInsn(D2I);
+                    }
+                } else {
+
+                    mv.visitMethodInsn(INVOKESTATIC, StaticCompiler.DTT, "castToBoolean", "(Ljava/lang/Object;)Z");
+                }
+            }
+            mv.visitJumpInsn(IFNE, ok);
             mv.visitInsn(POP);
             mv.visitInsn(ICONST_1);
             mv.visitLabel(ok);

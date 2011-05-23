@@ -26,6 +26,15 @@ import org.codehaus.groovy.syntax.Token
 import org.codehaus.groovy.syntax.Types
 import org.codehaus.groovy.ast.ClassHelper
 import org.mbte.groovypp.compiler.TypeUtil
+import org.mbte.groovypp.compiler.bytecode.PropertyUtil
+import org.codehaus.groovy.ast.MethodNode
+import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.FieldNode
+import org.codehaus.groovy.ast.PropertyNode
+import org.codehaus.groovy.ast.expr.CastExpression
+import org.objectweb.asm.MethodVisitor
+import org.codehaus.groovy.ast.expr.MapEntryExpression
+import org.codehaus.groovy.ast.expr.ConstantExpression
 
 @Typed class MultiPropertySetExpressionTransformer extends ExprTransformer<MultiPropertySetExpression>{
 
@@ -46,8 +55,39 @@ import org.mbte.groovypp.compiler.TypeUtil
             PropertyExpression p = [obj, e.keyExpression]
             p.sourcePosition = e.keyExpression
 
-            BinaryExpression assign = [p, Token.newSymbol(Types.ASSIGN, e.valueExpression.lineNumber, e.valueExpression.columnNumber), e.valueExpression]
-            def bassign = compiler.transform(assign)
+            BytecodeExpr bassign
+
+            def keyName = ((ConstantExpression)e.keyExpression).value.toString()
+            def prop = PropertyUtil.resolveSetProperty(bobj.type, keyName, TypeUtil.NULL_TYPE, compiler, true);
+            if (prop != null) {
+                ClassNode propType;
+                ClassNode propDeclClass;
+                if (prop instanceof MethodNode) {
+                    propType = prop.parameters[0].type
+                    propDeclClass = prop.declaringClass
+                }
+                else
+                    if (prop instanceof FieldNode) {
+                        propType = prop.type
+                        propDeclClass = prop.declaringClass
+                    }
+                    else {
+                        propType = ((PropertyNode)prop).type
+                        propDeclClass = ((PropertyNode)prop).declaringClass
+                    }
+
+                propType = TypeUtil.getSubstitutedType(propType, propDeclClass, obj.type)
+
+                final CastExpression cast = [propType, e.valueExpression]
+                cast.sourcePosition = e.valueExpression
+
+                bassign = PropertyUtil.createSetProperty(e, compiler, keyName, obj, (BytecodeExpr) compiler.transform(cast), prop)
+            }
+            else {
+                // at least we can try
+                BinaryExpression assign = [p, Token.newSymbol(Types.ASSIGN, e.valueExpression.lineNumber, e.valueExpression.columnNumber), e.valueExpression]
+                bassign = compiler.transform(assign)
+            }
 
             result << bassign
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,25 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.groovypp.compiler.asm;
+package org.mbte.groovypp.compiler
 
-import org.objectweb.asm.Label;
+@Typed class LoggingTest extends GroovyShellTestCase {
+    void testMe () {
+        shell.evaluate """
+@Typed package p
 
-import java.util.LinkedList;
-import java.util.List;
+@Grab('org.slf4j:slf4j-api:1.6.1')
+@Grab('ch.qos.logback:logback-classic:0.9.28')
+import groovy.util.logging.Slf4j
 
-class CompoundLabel extends Label {
-    List<Label> labels;
+@Slf4j
+public class TestLog {
 
-    CompoundLabel(List<Label> labels) {
-        this.labels = new LinkedList<Label>(labels);
+    public void doLog() {
+        log.info("I'm in the logger")
     }
 
-    @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for(Label l : labels)
-            stringBuilder.append(' ').append(l);
-        return stringBuilder.toString();
+}
+
+
+def t= new TestLog()
+t.doLog()
+        """
     }
 }

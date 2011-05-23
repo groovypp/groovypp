@@ -34,6 +34,10 @@ public class Format {
         return format(arguments, sb);
     }
 
+    public static StringBuilder formatAndAppend(StringBuilder sb, Object arguments) {
+        return format(arguments, sb);
+    }
+
     public static StringBuilder toArrayString(Object[] arguments, StringBuilder sb) {
         if (arguments == null) {
             return sb.append("null");

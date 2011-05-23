@@ -55,10 +55,6 @@ assert l.doIt() == 50
 @Typed package p
 
 sqrt: {
-  16
-}
-
-sqrt: {
   64
 }
 
@@ -76,4 +72,66 @@ assert var1 == 8
 
     """
   }
+
+
+    void testFieldInClosure () {
+        shell.evaluate """
+    @Typed package p
+
+    Callable u = {
+        @Field def f1, f2
+
+        preStart: {
+            f1 = "aaa"
+        }
+        postStop: {
+            f2 = "bbb"
+        }
+
+        "\${preStart ()} \${postStop()} \$f1 \$f2"
+    }
+
+    assert u() == 'aaa bbb aaa bbb'
+            """
+    }
+
+    void testExample () {
+        shell.evaluate """
+@Typed package p
+
+abstract class MessageHandler {
+    abstract void onMessage(msg)
+
+    final void leftShift(msg){
+        onMessage(msg)
+    }
+}
+
+MessageHandler actor1 = {msg ->
+    println msg
+}
+actor1 << "Hello, world!"
+
+abstract class StartupAwareMessageHandler extends MessageHandler{
+    protected void doStart (String args) {}
+
+    final MessageHandler start(String args) {
+        doStart(args)
+        this
+    }
+}
+
+StartupAwareMessageHandler actor2 = { msg ->
+    @Field boolean upper
+
+    doStart: { args ->
+        upper = args.toUpperCase () == 'TRUE'
+    }
+
+    println upper ? msg.toString().toUpperCase() : msg
+}
+
+actor2.start (new Random().nextBoolean().toString()) << "Hello, world!"
+        """
+    }
 }

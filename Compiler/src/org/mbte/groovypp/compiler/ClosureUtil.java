@@ -153,10 +153,33 @@ public class ClosureUtil {
 
                 improveClosureType(closureType, baseType);
                 if(!missing.getReturnType().equals(ClassHelper.VOID_TYPE)) {
+                    ClassNode returnType = TypeUtil.wrapSafely(missing.getReturnType());
+                    ClassNode ret = TypeUtil.getSubstitutedType(returnType, missing.getDeclaringClass(), baseType);
+                    if ((returnType.equals(ret) || !returnType.isDerivedFrom(ret)) && !returnType.implementsInterface(ret)) {
+                        returnType = ret;
+                    }
+
+                    if(returnType.equals(ClassHelper.OBJECT_TYPE))
+                        returnType = TypeUtil.wrapSafely(missing.getReturnType());
                     if (method instanceof ClosureMethodNode.Dependent)
-                        ((ClosureMethodNode.Dependent)method).getMaster().setReturnType(TypeUtil.wrapSafely(missing.getReturnType()));
+                        ((ClosureMethodNode.Dependent)method).getMaster().setReturnType(returnType);
                     else
-                        method.setReturnType(TypeUtil.wrapSafely(missing.getReturnType()));
+                        method.setReturnType(returnType);
+                }
+
+                ArrayList<MethodNode> toCompile = new ArrayList<MethodNode>();
+                for(MethodNode mn: closureType.getMethods()) {
+                    if(mn.getReturnType().equals(TypeUtil.IMPROVE_TYPE)) {
+                        toCompile.add(mn);
+                    }
+                    else {
+                        if(!mn.getAnnotations(TypeUtil.IMPROVED_TYPES).isEmpty()) {
+                            toCompile.add(mn);
+                        }
+                    }
+                }
+                for(MethodNode mn : toCompile) {
+                    compiler.replaceMethodCode(closureType, mn);
                 }
                 compiler.replaceMethodCode(closureType, method);
                 makeOneMethodClass(one, closureType, baseType, compiler, method);
@@ -418,7 +441,7 @@ public class ClosureUtil {
             }
             else {
                 if (astVar instanceof VariableExpression && ((VariableExpression)astVar).getAccessedVariable() instanceof FieldNode) {
-                    vtype = ((FieldNode)((VariableExpression)astVar).getAccessedVariable()).getType();
+                    continue;
                 }
                 else
                     vtype = compiler.methodNode.getDeclaringClass().getField(astVar.getName()).getType();

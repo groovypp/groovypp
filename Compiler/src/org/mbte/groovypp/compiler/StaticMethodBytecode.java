@@ -17,6 +17,7 @@
 package org.mbte.groovypp.compiler;
 
 import groovy.lang.TypePolicy;
+import org.codehaus.groovy.ast.AnnotationNode;
 import org.codehaus.groovy.ast.GroovyCodeVisitor;
 import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.stmt.BlockStatement;
@@ -30,6 +31,7 @@ import org.mbte.groovypp.compiler.asm.StoringMethodVisitor;
 import org.mbte.groovypp.compiler.asm.UnneededLoadPopRemoverMethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class StaticMethodBytecode extends StoredBytecodeInstruction {
@@ -86,6 +88,15 @@ public class StaticMethodBytecode extends StoredBytecodeInstruction {
     }
 
     public static void replaceMethodCode(SourceUnit source, SourceUnitContext context, MethodNode methodNode, CompilerStack compileStack, int debug, boolean fastArrays, TypePolicy policy, String baseClosureName) {
+        if(!methodNode.getAnnotations(TypeUtil.IMPROVED_TYPES).isEmpty()) {
+            for(Iterator<AnnotationNode> it = methodNode.getAnnotations().iterator(); it.hasNext(); ) {
+                if(it.next().getClassNode().equals(TypeUtil.IMPROVED_TYPES)) {
+                    it.remove();
+                    break;
+                }
+            }
+        }
+
         if (methodNode instanceof ClosureMethodNode.Dependent)
             methodNode = ((ClosureMethodNode.Dependent)methodNode).getMaster();
         

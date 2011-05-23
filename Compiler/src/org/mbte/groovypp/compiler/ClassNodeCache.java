@@ -160,7 +160,7 @@ public class ClassNodeCache {
         ClassNode cn = classNode;
         while (cn.isArray())
             cn = cn.getComponentType();
-        moduleNode = cn.getModule();
+        moduleNode = cn.redirect().getModule();
 
         if (moduleNode != null) {
             final CompileUnit compileUnit = classNode.getCompileUnit();
@@ -178,7 +178,7 @@ public class ClassNodeCache {
             }
             return info;
         } else {
-            Class typeClass = classNode.getTypeClass();
+            Class typeClass = TypeUtil.getTypeClassSafely(classNode, CleaningVerifier.getCompilationUnit().getClassLoader());
             final SoftReference<ClassNodeInfo> ref = loadedClassesCache.get(typeClass);
             ClassNodeInfo cni;
             if (ref == null || (cni = ref.get()) == null) {
