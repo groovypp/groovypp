@@ -200,42 +200,47 @@ def improveDependencies(pom) {
           ant.copy(file: "build/libs/groovypp-${version}.jar", tofile:"build/libs/groovypp-nodep-${version}.jar")
         }
 
-        uploadArchives {
-            repositories.mavenDeployer {
-                def repo = "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/"
-                if(System.getProperty("repo") == 'local')
-                  repo = "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath
-
-                repository(url: repo) {
-                    authentication(userName: ARTIFACTORY_USER, password: ARTIFACTORY_PASSWORD)
-                }
-
-                addFilter('groovypp') {artifact, file ->
-                    !artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
-                }.whenConfigured { pom ->
-                    improveDependencies pom
-                }
-                addFilter('groovypp-nodep') {artifact, file ->
-                    !artifact.toString().contains('-all')  && artifact.toString().contains('-nodep')
-                }.whenConfigured { pom ->
-                  pom.dependencies = []
-                }
-                addFilter('groovypp-all-nodep') {artifact, file ->
-                    artifact.toString().contains('-all')  && artifact.toString().contains('-nodep')
-                }.whenConfigured { pom ->
-                  pom.dependencies = []
-                }
-                addFilter('groovypp-all') {artifact, file ->
-                    artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
-                }.whenConfigured { pom ->
-                    pom.dependencies.each { dep ->
-                        if(dep.artifactId == 'groovy') {
-                          dep.artifactId = 'groovy-all'
-                        }
+        if (project.hasProperty('ARTIFACTORY_USER') && project.hasProperty('ARTIFACTORY_PASSWORD')) {
+            uploadArchives {
+                repositories.mavenDeployer {
+                    def repo = "http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/"
+                    if(System.getProperty("repo") == 'local')
+                      repo = "file://" + new File(System.getProperty('user.home'),  ".m2" + File.separatorChar + "repository").absolutePath
+    
+                    repository(url: repo) {
+                        authentication(userName: ARTIFACTORY_USER, password: ARTIFACTORY_PASSWORD)
                     }
-                    improveDependencies pom
+    
+                    addFilter('groovypp') {artifact, file ->
+                        !artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
+                    }.whenConfigured { pom ->
+                        improveDependencies pom
+                    }
+                    addFilter('groovypp-nodep') {artifact, file ->
+                        !artifact.toString().contains('-all')  && artifact.toString().contains('-nodep')
+                    }.whenConfigured { pom ->
+                      pom.dependencies = []
+                    }
+                    addFilter('groovypp-all-nodep') {artifact, file ->
+                        artifact.toString().contains('-all')  && artifact.toString().contains('-nodep')
+                    }.whenConfigured { pom ->
+                      pom.dependencies = []
+                    }
+                    addFilter('groovypp-all') {artifact, file ->
+                        artifact.toString().contains('-all') && !artifact.toString().contains('-nodep')
+                    }.whenConfigured { pom ->
+                        pom.dependencies.each { dep ->
+                            if(dep.artifactId == 'groovy') {
+                              dep.artifactId = 'groovy-all'
+                            }
+                        }
+                        improveDependencies pom
+                    }
                 }
             }
+        } 
+        else {
+            println "Note: '$prj:uploadArchives' unavailable as properties ARTIFACTORY_USER/ARTIFACTORY_PASSWORD are not defined"
         }
 
         task installZip(dependsOn:['jar', 'allJar']) << {
