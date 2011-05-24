@@ -43,4 +43,44 @@ ClosureWrapper cloned2 = cw.clone()
 assert cloned2.action.delegate === cloned2
         """
     }
+
+    void testMe2 () {
+        shell.evaluate """
+@Typed package p
+
+class A {
+}
+
+class B extends A {
+    def prop
+}
+
+A u () {
+    new B () [prop: 'lala']
+}
+
+assert ((B)u()).prop == 'lala'
+        """
+    }
+
+    void testMe3 () {
+        shell.evaluate """
+@Typed package p
+
+class B {
+    def prop
+
+    B (p) {
+        prop = p
+    }
+}
+
+B u () {
+    B b
+    b = ['mama'] [prop: 'lala']
+}
+
+assert u().prop == 'lala'
+        """
+    }
 }

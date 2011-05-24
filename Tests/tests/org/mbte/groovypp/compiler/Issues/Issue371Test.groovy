@@ -49,9 +49,9 @@ final class FListMap<K,V> implements Iterable<Map.Entry<K,V>> {
   }
 
   FListMap<K, V> plus(Map<K, V> map) {
-    groovy.lang.Reference<FListMap<K, V>> ref = new Reference<FListMap<K,V>>(this)
-    map.each { k, v -> ref.set(ref.get().put(k, v)) }
-    return ref.get()
+    Reference ref = [this]
+    map.each { k, v -> ref = ref.put(k, v) }
+    return ref
   }
 
   V get(K key) {
@@ -89,5 +89,30 @@ final class FListMap<K,V> implements Iterable<Map.Entry<K,V>> {
 
 FListMap.empty.put('mama', 'papa')
     """
+  }
+
+  void test2 () {
+      shell.evaluate """
+    @Typed package p
+
+    class X<K,V> extends HashMap<K,V>{
+        X<K, V> plus(Map<K, V> map) {
+            Reference ref = [this]
+            map.each { k, v ->
+                // no need in .set() here but we use cast instead
+                // .get() needed as Reference has protected method clone so we have clash
+                ref = (X<K,V>)ref.get().clone()
+                ref.put(k, v)
+            }
+            // no need in .get() here because of cast to return type
+            ref
+        }
+    }
+
+    X x = [:]
+    x += [mama: 'mia', baba: 'manja']
+    assert x['mama'] == 'mia'
+    assert x['baba'] == 'manja'
+      """
   }
 }

@@ -38,11 +38,37 @@ import org.codehaus.groovy.ast.expr.ConstantExpression
 
 @Typed class MultiPropertySetExpressionTransformer extends ExprTransformer<MultiPropertySetExpression>{
 
-    Expression transform(MultiPropertySetExpression exp, CompilerTransformer compiler) {
-        def bobj = compiler.transform(exp.object)
-        ExpressionList result = [exp, bobj.type]
+     static class Untransformed extends BytecodeExpr {
+        final MultiPropertySetExpression exp;
+        final Expression object
 
-//        if(bobj.type.isDerivedFrom(TypeUtil.FOBJECT))
+        Untransformed(MultiPropertySetExpression exp, CompilerTransformer compiler, Expression object) {
+            super(exp, object.type)
+            this.exp = exp
+            this.object = object
+        }
+
+        protected void compile(MethodVisitor mv) {
+            throw new UnsupportedOperationException()
+        }
+
+        public BytecodeExpr transform (CompilerTransformer compiler) {
+            compiler.transform(new MultiPropertySetExpression(compiler.transformToGround(object), exp.properties) [sourcePosition: exp])
+        }
+    }
+
+    Expression transform(MultiPropertySetExpression exp, CompilerTransformer compiler) {
+        Expression bobj = compiler.transform(exp.object)
+
+        if (bobj instanceof ListExpressionTransformer.Untransformed ||
+            bobj instanceof MultiPropertySetExpressionTransformer.Untransformed ||
+            bobj instanceof MapExpressionTransformer.Untransformed ||
+            bobj instanceof MapWithListExpressionTransformer.Untransformed ||
+            bobj instanceof TernaryExpressionTransformer.Untransformed) {
+            return new Untransformed(exp, compiler, bobj)
+        }
+
+        ExpressionList result = [exp, bobj.type]
 
         result << bobj
         for(e in exp.properties.mapEntryExpressions) {

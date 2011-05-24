@@ -135,18 +135,18 @@ public abstract class CompilerTransformer extends ReturnsAdder implements Opcode
     public BytecodeExpr transformSynthetic(BytecodeExpr res) {
         if (res instanceof ListExpressionTransformer.Untransformed)
             return ((ListExpressionTransformer.Untransformed) res).transform(org.mbte.groovypp.compiler.TypeUtil.ARRAY_LIST_TYPE, this);
+        if (res instanceof MultiPropertySetExpressionTransformer.Untransformed)
+            return ((MultiPropertySetExpressionTransformer.Untransformed) res).transform(this);
         else if (res instanceof MapExpressionTransformer.Untransformed)
             return ((MapExpressionTransformer.Untransformed) res).transform(this);
         else if (res instanceof MapWithListExpressionTransformer.Untransformed)
             return ((MapWithListExpressionTransformer.Untransformed) res).transform(this);
         else if (res instanceof TernaryExpressionTransformer.Untransformed)
             return ((TernaryExpressionTransformer.Untransformed) res).transform(this);
-        else if (res.getType().declaresInterface(TypeUtil.TTHIS)) {
+        else if (res.getType().declaresInterface(TypeUtil.TTHIS))
             res.setType(res.getType().getOuterClass());
-        }
-        else if (res instanceof CompiledClosureBytecodeExpr) {
+        else if (res instanceof CompiledClosureBytecodeExpr)
             processPendingClosure((CompiledClosureBytecodeExpr) res);
-        }
         return res;
     }
 

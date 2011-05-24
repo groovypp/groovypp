@@ -66,9 +66,17 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
 
         if(cast.getExpression() instanceof MultiPropertySetExpression) {
             final MultiPropertySetExpression multiPropertySetExpression = (MultiPropertySetExpression) cast.getExpression();
-            final MultiPropertySetExpression exp = new MultiPropertySetExpression( compiler.cast(multiPropertySetExpression.getObject(), cast.getType()), multiPropertySetExpression.getProperties());
-            exp.setSourcePosition(multiPropertySetExpression);
-            return (BytecodeExpr) compiler.transform(exp);
+            final Expression tobj = compiler.transform(multiPropertySetExpression.getObject());
+            if(TypeUtil.isAssignableFrom(cast.getType(), tobj.getType())) {
+                final MultiPropertySetExpression exp = new MultiPropertySetExpression( tobj, multiPropertySetExpression.getProperties());
+                exp.setSourcePosition(multiPropertySetExpression);
+                return (BytecodeExpr) compiler.transform(exp);
+            }
+            else {
+                final MultiPropertySetExpression exp = new MultiPropertySetExpression( compiler.cast(multiPropertySetExpression.getObject(), cast.getType()), multiPropertySetExpression.getProperties());
+                exp.setSourcePosition(multiPropertySetExpression);
+                return (BytecodeExpr) compiler.transform(exp);
+            }
         }
 
         if (cast.getExpression() instanceof TernaryExpression) {
@@ -98,6 +106,15 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
             final CastExpression newExp = new CastExpression(cast.getType(), ((MapWithListExpressionTransformer.Untransformed) cast.getExpression()).exp);
             newExp.setSourcePosition(cast);
             cast = newExp;
+        }
+
+        if (cast.getExpression() instanceof MultiPropertySetExpressionTransformer.Untransformed) {
+            final MultiPropertySetExpressionTransformer.Untransformed untransformed = (MultiPropertySetExpressionTransformer.Untransformed) cast.getExpression();
+            final CastExpression obj = new CastExpression(cast.getType(), untransformed.getObject());
+            obj.setSourcePosition(untransformed.getObject());
+            final MultiPropertySetExpression newExp = new MultiPropertySetExpression(obj, untransformed.getExp().getProperties());
+            newExp.setSourcePosition(untransformed.getExp());
+            return (BytecodeExpr) compiler.transformToGround(newExp);
         }
 
         if (cast.getExpression() instanceof TernaryExpressionTransformer.Untransformed) {
@@ -618,8 +635,8 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
                             exp.setType(mapped);
                         }
                     }
-                    if (rtype.equals(exp.getType())) {
-                        expr.setType(exp.getType()); // important for correct generic signature
+                    if (rtype.equals(castType)) {
+                        expr.setType(castType); // important for correct generic signature
                         return expr;
                     }
                     else {
