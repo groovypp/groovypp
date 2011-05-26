@@ -83,4 +83,26 @@ B u () {
 assert u().prop == 'lala'
         """
     }
+
+    void testMe4 () {
+        shell.evaluate """
+@Typed package p
+
+class B {
+    B prop
+    def prop2
+
+    B (p) {
+        prop2 = p
+    }
+}
+
+B u () {
+    B b
+    b = new B('mama')[prop: ['empty']].prop [prop2: 'lala']
+}
+
+assert u().prop2 == 'lala'
+        """
+    }
 }
