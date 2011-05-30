@@ -842,7 +842,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
                 for (Iterator iter = caseStatements.iterator(); iter.hasNext(); ) {
                     CaseStatement caseStatement = (CaseStatement) iter.next();
                     final Expression option = caseStatement.getExpression();
-                    if (option instanceof ClassExpression) {
+                    if (option instanceof ClassExpression && !ve.getType().equals(ClassHelper.CLASS_Type)) {
                         final BlockStatement newCode = new BlockStatement();
                         final VariableExpression newVar = new VariableExpression(ve.getName(), option.getType());
                         final DeclarationExpression newVarDecl = new DeclarationExpression(
@@ -956,7 +956,8 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
                     exp.setSourcePosition(caseValue);
                     transformLogical(exp, codeLabels[i], true).visit(mv);
                 } else {
-                    if (caseStatement.getExpression() instanceof ClassExpression) {
+                    if (caseStatement.getExpression() instanceof ClassExpression && 
+                    		!cond.getType().equals(ClassHelper.CLASS_Type)) {
                         BytecodeExpr.box(cond.getType(), mv);
                         mv.visitTypeInsn(INSTANCEOF, BytecodeHelper.getClassInternalName(caseStatement.getExpression().getType()));
                         mv.visitJumpInsn(IFNE, codeLabels[i]);
