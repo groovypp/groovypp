@@ -18,6 +18,8 @@ package org.mbte.groovypp.compiler;
 
 import groovy.lang.TypePolicy;
 import groovy.lang.Typed;
+import groovy.lang.Dynamic;
+import groovy.lang.Mixed;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.Statement;
@@ -38,6 +40,8 @@ import java.util.*;
 @GroovyASTTransformation(phase = CompilePhase.INSTRUCTION_SELECTION)
 public class CompileASTTransform implements ASTTransformation, Opcodes {
     private static final ClassNode COMPILE_TYPE = ClassHelper.make(Typed.class);
+    private static final ClassNode DYNAMIC_TYPE = ClassHelper.make(Dynamic.class);
+    private static final ClassNode MIXED_TYPE   = ClassHelper.make(Mixed.class);
 
     public void visit(ASTNode[] nodes, final SourceUnit source) {
         if (!(nodes[0] instanceof AnnotationNode) || !(nodes[1] instanceof AnnotatedNode)) {
@@ -286,7 +290,16 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
         if(ann == null)
             return def;
 
-        final List<AnnotationNode> list = ann.getAnnotations(COMPILE_TYPE);
+        List<AnnotationNode> list;
+        list = ann.getAnnotations(DYNAMIC_TYPE);
+        if(!list.isEmpty()) {
+        	return TypePolicy.DYNAMIC; 
+        }
+        list = ann.getAnnotations(MIXED_TYPE);
+        if(!list.isEmpty()) {
+        	return TypePolicy.MIXED;
+        }
+        list = ann.getAnnotations(COMPILE_TYPE);
         if (list.isEmpty())
             return def;
         
