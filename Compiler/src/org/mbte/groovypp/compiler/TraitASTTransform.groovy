@@ -17,33 +17,30 @@
 package org.mbte.groovypp.compiler;
 
 import antlr.collections.AST;
+import groovypp.text.GppSimpleTemplateEngine;
 import org.codehaus.groovy.antlr.AntlrParserPlugin;
 import org.codehaus.groovy.ast.*;
 import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.Statement;
-import org.codehaus.groovy.control.CompilePhase;
-import org.codehaus.groovy.control.ParserPlugin;
-import org.codehaus.groovy.control.ParserPluginFactory;
-import org.codehaus.groovy.control.SourceUnit;
-import org.codehaus.groovy.syntax.ASTHelper;
-import org.codehaus.groovy.syntax.SyntaxException;
-import org.codehaus.groovy.syntax.Token;
-import org.codehaus.groovy.syntax.Types;
+import org.codehaus.groovy.control.*;
+import org.codehaus.groovy.syntax.*;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.codehaus.groovy.classgen.Verifier;
 import org.mbte.groovypp.compiler.flow.MapWithListExpression;
 import org.objectweb.asm.Opcodes;
 
+import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.ArrayList
+import groovypp.text.GppScript;
 
 
 @GroovyASTTransformation(phase = CompilePhase.CONVERSION)
-public class TraitASTTransform implements ASTTransformation, Opcodes {
+@Typed public class TraitASTTransform implements ASTTransformation, Opcodes {
 
     public TraitASTTransform() {
         CleaningVerifier.getCompilationUnit().getConfiguration().setPluginFactory(new GppParserPluginFactory());
@@ -52,7 +49,7 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
     public void visit(ASTNode[] nodes, final SourceUnit source) {
         ModuleNode module = (ModuleNode) nodes[0];
         List<ClassNode> toProcess = new LinkedList<ClassNode>();
-        final boolean forceTyped = source.getName().endsWith(".gpp");
+        final boolean forceTyped = source.getName().endsWith(".gpp") || source.getName().endsWith(".gpptl");
 
         processPackageLevelUseAnnotation(module);
 
@@ -109,10 +106,10 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
             mod |= Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE;
             classNode.setModifiers(mod);
 
-            String name = classNode.getNameWithoutPackage() + "$TraitImpl";
+            String name = classNode.getNameWithoutPackage() + "\$TraitImpl";
             String fullName = ASTHelper.dot(classNode.getPackageName(), name);
 
-            InnerClassNode innerClassNode = new InnerClassNode(classNode, fullName, ACC_PUBLIC|ACC_STATIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, new ClassNode[]{classNode}, null);
+            InnerClassNode innerClassNode = new InnerClassNode(classNode, fullName, ACC_PUBLIC|ACC_STATIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, [classNode] as ClassNode[], null);
             AnnotationNode typedAnn = new AnnotationNode(TypeUtil.TYPED);
             final Expression member = getAnnotation(classNode, "Typed").getMember("debug");
             if (member != null && member instanceof ConstantExpression && ((ConstantExpression)member).getValue().equals(Boolean.TRUE))
@@ -150,29 +147,29 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
 
                 // We need the second getter (and setter) to compile non-synthetic first one referring to the field.
                 // The references inside the first one will be retargeted to the second one.
-                final MethodNode realGetter = classNode.addMethod("get$" + fieldNode.getName(), ACC_PUBLIC |
+                final MethodNode realGetter = classNode.addMethod("get\$" + fieldNode.getName(), ACC_PUBLIC |
                         ACC_ABSTRACT, fieldNode.getType(), Parameter.EMPTY_ARRAY, ClassNode.EMPTY_ARRAY, null);
                 addFieldAnnotation(innerClassNode, fieldNode, realGetter);
 
                 final String setterName = "set" + Verifier.capitalize(fieldNode.getName());
-                Parameter valueParam = new Parameter(fieldNode.getType(), "$value");
+                Parameter valueParam = new Parameter(fieldNode.getType(), "\$value");
                 MethodNode setter = classNode.getSetterMethod(setterName);
                 if (setter == null) {
-                    setter = classNode.addMethod(setterName, ACC_PUBLIC | ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{valueParam}, ClassNode.EMPTY_ARRAY, null);
+                    setter = classNode.addMethod(setterName, ACC_PUBLIC | ACC_ABSTRACT, ClassHelper.VOID_TYPE, [valueParam] as Parameter[], ClassNode.EMPTY_ARRAY, null);
                     addFieldAnnotation(innerClassNode, fieldNode, setter);
                 }
 
-                final MethodNode realSetter = classNode.addMethod("set$" + fieldNode.getName(), ACC_PUBLIC |
-                        ACC_ABSTRACT, ClassHelper.VOID_TYPE, new Parameter[]{valueParam}, ClassNode.EMPTY_ARRAY, null);
+                final MethodNode realSetter = classNode.addMethod("set\$" + fieldNode.getName(), ACC_PUBLIC |
+                        ACC_ABSTRACT, ClassHelper.VOID_TYPE, [valueParam], ClassNode.EMPTY_ARRAY, null);
                 addFieldAnnotation(innerClassNode, fieldNode, realSetter);
 
                 if (fieldNode.hasInitialExpression()) {
                     final Expression initial = fieldNode.getInitialValueExpression();
                     fieldNode.setInitialValueExpression(null);
 
-                    final MethodNode initMethod = innerClassNode.addMethod("__init_" + fieldNode.getName(), ACC_PUBLIC | ACC_STATIC, ClassHelper.VOID_TYPE, new Parameter[]{new Parameter(classNode, "$self")}, ClassNode.EMPTY_ARRAY, new BlockStatement());
+                    final MethodNode initMethod = innerClassNode.addMethod("__init_" + fieldNode.getName(), ACC_PUBLIC | ACC_STATIC, ClassHelper.VOID_TYPE, [new Parameter(classNode, "\$self")] as Parameter [], ClassNode.EMPTY_ARRAY, new BlockStatement());
 
-                    final PropertyExpression prop = new PropertyExpression(new VariableExpression("$self"), fieldNode.getName());
+                    final PropertyExpression prop = new PropertyExpression(new VariableExpression("\$self"), fieldNode.getName());
                     prop.setSourcePosition(fieldNode);
                     final CastExpression cast = new CastExpression(fieldNode.getType(), initial);
                     cast.setSourcePosition(initial);
@@ -196,7 +193,7 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
 
                 if (methodNode.isStatic()) {
                     if(categoryClassNode == null) {
-                        name = classNode.getNameWithoutPackage() + "$TraitCategory";
+                        name = classNode.getNameWithoutPackage() + "\$TraitCategory";
                         fullName = ASTHelper.dot(classNode.getPackageName(), name);
 
                         categoryClassNode = new InnerClassNode(classNode, fullName, ACC_PUBLIC|ACC_STATIC|ACC_ABSTRACT, ClassHelper.OBJECT_TYPE, ClassNode.EMPTY_ARRAY, null);
@@ -239,7 +236,7 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
                 Parameter[] parameters = methodNode.getParameters();
 
                 Parameter[] newParameters = new Parameter[parameters.length + 1];
-                final Parameter self = new Parameter(classNode, "$self");
+                final Parameter self = new Parameter(classNode, "\$self");
                 newParameters[0] = self;
                 System.arraycopy(parameters, 0, newParameters, 1, parameters.length);
 
@@ -320,7 +317,7 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
     	}
     	return pkgTyped;
     }
-    
+
     private void addFieldAnnotation(InnerClassNode innerClassNode, FieldNode fieldNode, MethodNode getter) {
         AnnotationNode value = new AnnotationNode(TypeUtil.HAS_DEFAULT_IMPLEMENTATION);
         value.addMember("value", new ClassExpression(innerClassNode));
@@ -331,6 +328,15 @@ public class TraitASTTransform implements ASTTransformation, Opcodes {
     private static class GppParserPluginFactory extends ParserPluginFactory {
         public ParserPlugin createParserPlugin() {
             return new AntlrParserPlugin() {
+                public Reduction parseCST(SourceUnit sourceUnit, Reader reader) throws CompilationFailedException {
+                    if(sourceUnit.getName().endsWith(".gpptl")) {
+                        sourceUnit.configuration.scriptBaseClass = GppScript.name
+                        return super.parseCST(sourceUnit, GppSimpleTemplateEngine.createScriptSource(reader));
+                    }
+                    else
+                        return super.parseCST(sourceUnit, reader);
+                }
+
                 protected Expression declarationExpression(AST variableDef) {
                     final DeclarationExpression expression = (DeclarationExpression) super.declarationExpression(variableDef);
                     final VariableExpression variableExpression = expression.getVariableExpression();

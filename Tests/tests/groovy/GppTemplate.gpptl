@@ -1,0 +1,2 @@
+<% package examples %>
+<html><% out.println('Hello, World!') %></html>

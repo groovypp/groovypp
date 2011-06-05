@@ -1,6 +1,6 @@
 apply plugin: 'maven'
 
-gppVer = '0.4.248'
+gppVer = '0.4.250'
 
 def improveDependencies(pom) {
     pom.dependencies = pom.dependencies.findAll { dep ->
@@ -44,9 +44,9 @@ def improveDependencies(pom) {
                 groovy {
                     srcDirs file("../Tests/tests"), file("../StdLib/tests")
                 }
-
             }
         }
+        sourceSets.test.groovy.filter.include "**/*.gpp", "**/*.grunit", "**/*.gpptl", "**/*.groovy"
 
         compileTestGroovy.dependsOn << ["$prj:compileGroovy"]
     }
@@ -73,7 +73,7 @@ def improveDependencies(pom) {
             groovy(group: 'org.codehaus.groovy', name: 'groovy', version: groovyVer)
 
             compile(group: 'org.codehaus.groovy', name: 'groovy', version: groovyVer)
-            compile(group: 'org.mbte.groovypp', name: 'groovypp-nodep', version: "0.4.230_${groovyVer}")
+            compile(group: 'org.mbte.groovypp', name: 'groovypp-nodep', version: "0.4.248_${groovyVer}")
             compile "junit:junit:4.8.1"
         }
 
