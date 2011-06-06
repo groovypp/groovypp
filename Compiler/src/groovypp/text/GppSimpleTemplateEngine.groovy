@@ -121,7 +121,7 @@ import java.security.AccessController;
                  */
                 public Writer writeTo(Writer writer) {
                     def scriptObject = scriptClass.newInstance()[
-                        binding: map ? [] : [map],
+                        binding: !map ? [] : [map],
                         out: [writer]
                     ]
                     scriptObject.run()

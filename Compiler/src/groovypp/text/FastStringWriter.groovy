@@ -9,7 +9,7 @@ package groovypp.text
      * size.
      */
     public FastStringWriter() {
-	buf = []
+	buf = [4096]
     }
 
     /**
