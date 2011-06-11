@@ -18,25 +18,29 @@ package org.mbte.groovypp.compiler.bytecode;
 
 import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.*;
-import org.codehaus.groovy.ast.expr.ArgumentListExpression;
-import org.codehaus.groovy.ast.expr.Expression;
-import org.codehaus.groovy.ast.expr.PropertyExpression;
+import org.codehaus.groovy.ast.expr.*;
 import org.codehaus.groovy.ast.stmt.EmptyStatement;
 import org.codehaus.groovy.classgen.Verifier;
 import org.mbte.groovypp.compiler.*;
-import org.mbte.groovypp.compiler.bytecode.*;
-import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
-import org.mbte.groovypp.compiler.bytecode.ResolvedFieldBytecodeExpr;
-import org.mbte.groovypp.compiler.bytecode.ResolvedGetterBytecodeExpr;
-import org.mbte.groovypp.compiler.bytecode.ResolvedMethodBytecodeExpr;
-import org.mbte.groovypp.compiler.bytecode.ResolvedPropertyBytecodeExpr;
-import org.mbte.groovypp.compiler.bytecode.UnresolvedLeftExpr;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class PropertyUtil {
     public static final Object GET_MAP = new Object ();
-    public static final Object GET_UNRESOLVED = new Object ();
+
+    public static class GetUnresolved {
+        public MethodNode method;
+
+        public GetUnresolved(MethodNode method) {
+            this.method = method;
+        }
+    }
+
+    public static class SetUnresolved extends GetUnresolved {
+        public SetUnresolved(MethodNode method) {
+            super(method);
+        }
+    }
 
     public static BytecodeExpr createGetProperty(final PropertyExpression exp, final CompilerTransformer compiler, String propName, ClassNode type, final BytecodeExpr object, Object prop) {
         if (prop instanceof MethodNode) {
@@ -101,8 +105,8 @@ public class PropertyUtil {
             return new ResolvedLeftMapExpr(exp, object, propName);
         }
 
-        if(prop == GET_UNRESOLVED) {
-            return new ResolvedLeftUnresolvedPropExpr(exp, object, propName, compiler);
+        if(prop instanceof GetUnresolved) {
+            return new ResolvedLeftUnresolvedPropExpr(exp, object, propName, compiler, (GetUnresolved)prop);
         }
 
         final Expression anchor = exp.isImplicitThis() ? exp : exp.getProperty();
@@ -131,6 +135,12 @@ public class PropertyUtil {
                 return new ResolvedMethodBytecodeExpr.Setter(parent, setter, object, new ArgumentListExpression(value), compiler);
             }
             return new ResolvedFieldBytecodeExpr(parent, field, object, value, compiler);
+        }
+
+        if(prop instanceof GetUnresolved) {
+            final MethodCallExpression setUnresolvedProperty = new MethodCallExpression(object, "setUnresolvedProperty", new ArgumentListExpression(new ConstantExpression(propName), value));
+            setUnresolvedProperty.setSourcePosition(parent);
+            return (BytecodeExpr) compiler.transform(setUnresolvedProperty);
         }
 
         final ClassNode type = object != null ? object.getType() : compiler.classNode;
@@ -185,7 +195,12 @@ public class PropertyUtil {
 
             MethodNode method = compiler.findMethod(type, "getUnresolvedProperty", new ClassNode[]{ ClassHelper.STRING_TYPE}, false);
             if(method != null) {
-                return GET_UNRESOLVED;
+                return new GetUnresolved(method);
+            }
+
+            method = compiler.findMethod(type, "setUnresolvedProperty", new ClassNode[]{ ClassHelper.STRING_TYPE, TypeUtil.NULL_TYPE}, false);
+            if(method != null) {
+                return new SetUnresolved(method);
             }
         }
 

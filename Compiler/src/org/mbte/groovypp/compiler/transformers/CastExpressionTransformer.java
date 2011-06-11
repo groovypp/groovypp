@@ -18,6 +18,11 @@ package org.mbte.groovypp.compiler.transformers;
 
 import groovy.lang.TypePolicy;
 import org.codehaus.groovy.ast.*;
+import org.codehaus.groovy.ast.AnnotationNode;
+import org.codehaus.groovy.ast.ClassNode;
+import org.codehaus.groovy.ast.FieldNode;
+import org.codehaus.groovy.ast.InnerClassNode;
+import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.expr.*;
 import org.mbte.groovypp.compiler.*;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
@@ -28,6 +33,7 @@ import org.mbte.groovypp.compiler.flow.MapWithListExpression;
 import org.mbte.groovypp.compiler.flow.MultiPropertySetExpression;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.*;
 
 import java.util.*;
 
@@ -378,18 +384,35 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
                 props.add(new MapEntryExpression(me.getKeyExpression(), setter));
             }
             else {
-                if (objType == null)
-                    objType = createNewType(type, exp, compiler);
+                MethodNode method = compiler.findMethod(type, "setUnresolvedProperty", new ClassNode[]{ClassHelper.STRING_TYPE, TypeUtil.NULL_TYPE}, false);
+                if(method != null && method.getReturnType().equals(ClassHelper.VOID_TYPE)) {
+                    ClassNode propType = method.getParameters()[1].getType();
+                    propType = TypeUtil.getSubstitutedType(propType, method.getDeclaringClass(), type);
 
-                if (value instanceof ClosureExpression) {
-                    ClosureExpression ce = (ClosureExpression) value;
-
-                    methods.add (me);
-
-                    ClosureUtil.addFields(ce, objType, compiler);
+                    final CastExpression cast = new CastExpression(propType, value);
+                    cast.setSourcePosition(value);
+                    final BytecodeExpr obj = new BytecodeExpr(type, type) {
+                        protected void compile(MethodVisitor mv) {
+                            mv.visitInsn(DUP);
+                        }
+                    };
+                    final BytecodeExpr setter = PropertyUtil.createSetProperty(me, compiler, keyName, obj, (BytecodeExpr) compiler.transform(cast), new PropertyUtil.SetUnresolved(method));
+                    props.add(new MapEntryExpression(me.getKeyExpression(), setter));
                 }
                 else {
-                    fields.add(me);
+                    if (objType == null)
+                        objType = createNewType(type, exp, compiler);
+
+                    if (value instanceof ClosureExpression) {
+                        ClosureExpression ce = (ClosureExpression) value;
+
+                        methods.add (me);
+
+                        ClosureUtil.addFields(ce, objType, compiler);
+                    }
+                    else {
+                        fields.add(me);
+                    }
                 }
             }
         }

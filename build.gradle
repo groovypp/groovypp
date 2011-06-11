@@ -1,6 +1,6 @@
 apply plugin: 'maven'
 
-gppVer = '0.4.250'
+gppVer = '0.4.253'
 
 def improveDependencies(pom) {
     pom.dependencies = pom.dependencies.findAll { dep ->
@@ -49,6 +49,8 @@ def improveDependencies(pom) {
         sourceSets.test.groovy.filter.include "**/*.gpp", "**/*.grunit", "**/*.gpptl", "**/*.groovy"
 
         compileTestGroovy.dependsOn << ["$prj:compileGroovy"]
+
+        test.maxParallelForks = 3
     }
 
     project(prj) {

@@ -115,7 +115,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
         if (foundMethod == null) {
             // Try some property with 'call' method.
             Object prop = resolveCallableProperty(compiler, methodName, type, false);
-            if (prop != null && prop != PropertyUtil.GET_UNRESOLVED) {
+            if (prop != null && !(prop instanceof PropertyUtil.GetUnresolved)) {
                 final MethodNode callMethod = resolveCallMethod(compiler, argTypes, prop);
                 if (callMethod != null) {
                     return createCallMethodCall(exp, compiler, methodName, args, object, prop, callMethod, type);
@@ -233,7 +233,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
                 if (exp.isImplicitThis() || !(thisType instanceof ClosureClassNode) || isSuper) {
                     // Try some property with 'call' method.
                     final Object prop = resolveCallableProperty(compiler, methodName, declaringType, staticOnly);
-                    if (prop != null && prop != PropertyUtil.GET_UNRESOLVED) {
+                    if (prop != null && !(prop instanceof PropertyUtil.GetUnresolved)) {
                         final MethodNode callMethod = resolveCallMethod(compiler, argTypes, prop);
                         if (callMethod != null) {
                             return createCallMethodCall(exp, compiler, methodName, args, createThisFetchingObject(exp, compiler, thisType), prop, callMethod, declaringType);
@@ -370,7 +370,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
         }
         else {
             final Object prop = resolveCallableProperty(compiler, methodName, thisType, false);
-            if (prop != null && prop != PropertyUtil.GET_UNRESOLVED) {
+            if (prop != null && !(prop instanceof PropertyUtil.GetUnresolved)) {
                 final MethodNode callMethod = resolveCallMethod(compiler, argTypes, prop);
                 if (callMethod != null) {
                     return createCallMethodCall(exp, compiler, methodName, args, createThisFetchingObject(exp, compiler, thisType), prop, callMethod, thisType);
@@ -400,7 +400,7 @@ public class MethodCallExpressionTransformer extends ExprTransformer<MethodCallE
             if (foundMethod == null) {
                 // Try some property with 'call' method.
                 final Object prop = resolveCallableProperty(compiler, methodName, type, true);
-                if (prop != null && prop != PropertyUtil.GET_UNRESOLVED) {
+                if (prop != null && !(prop instanceof PropertyUtil.GetUnresolved)) {
                     final MethodNode callMethod = resolveCallMethod(compiler, argTypes, prop);
                     if (callMethod != null) {
                         return createCallMethodCall(exp, compiler, methodName, args, null, prop, callMethod, type);

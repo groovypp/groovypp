@@ -61,4 +61,35 @@ class A {
        assert map.lambada == 239
         """
     }
+
+    void testSetUnresolvedWithInference () {
+        shell.evaluate """
+  @Typed package p
+
+  class A {
+      String prop
+
+      String toString() { prop }
+  }
+
+  class B {
+      def value
+
+      void setUnresolvedProperty(String name, A value){
+          this.value = "\$name \$value"
+      }
+  }
+
+
+  assert new B()[mama: [prop: 'papa']].value == 'mama papa'
+
+  B b
+  b = [mama: [prop: 'papa']]
+  assert b.value == 'mama papa'
+
+  b = []
+  b.mama = [prop: 'papa']
+  assert b.value == 'mama papa'
+        """
+    }
 }
