@@ -32,11 +32,8 @@ import org.codehaus.groovy.classgen.Verifier;
 import org.mbte.groovypp.compiler.flow.MapWithListExpression;
 import org.objectweb.asm.Opcodes;
 
-import java.io.Reader;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ArrayList
-import groovypp.text.GppScript;
+
+import groovypp.text.GppTemplateScript;
 
 
 @GroovyASTTransformation(phase = CompilePhase.CONVERSION)
@@ -330,7 +327,8 @@ import groovypp.text.GppScript;
             return new AntlrParserPlugin() {
                 public Reduction parseCST(SourceUnit sourceUnit, Reader reader) throws CompilationFailedException {
                     if(sourceUnit.getName().endsWith(".gpptl")) {
-                        sourceUnit.configuration.scriptBaseClass = GppScript.name
+                        if(!sourceUnit.configuration.scriptBaseClass)
+                            sourceUnit.configuration.scriptBaseClass = GppTemplateScript.name
                         return super.parseCST(sourceUnit, GppSimpleTemplateEngine.createScriptSource(reader));
                     }
                     else

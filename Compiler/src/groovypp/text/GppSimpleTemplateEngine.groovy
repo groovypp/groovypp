@@ -1,12 +1,15 @@
 package groovypp.text;
 
 import org.codehaus.groovy.control.CompilationFailedException;
-import org.codehaus.groovy.runtime.InvokerHelper
+
+
 import groovy.text.TemplateEngine
 import groovy.text.Template
 import org.codehaus.groovy.control.CompilerConfiguration
-import java.security.PrivilegedAction
-import java.security.AccessController;
+
+import org.codehaus.groovy.util.ManagedReference
+import java.util.concurrent.ConcurrentHashMap
+import org.codehaus.groovy.util.ReferenceManager;
 
 /**
  * Processes template source files substituting variables and expressions into
@@ -82,9 +85,9 @@ import java.security.AccessController;
         this(GppSimpleTemplateEngine.classLoader)
     }
 
-    GppSimpleTemplateEngine(ClassLoader parentLoader) {
+    GppSimpleTemplateEngine(ClassLoader parentLoader, String scriptClass = GppTemplateScript.name) {
         def config = new CompilerConfiguration()
-        config.scriptBaseClass = GppScript.name
+        config.scriptBaseClass = scriptClass
         loader = [parentLoader, config]
     }
 
@@ -108,7 +111,7 @@ import java.security.AccessController;
 
     private static class SimpleTemplate implements Template {
 
-        protected Class<GppScript> scriptClass
+        protected Class<GppTemplateScript> scriptClass
 
         private boolean open
 
@@ -324,5 +327,39 @@ import java.security.AccessController;
             open = true
         }
 
+    }
+
+    class CacheEntry extends ManagedReference<Class> {
+        final File path
+
+        CacheEntry(File path, Class cls) {
+            super(ReferenceManager.getDefaultSoftBundle(), cls)
+            this.path = path
+        }
+
+        void finalizeReference() {
+            cache.remove(path, this)
+            super.finalizeReference()
+        }
+    }
+
+    protected final ConcurrentHashMap cache = []
+
+    Class<GppTemplateScript> getTemplateClass(File file) {
+        file = file.canonicalFile
+        CacheEntry gotEntry = cache.get(file)
+        Class got = gotEntry?.get()
+        if(!got) {
+            if(!file.exists())
+                throw new IOException("No such file $file")
+
+            if(file.directory)
+                throw new IOException("File $file is directory")
+
+            SimpleTemplate template = createTemplate(file)
+            cache.put(file, new CacheEntry(file, template.scriptClass))
+            got = template.scriptClass
+        }
+        got
     }
 }
