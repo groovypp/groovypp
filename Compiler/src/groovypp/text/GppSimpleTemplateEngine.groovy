@@ -79,7 +79,7 @@ import org.codehaus.groovy.util.ReferenceManager;
 
     private static int counter = 1
 
-    private GroovyClassLoader loader
+    protected GroovyClassLoader loader
 
     GppSimpleTemplateEngine() {
         this(GppSimpleTemplateEngine.classLoader)
@@ -109,7 +109,7 @@ import org.codehaus.groovy.util.ReferenceManager;
         [parse]
     }
 
-    private static class SimpleTemplate implements Template {
+    protected static class SimpleTemplate implements Template {
 
         protected Class<GppTemplateScript> scriptClass
 
@@ -345,6 +345,12 @@ import org.codehaus.groovy.util.ReferenceManager;
 
     protected final ConcurrentHashMap cache = []
 
+    protected Class<GppTemplateScript> compile(File file) {
+        SimpleTemplate template = createTemplate(file)
+        cache.put(file, new CacheEntry(file, template.scriptClass))
+        template.scriptClass
+    }
+
     Class<GppTemplateScript> getTemplateClass(File file) {
         file = file.canonicalFile
         CacheEntry gotEntry = cache.get(file)
@@ -358,7 +364,7 @@ import org.codehaus.groovy.util.ReferenceManager;
 
             SimpleTemplate template = createTemplate(file)
             cache.put(file, new CacheEntry(file, template.scriptClass))
-            got = template.scriptClass
+            got = compile(file)
         }
         got
     }
