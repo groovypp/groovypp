@@ -9,4 +9,16 @@ package groovypp.text
         run()
         out.flush()
     }
+
+    void println() {
+        out.println()
+    }
+
+    void print(Object value) {
+        out.print(value)
+    }
+
+    void println(Object value) {
+        out.println(value)
+    }
 }

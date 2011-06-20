@@ -329,16 +329,21 @@ import org.codehaus.groovy.util.ReferenceManager;
 
     }
 
-    class CacheEntry extends ManagedReference<Class> {
+    static class CacheEntry extends ManagedReference<Class> {
+        ConcurrentHashMap cache
         final File path
+        final long lastModified
 
-        CacheEntry(File path, Class cls) {
+        CacheEntry(ConcurrentHashMap cache, File path, Class cls) {
             super(ReferenceManager.getDefaultSoftBundle(), cls)
+            this.cache = cache
             this.path = path
+            this.lastModified = path.lastModified()
         }
 
         void finalizeReference() {
             cache.remove(path, this)
+            cache = null
             super.finalizeReference()
         }
     }
@@ -346,8 +351,9 @@ import org.codehaus.groovy.util.ReferenceManager;
     protected final ConcurrentHashMap cache = []
 
     protected Class<GppTemplateScript> compile(File file) {
+        logAttemptToCompile(file)
         SimpleTemplate template = createTemplate(file)
-        cache.put(file, new CacheEntry(file, template.scriptClass))
+        cache.put(file, new CacheEntry(cache, file, template.scriptClass))
         template.scriptClass
     }
 
@@ -355,6 +361,14 @@ import org.codehaus.groovy.util.ReferenceManager;
         file = file.canonicalFile
         CacheEntry gotEntry = cache.get(file)
         Class got = gotEntry?.get()
+        if(got && gotEntry.lastModified != file.lastModified()) {
+            try {
+                got = compile(file)
+            }
+            catch(Throwable t) {
+                logCompilationError(t)
+            }
+        }
         if(!got) {
             if(!file.exists())
                 throw new IOException("No such file $file")
@@ -362,10 +376,21 @@ import org.codehaus.groovy.util.ReferenceManager;
             if(file.directory)
                 throw new IOException("File $file is directory")
 
-            SimpleTemplate template = createTemplate(file)
-            cache.put(file, new CacheEntry(file, template.scriptClass))
-            got = compile(file)
+            try {
+                got = compile(file)
+            }
+            catch(Throwable t) {
+                logCompilationError(t)
+                throw t
+            }
         }
         got
+    }
+
+    protected void logAttemptToCompile(File file) {
+    }
+
+    protected void logCompilationError(Throwable throwable) {
+        throwable.printStackTrace(System.err)
     }
 }
