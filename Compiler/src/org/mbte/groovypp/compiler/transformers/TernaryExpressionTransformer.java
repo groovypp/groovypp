@@ -29,7 +29,8 @@ import org.objectweb.asm.Opcodes;
 
 public class TernaryExpressionTransformer extends ExprTransformer<TernaryExpression> {
     public Expression transform(TernaryExpression exp, CompilerTransformer compiler) {
-        InnerClassNode newType = new InnerClassNode(compiler.classNode, compiler.getNextClosureName(), ACC_PUBLIC|ACC_SYNTHETIC, ClassHelper.OBJECT_TYPE);
+        // we use non-inner class here because there is nothing to generate
+        ClassNode newType = new ClassNode(compiler.getNextClosureName(), ACC_PUBLIC|ACC_SYNTHETIC, ClassHelper.OBJECT_TYPE);
         newType.setInterfaces(new ClassNode[] {TypeUtil.TTERNARY});
         final Untransformed untransformed = new Untransformed(exp, newType);
         return untransformed.improve(compiler);
