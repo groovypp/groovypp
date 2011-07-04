@@ -36,6 +36,7 @@ public class MapExpressionTransformer extends ExprTransformer<MapExpression> {
         InnerClassNode newType = new InnerClassNode(compiler.classNode, compiler.getNextClosureName(), ACC_PUBLIC|ACC_SYNTHETIC, ClassHelper.OBJECT_TYPE);
         newType.setModule(compiler.classNode.getModule());
         newType.setInterfaces(new ClassNode[] {TypeUtil.TMAP});
+        TypeUtil.detachInnerClass(newType);
         return new Untransformed(exp, newType);
     }
 

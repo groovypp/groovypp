@@ -23,12 +23,15 @@ import org.codehaus.groovy.ast.MethodNode;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.objectweb.asm.Opcodes;
 
+import java.util.Iterator;
+
 public class UncertainClassNode<T extends Expression> extends InnerClassNode {
     protected final T expression;
     protected final MethodNode outerMethod;
 
     public UncertainClassNode(T expression, MethodNode owner, String name) {
         super(owner.getDeclaringClass(), name, Opcodes.ACC_PRIVATE|Opcodes.ACC_FINAL, ClassHelper.OBJECT_TYPE, ClassNode.EMPTY_ARRAY, null);
+        TypeUtil.detachInnerClass(this);
         this.expression = expression;
         setSourcePosition(expression);
         expression.setType(this);
@@ -47,4 +50,5 @@ public class UncertainClassNode<T extends Expression> extends InnerClassNode {
     boolean isAssignableTo (ClassNode type) {
         return false;
     }
+
 }

@@ -65,8 +65,8 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
         } else if (parent instanceof ClassNode) {
             classNode = (ClassNode) parent;
-            TypePolicy classPolicy = getPolicy(classNode, source, TypePolicy.DYNAMIC);
 
+            TypePolicy classPolicy = getPolicy(classNode, source, TypePolicy.DYNAMIC);
             allMethods(source, toProcess, classNode, classPolicy);
         } else if (parent instanceof PackageNode) {
             TypePolicy modulePolicy = getPolicy(parent, source, TypePolicy.DYNAMIC);
@@ -233,7 +233,7 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
     private void addMethodToProcessingQueue(final SourceUnit source, final Map<MethodNode, TypePolicy> toProcess, final TypePolicy methodPolicy, final MethodNode mn, final LinkedList<MethodNode> methods) {
         final Statement code = mn.getCode();
-        if (code == null)
+        if (code == null || mn.getDeclaringClass().isInterface())
             return;
 
         toProcess.put(mn, methodPolicy);

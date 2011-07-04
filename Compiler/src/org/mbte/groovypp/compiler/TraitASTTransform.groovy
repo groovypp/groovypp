@@ -129,10 +129,14 @@ import groovypp.text.GppTemplateScript;
 
             InnerClassNode categoryClassNode = null;
 
-            for (FieldNode fieldNode : classNode.getFields()) {
+            for (Iterator<FieldNode> it = classNode.getFields().iterator(); it.hasNext(); ) {
+                FieldNode fieldNode = it.next();
                 if (fieldNode.isStatic()) {
-                    innerClassNode.addField(fieldNode);
+//                    innerClassNode.addField(fieldNode);
                     continue;
+                }
+                else {
+                    it.remove();
                 }
 
                 final String getterName = "get" + Verifier.capitalize(fieldNode.getName());
@@ -180,7 +184,10 @@ import groovypp.text.GppTemplateScript;
                 innerClassNode.addField(fieldNode);
             }
 
-            classNode.getFields().clear();
+//            classNode.getFields().clear();
+            if(classNode.getField("_n_o_u_s_e_") == null) {
+                classNode.addField("_n_o_u_s_e_", ACC_PUBLIC|ACC_STATIC|ACC_FINAL,ClassHelper.OBJECT_TYPE, new ClassExpression(ClassHelper.OBJECT_TYPE))
+            }
             classNode.getProperties().clear();
 
             ArrayList<MethodNode> toRemove = null;

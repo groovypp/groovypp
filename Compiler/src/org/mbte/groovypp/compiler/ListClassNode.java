@@ -25,5 +25,6 @@ public class ListClassNode extends UncertainClassNode<ListExpressionTransformer.
     public ListClassNode(ListExpressionTransformer.Untransformed ce, MethodNode owner, String name) {
         super(ce, owner, name);
         setInterfaces(new ClassNode[]{TypeUtil.TLIST});
+        TypeUtil.detachInnerClass(this);
     }
 }

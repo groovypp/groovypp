@@ -121,6 +121,7 @@ public class VariableExpressionTransformer extends ExprTransformer<VariableExpre
                 InnerClassNode newType = new InnerClassNode(classNode, compiler.getNextClosureName(),
                         ACC_PUBLIC|ACC_SYNTHETIC, ClassHelper.OBJECT_TYPE);
                 newType.setInterfaces(new ClassNode[] {TypeUtil.TTHIS});
+                TypeUtil.detachInnerClass(newType);
                 return newType;
             } else {
                 return classNode;

@@ -109,6 +109,13 @@ public class TypeUtil {
         return false;
     }
 
+    public static void detachInnerClass(InnerClassNode classNode) {
+        for(Iterator<InnerClassNode> it = classNode.getOuterClass().getInnerClasses(); it.hasNext(); ) {
+            if(it.next() == classNode)
+                it.remove();
+        }
+    }
+
     public static class Null {
     }
 
