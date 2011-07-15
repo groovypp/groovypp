@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 MBTE Sweden AB.
+ * Copyright 2009-2011 MBTE Sweden AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mbte.groovypp.compiler.flow;
+package org.mbte.groovypp.compiler.flow
 
-import org.codehaus.groovy.ast.ASTNode;
-import org.codehaus.groovy.ast.ClassHelper;
-import org.codehaus.groovy.ast.ClassNode;
-import org.codehaus.groovy.ast.GroovyCodeVisitor;
-import org.codehaus.groovy.ast.stmt.Statement;
-import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
+import org.codehaus.groovy.ast.ASTNode
+import org.codehaus.groovy.ast.ClassHelper
+import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.GroovyCodeVisitor
+import org.codehaus.groovy.ast.stmt.Statement
+import org.mbte.groovypp.compiler.bytecode.BytecodeExpr
+import org.objectweb.asm.Label
+import org.objectweb.asm.MethodVisitor
 
-public class LabelExpression extends BytecodeExpr {
-    public final Label label = new Label();
+@Typed class LabelExpression extends BytecodeExpr {
+    public final Label label = []
 
-    public LabelExpression(ASTNode parent) {
+    LabelExpression(ASTNode parent) {
         super(parent, ClassHelper.VOID_TYPE);
     }
 
