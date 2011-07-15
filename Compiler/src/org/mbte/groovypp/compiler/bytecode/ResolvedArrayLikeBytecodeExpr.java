@@ -261,7 +261,7 @@ public class ResolvedArrayLikeBytecodeExpr extends ResolvedLeftExpr {
             }
         };
 
-        final BytecodeExpr loadIndex = new BytecodeExpr(this, ClassHelper.int_TYPE) {
+        final BytecodeExpr loadIndex = new BytecodeExpr(this, index.getType()) {
             @Override
             protected void compile(MethodVisitor mv) {
             }
