@@ -344,9 +344,11 @@ import groovypp.text.GppTemplateScript;
 
                 protected Expression declarationExpression(AST variableDef) {
                     final DeclarationExpression expression = (DeclarationExpression) super.declarationExpression(variableDef);
-                    final VariableExpression variableExpression = expression.getVariableExpression();
-                    if(!ClassHelper.isPrimitiveType(variableExpression.getOriginType())) {
-                        variableExpression.setType(variableExpression.getOriginType());
+                    if(!expression.isMultipleAssignmentDeclaration()) {
+                        final VariableExpression variableExpression = expression.getVariableExpression();
+                        if(!ClassHelper.isPrimitiveType(variableExpression.getOriginType())) {
+                            variableExpression.setType(variableExpression.getOriginType());
+                        }
                     }
                     return expression;
                 }
