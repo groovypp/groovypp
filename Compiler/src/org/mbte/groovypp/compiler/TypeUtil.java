@@ -148,7 +148,8 @@ public class TypeUtil {
             classToTransformTo.equals(boolean_TYPE) ||
             classToTransformTo.equals(Boolean_TYPE))
             if (!classToTransformFrom.implementsInterface(TypeUtil.TMAP) &&
-                !classToTransformFrom.implementsInterface(TypeUtil.TLIST)) return true;
+                !classToTransformFrom.implementsInterface(TypeUtil.TLIST) &&
+                !classToTransformFrom.implementsInterface(TypeUtil.TCLOSURE)) return true;
 
         classToTransformTo = TypeUtil.wrapSafely(classToTransformTo);
         classToTransformFrom = TypeUtil.wrapSafely(classToTransformFrom);
