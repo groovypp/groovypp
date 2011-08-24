@@ -630,7 +630,10 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
         } else {
             if (TypeUtil.isNumericalType(exp.getType()) && TypeUtil.isNumericalType(expr.getType())) {
                 // b)
-                return new Cast(exp.getType(), expr);
+                if(!exp.getType().equals(expr.getType()))
+                    return new Cast(exp.getType(), expr);
+                else
+                    return expr;
             } else {
                 ClassNode rtype = TypeUtil.wrapSafely(expr.getType());
                 if (rtype.equals(TypeUtil.NULL_TYPE) && ClassHelper.isPrimitiveType(exp.getType())) {
