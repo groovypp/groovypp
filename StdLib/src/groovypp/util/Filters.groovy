@@ -94,7 +94,7 @@ class Filters extends DefaultGroovyMethodsSupport {
      */
     static <T> T find(Iterator<T> self, Predicate1<T> condition) {
         while (self.hasNext()) {
-            T el = self.next()
+            def el = self.next()
             if (condition.call(el))
                 return el
         }

@@ -57,7 +57,7 @@ public class StaticCompiler extends CompilerTransformer implements Opcodes {
     public StaticCompiler(SourceUnit su, SourceUnitContext context, StaticMethodBytecode methodBytecode, StackAwareMethodAdapter mv, org.mbte.groovypp.compiler.CompilerStack compileStack, int debug, boolean fastArrays, TypePolicy policy, String baseClosureName) {
         super(su, methodBytecode.methodNode.getDeclaringClass(), methodBytecode.methodNode, mv, compileStack, debug, fastArrays, policy, baseClosureName, context);
         this.methodBytecode = methodBytecode;
-        shouldImproveReturnType = methodNode.getName().equals("doCall") || methodNode.getReturnType() == TypeUtil.IMPROVE_TYPE;
+        shouldImproveReturnType = methodNode.getName().equals("doCall") && !ClassHelper.isPrimitiveType(methodNode.getReturnType()) || methodNode.getReturnType() == TypeUtil.IMPROVE_TYPE;
 
         mv.visitLabel(startLabel);
         if (methodNode instanceof ConstructorNode && !((ConstructorNode) methodNode).firstStatementIsSpecialConstructorCall()) {

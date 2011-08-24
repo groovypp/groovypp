@@ -153,18 +153,26 @@ public class ClosureUtil {
 
                 improveClosureType(closureType, baseType);
                 if(!missing.getReturnType().equals(ClassHelper.VOID_TYPE)) {
-                    ClassNode returnType = TypeUtil.wrapSafely(missing.getReturnType());
-                    ClassNode ret = TypeUtil.getSubstitutedType(returnType, missing.getDeclaringClass(), baseType);
-                    if ((returnType.equals(ret) || !returnType.isDerivedFrom(ret)) && !returnType.implementsInterface(ret)) {
-                        returnType = ret;
+                    if(ClassHelper.isPrimitiveType(missing.getReturnType())) {
+                        if (method instanceof ClosureMethodNode.Dependent)
+                            ((ClosureMethodNode.Dependent)method).getMaster().setReturnType(missing.getReturnType());
+                        else
+                            method.setReturnType(missing.getReturnType());
                     }
+                    else {
+                        ClassNode returnType = TypeUtil.wrapSafely(missing.getReturnType());
+                        ClassNode ret = TypeUtil.getSubstitutedType(returnType, missing.getDeclaringClass(), baseType);
+                        if ((returnType.equals(ret) || !returnType.isDerivedFrom(ret)) && !returnType.implementsInterface(ret)) {
+                            returnType = ret;
+                        }
 
-                    if(returnType.equals(ClassHelper.OBJECT_TYPE))
-                        returnType = TypeUtil.wrapSafely(missing.getReturnType());
-                    if (method instanceof ClosureMethodNode.Dependent)
-                        ((ClosureMethodNode.Dependent)method).getMaster().setReturnType(returnType);
-                    else
-                        method.setReturnType(returnType);
+                        if(returnType.equals(ClassHelper.OBJECT_TYPE))
+                            returnType = TypeUtil.wrapSafely(missing.getReturnType());
+                        if (method instanceof ClosureMethodNode.Dependent)
+                            ((ClosureMethodNode.Dependent)method).getMaster().setReturnType(returnType);
+                        else
+                            method.setReturnType(returnType);
+                    }
                 }
 
                 ArrayList<MethodNode> toCompile = new ArrayList<MethodNode>();
@@ -244,7 +252,7 @@ public class ClosureUtil {
                                             BytecodeHelper.getMethodDescriptor(doCall.getReturnType(), doCall.getParameters())
                                     );
 
-                                    if (missed.getReturnType() != ClassHelper.VOID_TYPE) {
+                                    if (missed.getReturnType() != ClassHelper.VOID_TYPE && !missed.getReturnType().equals(doCall.getReturnType())) {
                                         BytecodeExpr.box(doCall.getReturnType(), mv);
                                         BytecodeExpr.checkCast(TypeUtil.wrapSafely(doCall.getReturnType()), mv);
                                         BytecodeExpr.unbox(missed.getReturnType(), mv);
