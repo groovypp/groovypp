@@ -28,8 +28,6 @@ import org.mbte.groovypp.compiler.Register;
 import org.mbte.groovypp.compiler.TypeUtil;
 import org.mbte.groovypp.compiler.bytecode.BytecodeExpr;
 import org.mbte.groovypp.compiler.bytecode.ResolvedVarBytecodeExpr;
-import org.mbte.groovypp.compiler.transformers.ClassExpressionTransformer;
-import org.mbte.groovypp.compiler.transformers.DeclarationExpressionTransformer;
 import org.mbte.groovypp.compiler.transformers.ExprTransformer;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -44,7 +42,7 @@ public class VariableExpressionTransformer extends ExprTransformer<VariableExpre
                     return new Self(exp, compiler);
                 } else {
 //                 compiler.addError("Cannot use 'this' in static method", exp);
-                    return ClassExpressionTransformer.newExpr(exp, compiler.classNode);
+                    return ClassExpressionTransformer.newExpr(exp, compiler.classNode, compiler);
                 }
             }
         }
@@ -57,7 +55,7 @@ public class VariableExpressionTransformer extends ExprTransformer<VariableExpre
                     return new Self(exp, compiler);
                 } else {
 //                 compiler.addError("Cannot use 'this' in static method", exp);
-                    return ClassExpressionTransformer.newExpr(exp, compiler.classNode.redirect().getSuperClass());
+                    return ClassExpressionTransformer.newExpr(exp, compiler.classNode.redirect().getSuperClass(), compiler);
                 }
             }
         }

@@ -33,7 +33,6 @@ import org.mbte.groovypp.compiler.flow.MapWithListExpression;
 import org.mbte.groovypp.compiler.flow.MultiPropertySetExpression;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.*;
 
 import java.util.*;
 
@@ -625,7 +624,7 @@ public class CastExpressionTransformer extends ExprTransformer<CastExpression> {
         if (exp.isCoerce()) {
             // a)
             final ClassNode type = TypeUtil.wrapSafely(exp.getType());
-            Expression arg = ClassExpressionTransformer.newExpr(exp, type);
+            Expression arg = ClassExpressionTransformer.newExpr(exp, type, compiler);
             return new AsType(exp, type, expr, (BytecodeExpr) arg);
         } else {
             if (TypeUtil.isNumericalType(exp.getType()) && TypeUtil.isNumericalType(expr.getType())) {
