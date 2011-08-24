@@ -233,7 +233,7 @@ public class CompileASTTransform implements ASTTransformation, Opcodes {
 
     private void addMethodToProcessingQueue(final SourceUnit source, final Map<MethodNode, TypePolicy> toProcess, final TypePolicy methodPolicy, final MethodNode mn, final LinkedList<MethodNode> methods) {
         final Statement code = mn.getCode();
-        if (code == null || mn.getDeclaringClass().isInterface())
+        if (code == null || mn.getDeclaringClass().isInterface() && !mn.getName().equals("<clinit>"))
             return;
 
         toProcess.put(mn, methodPolicy);
