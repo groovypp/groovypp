@@ -99,7 +99,7 @@ public class ClassExpressionTransformer extends ExprTransformer<ClassExpression>
                                 mv.visitFieldInsn(PUTSTATIC, BytecodeHelper.getClassInternalName(compiler.classNode), staticFieldName, "Ljava/lang/Class;");
                             }
                         };
-                        compiler.classNode.addField(staticFieldName, ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC, ClassHelper.CLASS_Type, null);
+                        compiler.classNode.addField(staticFieldName, ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC, TypeUtil.withGenericTypes(ClassHelper.CLASS_Type,type), null);
                         final ExpressionStatement expressionStatement = new ExpressionStatement(class$);
                         final LinkedList<Statement> statements = new LinkedList<Statement>();
                         statements.add(expressionStatement);

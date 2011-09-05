@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@Typed package org.mbte.groovypp.compiler
+package org.mbte.groovypp.compiler
 
 import org.codehaus.groovy.tools.FileSystemCompiler
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -23,9 +23,9 @@ import groovy.util.test.GroovyFileSystemCompilerTestCase
 class CompileGrettyTest extends GroovyFileSystemCompilerTestCase {
 
   CompileGrettyTest () {
-    def ff = new File("../gretty/src")
+    def ff = new File("../gretty/gretty/src")
     if(ff.exists() && ff.directory) {
-        def file = new File("Gretty/lib")
+        def file = new File("../gretty/lib")
         if(file.exists() && file.directory) {
           additionalClasspath = ""
           def files = file.listFiles()
@@ -38,9 +38,9 @@ class CompileGrettyTest extends GroovyFileSystemCompilerTestCase {
   }
 
   void testCompile () {
-    def ff = new File("../gretty/src")
+    def ff = new File("../gretty/gretty/src")
     if(ff.exists() && ff.directory) {
-        def file = new File("Gretty/lib")
+        def file  = new File("../gretty/lib")
         if(file.exists() && file.directory) {
           def finder = new FileNameFinder()
           def srcDir = ff.absolutePath
@@ -49,7 +49,33 @@ class CompileGrettyTest extends GroovyFileSystemCompilerTestCase {
           names.addAll(finder.getFileNames(srcDir, "**/*.java"))
 
           compiler.compile (names as String[])
+
+          def tc = new CompileGrettyTest()
+          try {
+              tc.additionalClasspath = tc.additionalClasspath + compiler.unit.configuration.targetDirectory.absolutePath + ":"
+              tc.setUp()
+              tc.ctest ()
+          }
+          finally {
+              tc.tearDown()
+          }
         }
     }
+  }
+
+  private void ctest () {
+      def ff = new File("../gretty/gretty/tests")
+      if(ff.exists() && ff.directory) {
+          def file  = new File("../gretty/lib")
+          if(file.exists() && file.directory) {
+            def finder = new FileNameFinder()
+            def srcDir = ff.absolutePath
+
+            def names = finder.getFileNames(srcDir, "**/*.groovy")
+            names.addAll(finder.getFileNames(srcDir, "**/*.java"))
+
+            compiler.compile (names as String[])
+          }
+      }
   }
 }

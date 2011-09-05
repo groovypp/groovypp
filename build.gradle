@@ -1,6 +1,6 @@
 apply plugin: 'maven'
 
-gppVer = '0.4.297'
+gppVer = '0.9.0'
 
 def improveDependencies(pom) {
     pom.dependencies = pom.dependencies.findAll { dep ->
@@ -12,7 +12,7 @@ def improveDependencies(pom) {
     println()
 }
 
-[':G17X' : '1.7.10', ':G18X' : '1.8.0'].each { prj, groovyVer ->
+[':G17X' : '1.7.10', ':G18X' : '1.8.2'].each { prj, groovyVer ->
 
     project("Test${prj.substring(1)}") {
         apply plugin: 'groovy'
@@ -75,7 +75,7 @@ def improveDependencies(pom) {
             groovy(group: 'org.codehaus.groovy', name: 'groovy', version: groovyVer)
 
             compile(group: 'org.codehaus.groovy', name: 'groovy', version: groovyVer)
-            compile(group: 'org.mbte.groovypp', name: 'groovypp-nodep', version: "0.4.295_${groovyVer}")
+            compile(group: 'org.mbte.groovypp', name: 'groovypp-nodep', version: "0.4.295_${groovyVer == '1.8.2' ? '1.8.0' : groovyVer }")
             compile "junit:junit:4.8.1"
         }
 
